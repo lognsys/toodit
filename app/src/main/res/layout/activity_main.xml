@@ -1,30 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:design="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-
-    <android.support.design.widget.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:design="http://schema.android.com/apk/res/android.support.design"
-        android:id="@+id/navigation"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_gravity="bottom"
-        app:itemBackground="@color/black"
-        app:itemIconTint="@android:color/white"
-        design:menu="@menu/bottom_nav" />
+        android:background="@color/white"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-</FrameLayout>
 
+        <android.support.design.widget.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:design="http://schema.android.com/apk/res/android.support.design"
+            android:id="@+id/navigation"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            app:itemBackground="@color/black"
+            app:itemIconTint="@android:color/white"
+            app:itemTextColor="@android:color/white"
+            design:menu="@menu/bottom_nav" />
+
+    </FrameLayout>
+</LinearLayout>
 
     <!--</LinearLayout>-->

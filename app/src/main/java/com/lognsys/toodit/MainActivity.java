@@ -1,6 +1,7 @@
 package com.lognsys.toodit;
 
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.ColorRes;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
+import com.lognsys.toodit.util.FragmentTag;
 
 import static android.R.color.holo_red_dark;
 
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem selectedItem;
         if (savedInstanceState != null) {
-            mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM, 0);
+            mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM);
             selectedItem = mBottomNav.getMenu().findItem(mSelectedItem);
         } else {
             selectedItem = mBottomNav.getMenu().getItem(0);
@@ -87,23 +89,27 @@ public class MainActivity extends AppCompatActivity {
      */
     private void selectFragment(MenuItem item) {
         Fragment fragment = null;
+        String fragmentTag = "";
         // init corresponding fragment
         switch (item.getItemId()) {
             case R.id.menu_home:
                 fragment = HomeFragment.newInstance();
+                fragmentTag = FragmentTag.FRAGMENT_HOME.getFragmentTag();
                 break;
             case R.id.menu_notifications:
                 fragment = NotificationFragment.newInstance(getString(R.string.text_notification),
                         getColorFromRes(R.color.colorAccent));
+                fragmentTag = FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag();
                 break;
             case R.id.menu_cart:
                 Toast.makeText(getApplicationContext(), "Cart is Empty!",
                         Toast.LENGTH_SHORT).show();
-
+                fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
                 break;
             case R.id.menu_settings:
                 Toast.makeText(getApplicationContext(), "Settings Work In Progress!",
                         Toast.LENGTH_SHORT).show();
+                fragmentTag = FragmentTag.FRAGMENT_SETTING.getFragmentTag();
                 break;
         }
 
@@ -128,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.container, fragment, fragment.getTag());
+            ft.replace(R.id.container, fragment, fragmentTag);
             ft.commit();
         }
     }
@@ -141,8 +147,6 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setLogo(R.drawable.toodit_logo);
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-
-
         }
     }
 

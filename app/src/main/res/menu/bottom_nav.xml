@@ -3,17 +3,17 @@
     <item
         android:id="@+id/menu_home"
         android:icon="@mipmap/ic_home_white_24dp"
-        android:title="" />
+        android:title="Home" />
     <item
         android:id="@+id/menu_notifications"
         android:icon="@mipmap/ic_notifications_none_white_24dp"
-        android:title="" />
+        android:title="Notification" />
     <item
         android:id="@+id/menu_cart"
         android:icon="@mipmap/ic_date_range_white_24dp"
-        android:title="" />
+        android:title="Cart" />
     <item
         android:id="@+id/menu_settings"
         android:icon="@mipmap/ic_settings_white_24dp"
-        android:title="" />
+        android:title="Settings" />
 </menu>
