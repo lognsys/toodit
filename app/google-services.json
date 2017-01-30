@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "164952194658",
+    "firebase_url": "https://toodit-14dd3.firebaseio.com",
+    "project_id": "toodit-14dd3",
+    "storage_bucket": "toodit-14dd3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164952194658:android:be82be4e0e27253e",
+        "android_client_info": {
+          "package_name": "com.lognsys.toodit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164952194658-dbs8c9lv9i4bm3q720eoapn8f8mt1v01.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lognsys.toodit",
+            "certificate_hash": "6F92ECA0B7BA5920FED5ECD0BC79071DDF5F4F58"
+          }
+        },
+        {
+          "client_id": "164952194658-fn5v9bkr3gdsov63vhfup566a810g4qj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzooeNERutV4TOtytfG4c43gtG33a5vHg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164952194658-fn5v9bkr3gdsov63vhfup566a810g4qj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
