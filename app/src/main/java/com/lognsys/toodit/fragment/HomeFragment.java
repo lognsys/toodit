@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.ImageAdapter;
 import com.lognsys.toodit.adapter.OutletsRecylerViewAdapter;
@@ -113,6 +114,12 @@ public class HomeFragment extends Fragment {
         return homeFragmentView;
     }
 
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((MainActivity)getActivity()).getSupportActionBar().show();
+    }
 
     // references to our images
     private Integer[] mThumbIds = {

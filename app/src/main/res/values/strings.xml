@@ -34,8 +34,14 @@
     <string name="text_notification">Text Notification</string>
     <string name="text_findmore">FIND MORE</string>
     <string name="text_outlet_title">Most Popular Food Outelets Here</string>
+    <string name="text_edit_profile">EDIT PROFILE</string>
+    <string name="text_logout">LOGOUT</string>
+    <string name="text_name_placeholder">Priyank Doshi</string>
+    <string name="text_location_placeholder">San Francisco, CA</string>
 
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--Profile  Strings -->
+    <string name="text_profile_title_order">My Orders</string>
+    <string name="text_profile_title_notification">Notifcations</string>
+    <string name="text_profile_title_privacy">Provacy Policy</string>
+    <string name="text_profile_title_tc">Terms and Conditions</string>
 </resources>

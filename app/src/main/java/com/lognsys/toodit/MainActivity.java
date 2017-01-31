@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
+import com.lognsys.toodit.fragment.SettingFragment;
 import com.lognsys.toodit.util.FragmentTag;
 
 import static android.R.color.holo_red_dark;
@@ -107,8 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
                 break;
             case R.id.menu_settings:
-                Toast.makeText(getApplicationContext(), "Settings Work In Progress!",
-                        Toast.LENGTH_SHORT).show();
+                fragment = new SettingFragment();
                 fragmentTag = FragmentTag.FRAGMENT_SETTING.getFragmentTag();
                 break;
         }
