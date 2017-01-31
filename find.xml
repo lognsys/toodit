@@ -1,7 +1,7 @@
 <application>
   <component name="FindSettings">
-    <option name="customScope" value="File '/Users/pdoshi/workspace/android_studio_ayurbaby/ayurbaby/src/main/java/com/lognsys/ayurbaby/database/UserDataSource.java'" />
-    <option name="defaultScopeName" value="File '/Users/pdoshi/workspace/android_studio_ayurbaby/ayurbaby/src/main/java/com/lognsys/ayurbaby/database/UserDataSource.java'" />
-    <option name="SEARCH_SCOPE" value="File '/Users/pdoshi/workspace/android_studio_ayurbaby/ayurbaby/src/main/java/com/lognsys/ayurbaby/database/UserDataSource.java'" />
+    <option name="customScope" value="Project 'TOODIT'" />
+    <option name="defaultScopeName" value="Project 'TOODIT'" />
+    <option name="SEARCH_SCOPE" value="Project 'TOODIT'" />
   </component>
 </application>
