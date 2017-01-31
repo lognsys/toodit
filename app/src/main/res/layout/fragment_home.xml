@@ -24,19 +24,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3">
+        android:layout_weight="4">
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:fillViewport="true">
-
-            <!--<android.support.v7.widget.RecyclerView-->
-            <!--android:id="@+id/recycler_view"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:scrollbars="vertical" />-->
-            s
 
             <GridView
                 android:id="@+id/gridview"
@@ -56,24 +49,24 @@
         </android.support.v4.widget.NestedScrollView>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.8"
-        android:gravity="center|top">
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0.8"-->
+        <!--android:gravity="center|top">-->
 
-        <Button
-            android:id="@+id/findmore_button"
-            style="?android:textAppearanceMedium"
-            android:layout_width="300dp"
-            android:layout_marginBottom="10dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/color_button"
-            android:drawableBottom="@android:color/holo_red_dark"
-            android:text="@string/text_findmore"
-            android:textColor="@android:color/holo_red_dark"
-            android:textStyle="bold" />
-    </LinearLayout>
+        <!--<Button-->
+            <!--android:id="@+id/findmore_button"-->
+            <!--style="?android:textAppearanceMedium"-->
+            <!--android:layout_width="40dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="10dp"-->
+            <!--android:background="@drawable/color_button"-->
+            <!--android:drawableBottom="@android:color/holo_red_dark"-->
+            <!--android:text="@string/text_findmore"-->
+            <!--android:textColor="@android:color/holo_red_dark"-->
+            <!--android:textStyle="bold" />-->
+    <!--</LinearLayout>-->
 
 </LinearLayout>
 
