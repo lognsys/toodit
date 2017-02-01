@@ -27,9 +27,7 @@ public class SettingFragment extends Fragment {
     private String loc;
 
     ListView profileListView;
-
-    //String[] titles = {"My Order", "Notification", "Privacy Policy", "Terms & Conditions", "", "", "" };
-    String[] titles ;
+    String[] titles;
 
     //Profile listview images in order
     Integer[] imgid = {
@@ -62,9 +60,6 @@ public class SettingFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
-
-
-
         return view;
     }
 
@@ -72,11 +67,11 @@ public class SettingFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MainActivity)getActivity()).getSupportActionBar().hide();
+//        ((MainActivity) getActivity()).getSupportActionBar().hide();
         ProfileListAdapter adapter = new ProfileListAdapter(getActivity(), titles, imgid);
         profileListView = (ListView) getView().findViewById(R.id.list);
         profileListView.setAdapter(adapter);
-
+        profileListView.setDivider(null);
         profileListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override

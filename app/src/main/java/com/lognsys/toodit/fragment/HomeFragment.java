@@ -37,7 +37,6 @@ public class HomeFragment extends Fragment {
     private Button findMoreBtn;
 
 
-
     public HomeFragment() {
         // Required empty public constructor
         Log.d(TAG, "HOME FRAGMENT CALLED");
@@ -78,7 +77,7 @@ public class HomeFragment extends Fragment {
         //Grid Layout Disable for now
         final GridView gridview = (GridView) homeFragmentView.findViewById(R.id.gridview);
         ImageAdapter a = new ImageAdapter(getContext());
-         gridview.setAdapter(a);
+        gridview.setAdapter(a);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
@@ -88,27 +87,15 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        findMoreBtn = (Button)homeFragmentView.findViewById(R.id.findmore_button);
-        findMoreBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                   ImageAdapter a = new ImageAdapter(getContext());
-                    a.startLazyLoadImages();
-                    gridview.setAdapter(a);
-            }
-        });
-
-
-
-        // Disabling Recyleview
-//        lLayout = new GridLayoutManager(getActivity(), 3);
-//
-//        RecyclerView rView = (RecyclerView)homeFragmentView.findViewById(R.id.recycler_view);
-//        rView.setHasFixedSize(true);
-//        rView.setLayoutManager(lLayout);
-//
-//        OutletsRecylerViewAdapter rcAdapter = new OutletsRecylerViewAdapter(getActivity(),    mThumbIds);
-//        rView.setAdapter(rcAdapter);
+//        findMoreBtn = (Button) homeFragmentView.findViewById(R.id.findmore_button);
+//        findMoreBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ImageAdapter a = new ImageAdapter(getContext());
+//                a.startLazyLoadImages();
+//                gridview.setAdapter(a);
+//            }
+//        });
 
         // Inflate the layout for this fragment
         return homeFragmentView;
@@ -118,7 +105,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MainActivity)getActivity()).getSupportActionBar().show();
+        // ((MainActivity)getActivity()).getSupportActionBar().show();
     }
 
     // references to our images
