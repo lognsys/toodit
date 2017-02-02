@@ -41,7 +41,7 @@
 
     <!--Profile  Strings -->
     <string name="text_profile_title_order">My Orders</string>
-    <string name="text_profile_title_notification">Notifcations</string>
+    <string name="text_profile_title_notification">Notifications</string>
     <string name="text_profile_title_privacy">Privacy Policy</string>
     <string name="text_profile_title_tc">Terms and Conditions</string>
 </resources>
