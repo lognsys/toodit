@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
+import com.lognsys.toodit.fragment.CartFragment;
 import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
 import com.lognsys.toodit.fragment.SettingFragment;
@@ -109,9 +110,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_cart:
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
-                Toast.makeText(getApplicationContext(), "Cart is Empty!",
-                        Toast.LENGTH_SHORT).show();
-                fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
+
+                fragment = new CartFragment();
+               fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
+
+                /*getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_frame, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();*/
                 break;
             case R.id.menu_settings:
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
