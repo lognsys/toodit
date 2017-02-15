@@ -1,12 +1,13 @@
 package com.lognsys.toodit.fragment;
 
+import android.support.v4.app.Fragment;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.ImageAdapter;
 import com.lognsys.toodit.adapter.OutletsRecylerViewAdapter;
+import com.lognsys.toodit.util.FragmentTag;
 
 
 public class HomeFragment extends Fragment {
@@ -84,6 +86,21 @@ public class HomeFragment extends Fragment {
                                     int position, long id) {
                 Toast.makeText(getActivity(), "" + position,
                         Toast.LENGTH_SHORT).show();
+                //Akhilesh changes
+                if(position==7){
+
+                  // Fragment fragment1 = new Fragment();
+                    Fragment fragment = new FragmentCentralGrill();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+
+
+
+
+
+
+                }
             }
         });
 

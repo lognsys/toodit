@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="facebook_app_id">1311043985629691</string>
+    <string name="facebook_app_id">437742673223884</string>
+    <string name="google_client_id">332669786812-hge19ltme0f24o1lj9jmhdjb11v9cbe2.apps.googleusercontent.com
+</string>
+
 </resources>

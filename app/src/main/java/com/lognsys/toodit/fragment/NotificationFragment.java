@@ -5,13 +5,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
-
+import  com.lognsys.toodit.fragment.ListDataNotification;
 import com.lognsys.toodit.R;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 
 
 public class NotificationFragment extends Fragment {
@@ -19,14 +26,25 @@ public class NotificationFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_TEXT = "arg_text";
     private static final String ARG_COLOR = "arg_color";
+    private ListView lvNotification;
+    private ArrayList<ListDataNotification> myList = new ArrayList<ListDataNotification>();
+    MyBaseAdapter myBaseAdapter;
+    String[] notification = new String[]{
+            "Great Test, good service by The Central Hill ", "Yummy !! loving it"
 
+    };
+    String[] notificationDate = new String[]{
+            "Rahul Sharma", "Sneha"};
+
+    int [] image={R.drawable.tomato12,R.drawable.vegitable12};
 
     private String mText;
     private int mColor;
 
     private View mContent;
     private TextView mTextView;
-   // private OnFragmentInteractionListener mListener;
+
+    // private OnFragmentInteractionListener mListener;
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -36,7 +54,7 @@ public class NotificationFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param text Parameter 1.
+     * @param text  Parameter 1.
      * @param color Parameter 2.
      * @return A new instance of fragment NotificationFragment.
      */
@@ -53,6 +71,7 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mText = getArguments().getString(ARG_TEXT);
             mColor = getArguments().getInt(ARG_COLOR);
@@ -62,8 +81,13 @@ public class NotificationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_notification, container, false);
+        getDataInList();
+          lvNotification=(ListView)v.findViewById(R.id.lvNotification);
+        myBaseAdapter= new MyBaseAdapter(this.getActivity(), myList);
+        lvNotification.setAdapter(myBaseAdapter);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notification, container, false);
+        return v;
     }
 
 //    // TODO: Rename method, update argument and hook method into UI event
@@ -113,11 +137,11 @@ public class NotificationFragment extends Fragment {
         // retrieve text and color from bundle or savedInstanceState
         if (savedInstanceState == null) {
             Bundle args = getArguments();
-            mText = args.getString(ARG_TEXT);
-            mColor = args.getInt(ARG_COLOR);
+           // mText = args.getString(ARG_TEXT);
+           // mColor = args.getInt(ARG_COLOR);
         } else {
-            mText = savedInstanceState.getString(ARG_TEXT);
-            mColor = savedInstanceState.getInt(ARG_COLOR);
+           // mText = savedInstanceState.getString(ARG_TEXT);
+           // mColor = savedInstanceState.getInt(ARG_COLOR);
         }
 
         // initialize views
@@ -135,4 +159,84 @@ public class NotificationFragment extends Fragment {
         outState.putInt(ARG_COLOR, mColor);
         super.onSaveInstanceState(outState);
     }
+    public class MyBaseAdapter extends BaseAdapter {
+
+        private  ArrayList<ListDataNotification> myList = new ArrayList<ListDataNotification>();
+        LayoutInflater inflater;
+        Context context=getActivity();
+
+
+        public MyBaseAdapter(Context context, ArrayList<ListDataNotification> myList) {
+            this.myList = myList;
+            this.context = context;
+            inflater = LayoutInflater.from(this.context);
+        }
+
+        @Override
+        public int getCount() {
+            return myList.size();
+        }
+
+        @Override
+        public ListDataNotification getItem(int position) {
+            return myList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            NotificationFragment.MyBaseAdapter.MyViewHolder mViewHolder;
+
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.list_raw_notification, parent, false);
+                mViewHolder = new NotificationFragment.MyBaseAdapter.MyViewHolder(convertView);
+                convertView.setTag(mViewHolder);
+            } else {
+                mViewHolder = (NotificationFragment.MyBaseAdapter.MyViewHolder) convertView.getTag();
+            }
+
+            ListDataNotification currentListData = getItem(position);
+
+           mViewHolder.tvNotification.setText(currentListData.getNotification());
+            Log.e("check",currentListData.getNotification());
+            mViewHolder.tvNotificationDate.setText(currentListData.getNotificationdate());
+            mViewHolder.ivNotifyImage.setImageResource(currentListData.getImage());
+
+            return convertView;
+        }
+
+        private class MyViewHolder {
+            TextView tvNotification, tvNotificationDate;
+            ImageView ivNotifyImage;
+
+
+            public MyViewHolder(View item) {
+                tvNotification = (TextView) item.findViewById(R.id.tvNotification);
+                tvNotificationDate = (TextView) item.findViewById(R.id.tvNotificationDate);
+                ivNotifyImage=(ImageView)item.findViewById(R.id.ivNotifyImage);
+
+            }
+        }
+
+
+    }
+    private void getDataInList() {
+        for (int i = 0;i<notification.length; i++) {
+            // Create a new object for each list item
+            ListDataNotification ld = new ListDataNotification();
+            ld.setNotification(notification[i]);
+            ld.setNotificationdate(notificationDate[i]);
+            ld.setImage(image[i]);
+
+            // Add this object into the ArrayList myList
+            myList.add(ld);
+
+
+        }
+    }
+
 }

@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
+import com.lognsys.toodit.fragment.CartFragment;
 import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
 import com.lognsys.toodit.fragment.SettingFragment;
@@ -102,16 +103,21 @@ public class MainActivity extends AppCompatActivity {
                 fragmentTag = FragmentTag.FRAGMENT_HOME.getFragmentTag();
                 break;
             case R.id.menu_notifications:
-                item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                /*item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
                 fragment = NotificationFragment.newInstance(getString(R.string.text_notification),
-                        getColorFromRes(R.color.colorAccent));
+                        getColorFromRes(R.color.colorAccent));*/
+                fragment = new NotificationFragment();
+
                 fragmentTag = FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag();
                 break;
             case R.id.menu_cart:
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
-                Toast.makeText(getApplicationContext(), "Cart is Empty!",
-                        Toast.LENGTH_SHORT).show();
-                fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
+
+                fragment = new CartFragment();
+               fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
+
+                /*getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_frame, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();*/
                 break;
             case R.id.menu_settings:
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
