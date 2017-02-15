@@ -103,9 +103,11 @@ public class MainActivity extends AppCompatActivity {
                 fragmentTag = FragmentTag.FRAGMENT_HOME.getFragmentTag();
                 break;
             case R.id.menu_notifications:
-                item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                /*item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
                 fragment = NotificationFragment.newInstance(getString(R.string.text_notification),
-                        getColorFromRes(R.color.colorAccent));
+                        getColorFromRes(R.color.colorAccent));*/
+                fragment = new NotificationFragment();
+
                 fragmentTag = FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag();
                 break;
             case R.id.menu_cart:
