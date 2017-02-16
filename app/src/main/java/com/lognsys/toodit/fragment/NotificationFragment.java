@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,14 +30,18 @@ public class NotificationFragment extends Fragment {
     private ListView lvNotification;
     private ArrayList<ListDataNotification> myList = new ArrayList<ListDataNotification>();
     MyBaseAdapter myBaseAdapter;
+    String orderno="#TDT45675";
     String[] notification = new String[]{
-            "Great Test, good service by The Central Hill ", "Yummy !! loving it"
+            "Your order <font color='#EE0000'>"+orderno+"</font> has been placed ", "You have order <font color='#EE0000'>Cheesy Garlic Pizza</font> from <font color='#EE0000'>Dominos Pizza</font> ",
+            "Your order <font color='#EE0000'>TDT213145</font> has been delivered via FoodCart ", "You have ordered <font color='#EE0000'>Maharaja Mac Burger</font> from <font color='#EE0000'>McDonald's</font> ",
+            "Your order <font color='#EE0000'>TDT213145</font> has been delivered via FoodCart ", "You have ordered <font color='#EE0000'>Maharaja Mac Burger</font> from <font color='#EE0000'>McDonald's</font> "
+
 
     };
     String[] notificationDate = new String[]{
-            "Rahul Sharma", "Sneha"};
+            "11:20 am, 09 Feb 2017", "11:20 am, 09 Feb 2017","10:20 am, 08 Feb 2017","10:20 am, 08 Feb 2017","10:20 am, 08 Feb 2017","10:20 am, 08 Feb 2017"};
 
-    int [] image={R.drawable.tomato12,R.drawable.vegitable12};
+    int [] image={R.drawable.tomato12,R.drawable.vegitable12,R.drawable.tomato12,R.drawable.vegitable12,R.drawable.tomato12,R.drawable.vegitable12};
 
     private String mText;
     private int mColor;
@@ -82,6 +87,7 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_notification, container, false);
+
         getDataInList();
           lvNotification=(ListView)v.findViewById(R.id.lvNotification);
         myBaseAdapter= new MyBaseAdapter(this.getActivity(), myList);
@@ -189,21 +195,21 @@ public class NotificationFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            NotificationFragment.MyBaseAdapter.MyViewHolder mViewHolder;
+            MyViewHolder mViewHolder;
 
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_raw_notification, parent, false);
-                mViewHolder = new NotificationFragment.MyBaseAdapter.MyViewHolder(convertView);
+                mViewHolder = new MyViewHolder(convertView);
                 convertView.setTag(mViewHolder);
             } else {
-                mViewHolder = (NotificationFragment.MyBaseAdapter.MyViewHolder) convertView.getTag();
+                mViewHolder = (MyViewHolder) convertView.getTag();
             }
 
             ListDataNotification currentListData = getItem(position);
 
-           mViewHolder.tvNotification.setText(currentListData.getNotification());
+           mViewHolder.tvNotification.setText(Html.fromHtml(currentListData.getNotification()));
             Log.e("check",currentListData.getNotification());
-            mViewHolder.tvNotificationDate.setText(currentListData.getNotificationdate());
+            mViewHolder.tvNotificationDate.setText(Html.fromHtml(currentListData.getNotificationdate()));
             mViewHolder.ivNotifyImage.setImageResource(currentListData.getImage());
 
             return convertView;

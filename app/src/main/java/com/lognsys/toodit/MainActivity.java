@@ -1,23 +1,17 @@
 package com.lognsys.toodit;
 
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.lognsys.toodit.fragment.CartFragment;
@@ -25,8 +19,6 @@ import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
 import com.lognsys.toodit.fragment.SettingFragment;
 import com.lognsys.toodit.util.FragmentTag;
-
-import static android.R.color.holo_red_dark;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -108,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                         getColorFromRes(R.color.colorAccent));*/
                 fragment = new NotificationFragment();
 
-                fragmentTag = FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag();
+               fragmentTag = FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag();
                 break;
             case R.id.menu_cart:
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
