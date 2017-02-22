@@ -5,20 +5,26 @@ package com.lognsys.toodit;
  * @date 01/02/2016
  * Description:
  *  This is the login activity which contains Google, Facebook OAUTH
- *  and custom authentication. It also has sign-up feature which calls activity registeration form
- *  This will
-  *
- *  CODE Update:
- *  PJD - 16/02/2016
- *  1) Firebase AuthCredential to check facebook or Google Authentication
+ *  and custom authentication. It also has sign-up feature which calls activity registration form
  *
- *  TODO : Shared preference to save boolean login status, tokenID (facebook and Google),
- *
+ *  DONE (1)  : Shared preference to save boolean login status, tokenID (facebook and Google)
+ *  DONE (2)  : Get device token-id
+ *  DONE (3a) : Scenario 1: Authentication using Facebook at first and then Google with same EMAIL_ID causes an FirebaseAuthCollisionException in Firebase for Android
+ *  TODO (3b) : Scenario 2: Authentication using Google at first and then Facebook (Do nothing)
+ *  TODO (4)  : Scenario 3: Simple Email Authentication via API with same Email-Id (if same email_id do nothing)
+ *  TODO (3a) : Check after Firebase authentication collision faccebook recieving UID
  *
  */
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +39,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -47,15 +55,24 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.lognsys.toodit.Dialog.NetworkStatusDialog;
+import com.lognsys.toodit.model.FBUser;
+import com.lognsys.toodit.util.Constants;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class LoginActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private static final String TAG = "LoginActivity";
-    private CallbackManager mCallbackManager;
 
+    //faceboook callback manager
+    private CallbackManager mCallbackManager;
     private static final int RC_SIGN_IN = 100;
 
     //login_activity UI variable
@@ -65,78 +82,112 @@ public class LoginActivity extends AppCompatActivity implements
     private LoginButton loginButton;
 
     //firebase variable declaration
-    // [START declare_auth]
     private FirebaseAuth mAuth;
-    // [END declare_auth]
-
-    // [START declare_auth_listener]
     private FirebaseAuth.AuthStateListener mAuthListener;
-    // [END declare_auth_listener]
 
     //Google API variable
-   private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
+
+    //Initilalize SharedPeference
+    private static final String SHARED_PREF_FILENAME = Constants.Shared.TOODIT_SHARED_PREF.name();
+    SharedPreferences sharedpreferences;
+
+
+    //Shared preference varaibles;
+    private String email = "";
+    private boolean login_status = false;
+    private String oauthId = "";
+    private String device_token_id = "";
+
+    //title & message
+    private static final String title = "Network Error";
+    private static final String message = "Please check network connections";
+    private static final int RC_NETWORK_DIALOG = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Initiliaze SharedPreferences
+        //sharedpreferences = getSharedPreferences(SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
+
+        sharedpreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //
+        SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+
         //facebook initialize
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
 
 
-        //Initiliaze callbackmanager factory object
+        //Get Device token-id and save it to Shared Preferences
+        if (sharedpreferences.getString(Constants.Shared.DEVICE_TOKEN_ID.name(), "") == null) {
+            String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+            sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), android_id);
+            sharedPrefEditor.commit();
+        }
+
+        //FB: Initialize callbackmanager factory object
         mCallbackManager = CallbackManager.Factory.create();
 
-        //FB:1 Facebook authentication code
+        //FB: Facebook authentication code
         loginButton = (LoginButton) findViewById(R.id.fb_image);
         loginButton.setBackgroundResource(R.drawable.fb);
         loginButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-        loginButton.setReadPermissions("email", "public_profile");
-
+        loginButton.setReadPermissions("email", "user_birthday", "public_profile");
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
+                //call graph user
+                AsyncTask.Status status = saveFacebookData(loginResult.getAccessToken());
+
+
+                handleFacebookAccessToken(loginResult.getAccessToken()); // method call after sucessfull authorisation
+
+                //TODO Call API for UID
+
             }
 
             @Override
             public void onCancel() {
                 Log.d(TAG, "facebook:onCancel");
+                return;
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.d(TAG, "facebook:onError", error);
+                //TODO : Return Dialog box with network error
+
+                DialogFragment dialog = new NetworkStatusDialog();
+                Bundle args = new Bundle();
+                args.putString("title", title);
+                args.putString("message", message);
+                dialog.setArguments(args);
+                dialog.setTargetFragment(dialog, RC_NETWORK_DIALOG);
+                dialog.show(getSupportFragmentManager(), "NetworkDialogFragment TAG");
+                return;
             }
         });
 
+        //GOOG:1 Google authentication code
         googSignIn = (ImageView) findViewById(R.id.google_image);
-
-        //GOO:1 Google authentication code
         googSignIn.setOnClickListener(this);
 
-        //Google sign-in builder pattern with tokenid, email attributes
+        //GOOG:2 sign-in builder pattern with tokenid, email attributes
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
-        //Log.d(TAG,"goog Sign In Option - "+googleSignInOptions.getServerClientId());
-
-        //Pass google "signInOption" variable with attributes to googleApiClient
+        //GOOG:3 Pass google "signInOption" variable with attributes to googleApiClient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(LoginActivity.this /* FragmentActivity */, this/* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
                 .build();
-
-        Log.d(TAG,"goog Api client Connecting- "+mGoogleApiClient.isConnecting());
-
-
-//        //Reference google imageView from login_activity
-//        googSignIn = (ImageView) findViewById(R.id.google_image);
-//        // btnSignUp = (Button) findViewById(R.id.sign_up_button);
-
 
         //Initialize FirebaseAuth
         //You need to include google-services.json (downloaded from firebase console) file under the "app" folder of this project.
@@ -151,6 +202,8 @@ public class LoginActivity extends AppCompatActivity implements
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    Log.d(TAG, "onAuthStateChanged:Provider:" +   user.getProviderId());
+
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -158,8 +211,8 @@ public class LoginActivity extends AppCompatActivity implements
 
             }
         };
-        // firebase authentication listener
 
+        // firebase authentication listener
         //Sign-In button will be used for registered users
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
 
@@ -183,6 +236,10 @@ public class LoginActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * View a root element used to call sub elements
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -194,9 +251,10 @@ public class LoginActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Signin method with GoogleSignInApi
+     */
     private void signIn() {
-
-
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -217,25 +275,23 @@ public class LoginActivity extends AppCompatActivity implements
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
 
-            Toast.makeText(LoginActivity.this, "Goo Sign Account - "+result.getSignInAccount(), Toast.LENGTH_LONG).show();
+            Toast.makeText(LoginActivity.this, "Goo Sign Account - " + result.getSignInAccount(), Toast.LENGTH_LONG).show();
             Toast.makeText(LoginActivity.this, "OnActivityResult!!", Toast.LENGTH_LONG).show();
-
-            Toast.makeText(LoginActivity.this, result.toString(), Toast.LENGTH_LONG).show();
-
 
 
             if (result.isSuccess()) {
-
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
+
+                Toast.makeText(LoginActivity.this, "GOOGLE SUCCESS - " + result.toString(), Toast.LENGTH_LONG).show();
             } else {
                 // Google Sign In failed, update UI appropriately
-                Log.v(TAG,"MESSAGE _ "+ result.getStatus().getStatusMessage());
-                Log.v(TAG,"MESSAGE SIGNIN_ "+ result.getSignInAccount());
+                Log.v(TAG, "MESSAGE _ " + result.getStatus().getStatusMessage());
+                Log.v(TAG, "MESSAGE SIGNIN_ " + result.getSignInAccount());
 
                 Toast.makeText(LoginActivity.this, "Google Result Failed!!", Toast.LENGTH_LONG).show();
-                // ...
+
             }
         }
 
@@ -247,8 +303,10 @@ public class LoginActivity extends AppCompatActivity implements
      *
      * @param acct
      */
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -263,8 +321,17 @@ public class LoginActivity extends AppCompatActivity implements
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+
                         } else {
                             Log.d(TAG, "Google Login Success...");
+
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_DISPLAY_NAME.name(), acct.getDisplayName());
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_EMAIL_ID.name(), acct.getEmail());
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_GIVEN_NAME.name(), acct.getGivenName());
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_PHOTO_URL.name(), acct.getPhotoUrl().toString());
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_TOKEN_ID.name(), acct.getIdToken());
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_SERVE_AUTHCODE.name(), acct.getServerAuthCode());
+                            sharedPrefEditor.commit();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
                         }
@@ -274,52 +341,140 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     /**
+     * call this method by facebook callbackmanager on successful login authorisation.
+     *
      * @param token
      */
 
-    private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
+    private void handleFacebookAccessToken(final AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token.getUserId());
+
+        //Adding facebook userid in shared_preferences
+        final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+
                         Log.d(TAG, "signInWithCredential:onComplete Facebook:" + task.isSuccessful());
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            try {
+                                Log.e(TAG, "signInWithCredential", task.getException());
+                                throw task.getException();
+
+                            } catch (FirebaseAuthUserCollisionException fe) {
+
+                                //Google account already created in Firebase with same EmailId as Facebook EmailId
+                                Log.e(TAG, "#handleFacebookAccessToken#FacebookAuthUserCollision - " + fe.getMessage());
+
+                                sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
+
+                                Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(i);
+                                finish();
+
+                            } catch (Exception e) {
+                                Log.e(TAG, "handleFacebookAccessToken#Facebook Login Exception - " + e.getMessage());
+                            }
+
                         } else {
 
-                            Log.d(TAG, "Google Login Success...");
+                            Log.d(TAG, "Facebook Login Successful...");
+                            Log.d(TAG, "Starting MainActivity...");
                             Intent i = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(i);
                             finish();
                         }
-
                     }
                 });
+    }
 
+    /**
+     * @param token
+     */
+    public AsyncTask.Status saveFacebookData(AccessToken token) {
+
+        final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+        final FBUser fbuser = new FBUser();
+
+        GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
+
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+
+                Log.v(TAG, " Facebook API response - " + response.toString());
+
+                JSONObject json = response.getJSONObject();
+
+                try {
+                    if (json != null) {
+
+                        fbuser.setId(json.getString("id"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_ID.name(), fbuser.getId());
+
+                        fbuser.setEmail(json.getString("email"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_EMAIL_ID.name(), fbuser.getEmail());
+
+                        fbuser.setName(json.getString("name"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_NAME.name(), fbuser.getName());
+
+                        fbuser.setFirst_name(json.getString("first_name"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_FIRST_NAME.name(), fbuser.getFirst_name());
+
+                        fbuser.setLast_name(json.getString("last_name"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_LAST_NAME.name(), fbuser.getLast_name());
+
+                        fbuser.setLink(json.getString("link"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_LINK.name(), fbuser.getLink());
+
+                        fbuser.setPicture(json.getJSONObject("picture").getJSONObject("data").getString("url"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_PICTURE.name(), fbuser.getPicture());
+
+                        fbuser.setTimezone(json.getString("timezone"));
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_TIME_ZONE.name(), fbuser.getTimezone());
+
+                        sharedPrefEditor.commit();
+
+                        Log.d(TAG, "Facebook User : "+fbuser.toString());
+
+                    } else {
+                        Log.e(TAG, "Could not retrieve data from facebook graphapi...");
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id, cover, name, first_name, last_name, link, " +
+                "gender, picture, timezone, updated_time, email");
+        request.setParameters(parameters);
+
+        AsyncTask.Status status =request.executeAsync().getStatus();
+        return status;
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
-        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+        Log.e(TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(this, "Google Unresolved Error occurred....", Toast.LENGTH_SHORT).show();
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        //progressBar.setVisibility(View.GONE);
     }
 
     @Override

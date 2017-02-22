@@ -45,4 +45,8 @@
     <string name="text_profile_title_privacy">Privacy Policy</string>
     <string name="text_profile_title_tc">Terms and Conditions</string>
 
+    <!-- Network Connection Error-->
+    <string name="text_network_msg">Please check your network connection...</string>
+    <string name="text_network_title">Connection Error</string>
+
 </resources>
