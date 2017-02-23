@@ -20,25 +20,30 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lognsys.toodit.R;
+
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link CartFragment.OnFragmentInteractionListener} interface
+ * {@link OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link CartFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -48,15 +53,16 @@ public class CartFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private ArrayList<ListDataCartFragments> myList = new ArrayList<ListDataCartFragments>();
+    NotificationFragment.MyBaseAdapter myBaseAdapter;
     //by Akhilesh
-    String[] item={"Tomato Garlic Pizza", "Cheese Veg Burger"};
-    String[] qualit={"With added cheasy cream","With added cheasy cream" };
-    String[] quant={"Qty :1", "Qty :3"};
-    String[] amoun={" 50", " 250"};
+    String[] item = {"Tomato Garlic Pizza", "Cheese Veg Burger"};
+    String[] qualit = {"With added cheasy cream", "With added cheasy cream"};
+    String[] quant = {"Qty :1", "Qty :3"};
+    String[] amoun = {" 50", " 250"};
     ListView li;
-    int [] image={R.drawable.tomato12,R.drawable.vegitable12};
-   ItemSelectedListAdapter pwd;
+    int[] image = {R.drawable.tomato12, R.drawable.vegitable12};
+    MyBaseAdapter pwd;
 //
 
     // TODO: Rename and change types of parameters
@@ -105,12 +111,14 @@ public class CartFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_cart, container, false);
 
-        li=(ListView)v.findViewById(R.id.lvCart);
+        li = (ListView) v.findViewById(R.id.lvCart);
+        getDataInList();
+
         //CartFragment.PasswordAdapter pwd=new CartFragment().PasswordAdapter(getActivity(),R.layout.list_raw_cart,item, qualit, quant, amoun);
-        ItemSelectedListAdapter pwd=new ItemSelectedListAdapter(getActivity(),R.layout.list_raw_cart,item, qualit, quant, amoun);
+        MyBaseAdapter pwd = new MyBaseAdapter(getActivity(), myList);
         li.setAdapter(pwd);
         return v;
-       // return inflater.inflate(R.layout.fragment_cart, container, false);
+        // return inflater.inflate(R.layout.fragment_cart, container, false);
 
     }
 
@@ -152,101 +160,148 @@ public class CartFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    class ItemSelectedListAdapter extends ArrayAdapter {
 
-        public ItemSelectedListAdapter(Context context, int resource, String[] item, String[] qualit, String[] quant, String[] amoun) {
-            super(context, resource, item);
+    class MyBaseAdapter extends BaseAdapter {
+
+        private  ArrayList<ListDataCartFragments> myList = new ArrayList<ListDataCartFragments>();
+        LayoutInflater inflater;
+        Context context=getActivity();
+
+
+        public MyBaseAdapter(Context context, ArrayList<ListDataCartFragments> myList) {
+            this.myList = myList;
+            this.context = context;
+            inflater = LayoutInflater.from(this.context);
         }
 
         @Override
+        public int getCount() {
+            return myList.size();
+        }
+
+        @Override
+        public ListDataCartFragments getItem(int position) {
+            return myList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View v=convertView;
-            if (convertView== null) {
-                v=((Activity)getContext()).getLayoutInflater().inflate(R.layout.list_raw_cart,null);
+            final MyViewHolder mViewHolder;
+
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.list_raw_cart, parent, false);
+                mViewHolder = new MyViewHolder(convertView);
+                convertView.setTag(mViewHolder);
+            } else {
+                mViewHolder = (MyViewHolder) convertView.getTag();
             }
-            LinearLayout llAmount=(LinearLayout) v.findViewById(R.id.llTotalAmount);
 
-            llAmount.setVisibility(View.GONE);
 
-            TextView subTotal=(TextView) v.findViewById(R.id.tvSubTotal);
-            TextView      taxes=(TextView) v.findViewById(R.id.tvTaxes);
-            TextView      Total=(TextView) v.findViewById(R.id.tvTotal);
-            Button makePayment=(Button)v.findViewById(R.id.btnMakePayment) ;
-            ImageView cancelSelection=(ImageView)v.findViewById(R.id.ivCancelSelection);
-            TextView temName = (TextView) v.findViewById(R.id.tvItemName);
-            TextView itemQuality = (TextView) v.findViewById(R.id.tvItemQuality);
-            final EditText itemQuantity = (EditText) v.findViewById(R.id.tvItemQuantity);
-            TextView itemAmount = (TextView) v.findViewById(R.id.tvAmount);
-            TextView cusstomise = (TextView) v.findViewById(R.id.tvCustomise);
+            mViewHolder.llAmount.setVisibility(View.GONE);
+
+
 
             int itemPos = li.getCount();
-            if(position == itemPos-1)
-            {
-                llAmount.setVisibility(View.VISIBLE);
+            if (position == itemPos - 1) {
+                mViewHolder.llAmount.setVisibility(View.VISIBLE);
 
             }
 
-           itemQuantity.addTextChangedListener(new TextWatcher() {
+            mViewHolder.itemQuantity.addTextChangedListener(new TextWatcher() {
 
-                                                   @Override
-                                                   public void onTextChanged(CharSequence s, int start, int before,
-                                                                             int count) {
-                                                       // TODO Auto-generated method stub
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before,
+                                          int count) {
+                    // TODO Auto-generated method stub
 
-                                                   }
+                }
 
-                                                   @Override
-                                                   public void beforeTextChanged(CharSequence s, int start, int count,
-                                                                                 int after) {
-                                                       // TODO Auto-generated method stub
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count,
+                                              int after) {
+                    // TODO Auto-generated method stub
 
-                                                   }
-                                                   @Override
-                                                   public void afterTextChanged(Editable s) {
-                                                       if (!s.toString().startsWith("Qty :")) {
-                                                           itemQuantity.setText("Qty :");
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (!s.toString().startsWith("Qty :")) {
+                        mViewHolder.itemQuantity.setText("Qty :");
 //                                                           Selection.setSelection(itemQuantity.getText(), itemQuantity
 //                                                                   .getText().length());
 
-                                                       }
-
-                                                   }
-                                               });
-
-            temName.setText(item[position]);
-            itemQuality.setText(qualit[position]);
-            itemQuantity.setText(quant[position]);
-            itemAmount.setText(amoun[position]);
-
-            String next = "<font color='#CCCCCC'>Rs. </font>";
-
-            subTotal.setText(Html.fromHtml(next+"261.00"));
-            taxes.setText(Html.fromHtml(next+"31.00"));
-            Total.setText(Html.fromHtml(next+"291.00"));
-            //CircleImageView img = (de.hdodenhof.circleimageview.CircleImageView)v.findViewById(R.id.ivItemInCart);
-
-            //img.setBackgroundResource(image[position]);
-            Bitmap bitmap = BitmapFactory.decodeResource(CartFragment.this.getResources(),image[position]);
-            Bitmap circularBitmap = new ImageConverter().getRoundedCornerBitmap(bitmap, 100);
-
-            ImageView img = (ImageView) v.findViewById(R.id.ivItemInCart);
-            img.setImageBitmap(circularBitmap);
-            cancelSelection.setTag(position);
-            final int posison=position;
-            cancelSelection.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-
-
+                    }
 
                 }
             });
+            ListDataCartFragments currentListData = getItem(position);
+            mViewHolder.temName.setText(currentListData.getCartItemSelected());
+            mViewHolder.itemQuality.setText(currentListData.getCartItemComment());
+            mViewHolder.itemQuantity.setText(currentListData.getCartItemquanatity());
+            mViewHolder.itemAmount.setText(currentListData.getCartItemPrice());
 
-            return v;
+            String next = "<font color='#CCCCCC'>Rs. </font>";
+
+            mViewHolder.subTotal.setText(Html.fromHtml(next + "261.00"));
+            mViewHolder.taxes.setText(Html.fromHtml(next + "31.00"));
+            mViewHolder.Total.setText(Html.fromHtml(next + "291.00"));
+            //CircleImageView img = (de.hdodenhof.circleimageview.CircleImageView)v.findViewById(R.id.ivItemInCart);
+
+            //img.setBackgroundResource(image[position]);
+            Bitmap bitmap = BitmapFactory.decodeResource(CartFragment.this.getResources(), currentListData.getCartItemImage());
+            Bitmap circularBitmap = new ImageConverter().getRoundedCornerBitmap(bitmap, 100);
+
+
+            mViewHolder.img.setImageBitmap(circularBitmap);
+            mViewHolder.cancelSelection.setTag(position);
+           // final int posison = position;
+            mViewHolder.cancelSelection.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer position= (Integer) v.getTag(); //get inde
+                     int deletePosition=(int)position;
+                    myList.remove(deletePosition); //remove the item from data source
+                    Log.e("myList Size", String.valueOf(myList.size()));
+                    notifyDataSetChanged(); //notify to refresh
+                   // li.setAdapter( new MyBaseAdapter(getActivity(), myListMain));
+                }
+            });
+
+            return convertView;
+        }
+
+        private class MyViewHolder {
+            TextView subTotal, taxes, Total, temName, itemAmount, cusstomise, itemQuality;
+            Button makePayment;
+            ImageView cancelSelection, img;
+            EditText itemQuantity;
+            LinearLayout llAmount;
+
+            public MyViewHolder(View item) {
+
+                subTotal = (TextView) item.findViewById(R.id.tvSubTotal);
+                taxes = (TextView) item.findViewById(R.id.tvTaxes);
+                Total = (TextView) item.findViewById(R.id.tvTotal);
+                makePayment = (Button) item.findViewById(R.id.btnMakePayment);
+                cancelSelection = (ImageView) item.findViewById(R.id.ivCancelSelection);
+                img = (ImageView) item.findViewById(R.id.ivItemInCart);
+                temName = (TextView) item.findViewById(R.id.tvItemName);
+                itemQuality = (TextView) item.findViewById(R.id.tvItemQuality);
+                itemQuantity = (EditText) item.findViewById(R.id.tvItemQuantity);
+                itemAmount = (TextView) item.findViewById(R.id.tvAmount);
+                cusstomise = (TextView) item.findViewById(R.id.tvCustomise);
+                llAmount = (LinearLayout) item.findViewById(R.id.llTotalAmount);
+
+            }
         }
     }
+
     public class ImageConverter {
 
         public Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
@@ -268,6 +323,25 @@ public class CartFragment extends Fragment {
             canvas.drawBitmap(bitmap, rect, rect, paint);
 
             return output;
+        }
+    }
+
+
+
+    private void getDataInList() {
+        for (int i = 0; i < image.length; i++) {
+            // Create a new object for each list item
+            ListDataCartFragments ld = new ListDataCartFragments();
+            ld.setCartItemImage(image[i]);
+            ld.setCartItemSelected(item[i]);
+            ld.setCartItemComment(qualit[i]);
+            ld.setCartItemPrice(amoun[i]);
+            ld.setCartItemquanatity(quant[i]);
+
+            // Add this object into the ArrayList myList
+            myList.add(ld);
+
+
         }
     }
 
