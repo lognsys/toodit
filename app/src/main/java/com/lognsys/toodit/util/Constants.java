@@ -30,8 +30,6 @@ public class Constants {
         FB_TIME_ZONE,
         FB_UID
 
-        
-
     }
 
     public enum GoogleFields {

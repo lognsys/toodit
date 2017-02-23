@@ -409,8 +409,7 @@ public class LoginActivity extends AppCompatActivity implements
         final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
         //GOOG:UID
-        String firebaseUID = mAuth.getCurrentUser().getUid();
-        sharedPrefEditor.putString(Constants.GoogleFields.GOOG_UID.name(), firebaseUID);
+
 
         //Check if Goog with same email-id already present
         String checkFacebookEmail = sharedpreferences.getString(Constants.FacebookFields.FB_EMAIL_ID.name(), "");
@@ -434,6 +433,8 @@ public class LoginActivity extends AppCompatActivity implements
 
                         } else {
                             Log.d(TAG, "Google Login Success...");
+                            String firebaseUID = mAuth.getCurrentUser().getUid();
+                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_UID.name(), firebaseUID);
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_DISPLAY_NAME.name(), acct.getDisplayName());
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_EMAIL_ID.name(), acct.getEmail());
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_GIVEN_NAME.name(), acct.getGivenName());
@@ -463,9 +464,7 @@ public class LoginActivity extends AppCompatActivity implements
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
 
-        //FB:UID
-        String firebaseUID = mAuth.getCurrentUser().getUid();
-        sharedPrefEditor.putString(Constants.FacebookFields.FB_UID.name(), firebaseUID);
+
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -473,6 +472,10 @@ public class LoginActivity extends AppCompatActivity implements
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
                         Log.d(TAG, "signInWithCredential:onComplete Facebook:" + task.isSuccessful());
+
+                        //FB:UID
+                        String firebaseUID = mAuth.getCurrentUser().getUid();
+                        sharedPrefEditor.putString(Constants.FacebookFields.FB_UID.name(), firebaseUID);
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
