@@ -49,4 +49,15 @@
     <string name="text_network_msg">Please check your network connection...</string>
     <string name="text_network_title">Connection Error</string>
 
+    <!-- Google Error -->
+    <string name="text_google_error_msg">Unable to Sign in through Google... Please try again later..</string>
+    <string name="text_google_error_title">Google Error</string>
+
+    <!--Registration Validation-->
+    <string name="text_name_empty_msg">Please enter your name</string>
+    <string name="text_name_invalid_msg">Please enter valid name</string>
+    <string name="text_email_empty_msg">Please enter your email</string>
+    <string name="text_email_invalid_msg">Please enter valid email</string>
+
+
 </resources>
