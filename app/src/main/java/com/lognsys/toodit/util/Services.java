@@ -15,16 +15,12 @@ public class Services {
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 
-    static {
-
-    }
-
     /**
      * Test Cases
-     * Peter Müller
-     * François Hollande
-     * Patrick O'Brian
-     * Silvana Koch-Mehrin
+     * Name: Peter Müller , result : true
+     * Name: François Hollande, result : true
+     * Name: Patrick O'Brian, result : true
+     * Name: Silvana Koch-Mehrin, result: true
      *
      * @param str
      * @return
@@ -33,7 +29,7 @@ public class Services {
 
         Pattern pattern = Pattern.compile(NAME_PATTERN);
 
-        if (Pattern.matches(NAME_PATTERN, str))
+        if (Pattern.matches(NAME_PATTERN, str.trim()))
             return true;
 
         return false;
@@ -42,25 +38,33 @@ public class Services {
     public static boolean isEmailValid(String str) {
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
-        if (Pattern.matches(EMAIL_PATTERN, str))
+        if (Pattern.matches(EMAIL_PATTERN, str.trim()))
             return true;
 
         return false;
     }
 
-
+    /**
+     * Test Cases:
+     * Phone number 1234567890 validation result: true
+     * Phone number 9999999999 validation result: false
+     *
+     * @param phoneNo
+     * @return
+     */
     public static boolean isValidMobileNo(String phoneNo) {
-        //validate phone numbers of format "1234567890"
-        if (phoneNo.matches("\\d{10}")) return true;
-            //validating phone number with -, . or spaces
-        else if (phoneNo.matches("\\d{3}[-\\.\\s]\\d{3}[-\\.\\s]\\d{4}")) return true;
-            //validating phone number with extension length from 3 to 5
-            // else if(phoneNo.matches("\\d{3}-\\d{3}-\\d{4}\\s(x|(ext))\\d{3,5}")) return true;
-            //validating phone number where area code is in braces ()
-        else if (phoneNo.matches("\\(\\d{3}\\)-\\d{3}-\\d{4}")) return true;
-            //return false if nothing matches the input
-        else return false;
 
+        boolean isValid = true;
+
+        if(!phoneNo.matches("\\d{10}") || !phoneNo.matches("^(\\d)(?!\\1+$)\\d*$"))
+            isValid = false;
+
+        return isValid;
+
+    }
+
+    public static boolean isEmpty(String str) {
+        return str.trim().isEmpty();
     }
 
 }

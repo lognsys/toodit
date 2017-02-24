@@ -30,7 +30,6 @@ public class Constants {
         FB_PICTURE,
         FB_TIME_ZONE,
         FB_UID,
-        FB_CUSTOMER_ID
 
     }
 
@@ -42,7 +41,6 @@ public class Constants {
         GOOG_PHOTO_URL,
         GOOG_SERVE_AUTHCODE,
         GOOG_UID,
-        GOOG_CUSTOMER_ID
 
     }
 }

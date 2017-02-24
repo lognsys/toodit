@@ -11,8 +11,25 @@ package com.lognsys.toodit;
  *  DONE (2)  : Get device token-id
  *  DONE (3a) : Scenario 1: Authentication using Google at first and then Facebook with same EMAIL_ID causes an FirebaseAuthCollisionException
  *  DONE (3b) : Scenario 2: Authentication using Facebook at first and then Google (No Exception)
- *  TODO (4)  : Scenario 3: Simple Email Authentication via API with same Email-Id (if same email_id do nothing)
  *
+ *  Use Case On sucessful login and calling Main Activity :
+ *  1) If cust_id in shared pref then goto MainActivity
+ *  2) if calling login API and successful login set cust_id
+ *  3) New Facebook login set cust_id replace old one if exists
+ *  4) New Google Login set cust_id and replace old one if exists
+ *  5) Facebook Login with same email-id as already registered user email-id saved in shared pref
+ *     & copy registered user_cust_id to facebook cust_id
+ *  6) Google Login with same email-id as already registered user email-id saved in shared pref
+ *      & copy registered user cust_id to Google cust_id
+ *  7) Facebook login email-id match with google login email-id  if present and copy Google cust_id to facebook cust_id
+ *  8) Google login email-id match with facebook login email-id if present and copy facebook cust_id to Google cust_id
+ *
+ *
+ *  OR
+ *  Follow Steps 1 - 4
+ *  5) Facebook call register api... if API responds user already exists then login directly
+ *  6) google call register api.. if user already exists (
+ *  (Common parameters .. email_id, cust_id) reset them when logged out
  */
 
 import android.app.ProgressDialog;
@@ -82,7 +99,7 @@ public class LoginActivity extends AppCompatActivity implements
 
 
     //login_activity UI variable
-    private EditText  inputUserName, inputPassword;
+    private EditText inputUserName, inputPassword;
     private Button btnSignIn, btnSignUp, btnResetPassword;
     private ImageView fbSignIn, googSignIn;
     private LoginButton loginButton;
@@ -103,7 +120,7 @@ public class LoginActivity extends AppCompatActivity implements
     private static final int RC_NETWORK_DIALOG = 101;
 
 
-    //Shared preference varaibles;
+    //Shared preference variables;
     private String email = "";
     private boolean login_status = false;
     private String oauthId = "";
@@ -117,18 +134,29 @@ public class LoginActivity extends AppCompatActivity implements
         //Initialize SharedPreferences
         sharedpreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        //
+        //SharedPreferences Editor
         SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
         //facebook initialize
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
 
-
         //Add device token
         String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), android_id);
         sharedPrefEditor.commit();
+
+        //Use Case 1:If cust_id in shared pref then goto MainActivity
+        String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
+        if (cust_id != null) {
+            Intent i = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+
+        //TODO :  Make API CALL for login and goto Main Activity
+        //Login:1 Simple Login Mechanism using username and password
 
 
         //FB: Initialize callbackmanager factory object
@@ -214,12 +242,10 @@ public class LoginActivity extends AppCompatActivity implements
             }
         };
 
-        // firebase authentication listener
-        //Sign-In button will be used for registered users
-        btnSignIn = (Button) findViewById(R.id.sign_in_button);
 
 
-        // Register...
+
+        // Resgitration Link
         tvRegistr = (TextView) findViewById(R.id.tvRegister);
         tvRegistr.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,11 +256,11 @@ public class LoginActivity extends AppCompatActivity implements
         });
 
 
-        //DONE : Input name and email for authentication,
+        //Case : 2) if calling login API and successful login
+        //User registraion through API
+        btnSignIn = (Button) findViewById(R.id.sign_in_button);
         tilUsername = (TextInputLayout) findViewById(R.id.til_username);
         inputUserName = (EditText) findViewById(R.id.username);
-
-
         tilUsername.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -252,20 +278,24 @@ public class LoginActivity extends AppCompatActivity implements
                     tilUsername.setError(null);
                     tilUsername.setErrorEnabled(false);
                 }
-
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (s.length() > 0 && Services.isEmailValid(inputUserName.getText().toString().trim()) || Services.isValidMobileNo(inputUserName.getText().toString().trim())) {
+                    tilUsername.setError(null);
+                    tilUsername.setErrorEnabled(false);
+                } else {
 
+                    tilUsername.setErrorEnabled(true);
+                    tilUsername.setError(getString(R.string.text_username_invalid_msg));
+                }
             }
         });
 
 
         tilPassword = (TextInputLayout) findViewById(R.id.til_password);
         inputPassword = (EditText) findViewById(R.id.password);
-
-
         tilPassword.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -296,26 +326,30 @@ public class LoginActivity extends AppCompatActivity implements
         //TODO: Do Authentication of name and email address and call API to validate User
         //This is the Sign-In button for already registered users
         //Test conditions if username & password is not blank
-        boolean isValid = true;
 
-        if(!(inputUserName.getText().toString().trim().isEmpty()) && !(inputPassword.getText().toString().trim().isEmpty())) {
-            isValid = false;
-        }
-        if(!(Services.isEmailValid(inputUserName.getText().toString().trim()) || !(Services.isValidMobileNo(inputUserName.getText().toString().trim())))) {
-            isValid = false;
-        }
+        btnSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        if(isValid) {
-            btnSignIn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                boolean isValid = false;
+
+                if ((!Services.isEmpty(inputPassword.getText().toString()) && !Services.isEmpty(inputUserName.getText().toString()))
+                        && (Services.isEmailValid(inputUserName.getText().toString()) || Services.isValidMobileNo(inputUserName.getText().toString()))) {
+                    isValid = true;
+                }
+
+
+
+                if (isValid) {
+                    Log.d(TAG, "IS VALID - " + isValid);
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
+                } else return;
 
-                }
-            });
-        }
+            }
+        });
     }
+
 
     /**
      * View a root element used to call sub elements
@@ -491,8 +525,6 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     /**
-     *
-     *
      * @param token
      */
     public AsyncTask.Status saveFacebookData(AccessToken token) {
