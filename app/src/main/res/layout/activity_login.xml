@@ -17,26 +17,26 @@
         android:layout_height="@dimen/logo_h"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="35dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="18dp"
         android:src="@drawable/toodit_logo_1" />
 
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/til_name"
+        android:id="@+id/til_username"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:textColorHint="@color/white"
         app:errorEnabled="true">
 
         <EditText
-            android:id="@+id/name"
+            android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/white"
             android:focusableInTouchMode="true"
             android:gravity="center_horizontal"
-            android:hint="@string/hint_name"
+            android:hint="@string/hint_username"
             android:imeActionId="@+id/login"
             android:imeOptions="actionUnspecified"
             android:inputType="textPersonName"
@@ -47,24 +47,24 @@
 
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/til_email"
+        android:id="@+id/til_password"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="10dp"
         android:textColorHint="@color/white"
         app:errorEnabled="true">
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/white"
             android:focusableInTouchMode="true"
             android:gravity="center_horizontal"
-            android:hint="@string/email"
+            android:hint="@string/hint_password"
             android:imeActionId="@+id/login"
             android:imeOptions="actionUnspecified"
-            android:inputType="textEmailAddress"
+            android:inputType="textPassword"
             android:maxLines="1"
             android:textColor="@android:color/white" />
 
@@ -76,7 +76,7 @@
         style="?android:textAppearanceMedium"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/round_btn"
         android:text="@string/btn_login"
         android:textColor="@android:color/holo_red_dark"
@@ -85,7 +85,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:text="OR"
         android:textColor="@color/white"
         android:textSize="17dp" />
@@ -94,12 +94,12 @@
         android:layout_width="226dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="12dp"
         android:layout_weight="1">
 
         <com.facebook.login.widget.LoginButton xmlns:fb="http://schemas.android.com/apk/res-auto"
             android:id="@+id/fb_image"
-            android:layout_width="90dp"
+            android:layout_width="88dp"
             android:layout_height="90dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
@@ -115,6 +115,12 @@
             android:src="@drawable/google" />
     </RelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="1dp"
+        android:layout_weight="1">
     <TextView
         android:id="@+id/tvRegister"
         android:layout_width="match_parent"
@@ -122,7 +128,8 @@
         android:gravity="center"
         android:text="Click me to Register "
         android:textColor="@android:color/white"
-        android:textSize="20dp" />
+        android:textSize="18sp" />
+    </RelativeLayout>
 
 </LinearLayout>
 

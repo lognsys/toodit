@@ -12,7 +12,7 @@
     <string name="title_activity_login">Sign in</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
-    <string name="hint_name">Name</string>
+    <string name="hint_username">Username : Email / Mobile No</string>
     <string name="btn_login">GO</string>
     <string name="btn_link_to_register">Not a member? Get registered in Firebase now!</string>
     <string name="btn_link_to_login">Already registered. Login Me!</string>
@@ -54,10 +54,11 @@
     <string name="text_google_error_title">Google Error</string>
 
     <!--Registration Validation-->
-    <string name="text_name_empty_msg">Please enter your name</string>
-    <string name="text_name_invalid_msg">Please enter valid name</string>
-    <string name="text_email_empty_msg">Please enter your email</string>
-    <string name="text_email_invalid_msg">Please enter valid email</string>
+    <string name="text_username_empty_msg">Please enter valid username</string>
+    <string name="text_username_invalid_msg">Please enter valid username</string>
+    <string name="text_password_empty_msg">Please enter your password</string>
 
+    <!-- acitvity_registration layout Labels -->
+    <string name="text_name_label"></string>
 
 </resources>

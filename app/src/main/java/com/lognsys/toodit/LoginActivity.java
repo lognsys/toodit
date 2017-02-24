@@ -16,6 +16,7 @@ package com.lognsys.toodit;
  */
 
 import android.app.ProgressDialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -81,12 +82,12 @@ public class LoginActivity extends AppCompatActivity implements
 
 
     //login_activity UI variable
-    private EditText inputEmail, inputName, inputPassword;
+    private EditText  inputUserName, inputPassword;
     private Button btnSignIn, btnSignUp, btnResetPassword;
     private ImageView fbSignIn, googSignIn;
     private LoginButton loginButton;
-    private TextInputLayout tilName;
-    private TextInputLayout tilEmail;
+    private TextInputLayout tilUsername;
+    private TextInputLayout tilPassword;
 
     //firebase variable declaration
     private FirebaseAuth mAuth;
@@ -210,7 +211,6 @@ public class LoginActivity extends AppCompatActivity implements
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
-
             }
         };
 
@@ -231,11 +231,11 @@ public class LoginActivity extends AppCompatActivity implements
 
 
         //DONE : Input name and email for authentication,
-        tilName = (TextInputLayout) findViewById(R.id.til_name);
-        inputName = (EditText) findViewById(R.id.name);
+        tilUsername = (TextInputLayout) findViewById(R.id.til_username);
+        inputUserName = (EditText) findViewById(R.id.username);
 
 
-        tilName.getEditText().addTextChangedListener(new TextWatcher() {
+        tilUsername.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -244,13 +244,13 @@ public class LoginActivity extends AppCompatActivity implements
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() < 1) {
-                    tilName.setErrorEnabled(true);
-                    tilName.setError(getString(R.string.text_name_empty_msg));
+                    tilUsername.setErrorEnabled(true);
+                    tilUsername.setError(getString(R.string.text_username_empty_msg));
                 }
 
                 if (s.length() > 0) {
-                    tilName.setError(null);
-                    tilName.setErrorEnabled(false);
+                    tilUsername.setError(null);
+                    tilUsername.setErrorEnabled(false);
                 }
 
             }
@@ -262,10 +262,11 @@ public class LoginActivity extends AppCompatActivity implements
         });
 
 
-        tilEmail = (TextInputLayout) findViewById(R.id.til_email);
-        inputEmail = (EditText) findViewById(R.id.email);
+        tilPassword = (TextInputLayout) findViewById(R.id.til_password);
+        inputPassword = (EditText) findViewById(R.id.password);
 
-        tilEmail.getEditText().addTextChangedListener(new TextWatcher() {
+
+        tilPassword.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -274,13 +275,13 @@ public class LoginActivity extends AppCompatActivity implements
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() < 1) {
-                    tilEmail.setErrorEnabled(true);
-                    tilEmail.setError(getString(R.string.text_email_empty_msg));
+                    tilPassword.setErrorEnabled(true);
+                    tilPassword.setError(getString(R.string.text_password_empty_msg));
                 }
 
                 if (s.length() > 0) {
-                    tilEmail.setError(null);
-                    tilEmail.setErrorEnabled(false);
+                    tilPassword.setError(null);
+                    tilPassword.setErrorEnabled(false);
                 }
 
             }
@@ -294,45 +295,26 @@ public class LoginActivity extends AppCompatActivity implements
 
         //TODO: Do Authentication of name and email address and call API to validate User
         //This is the Sign-In button for already registered users
+        //Test conditions if username & password is not blank
+        boolean isValid = true;
 
+        if(!(inputUserName.getText().toString().trim().isEmpty()) && !(inputPassword.getText().toString().trim().isEmpty())) {
+            isValid = false;
+        }
+        if(!(Services.isEmailValid(inputUserName.getText().toString().trim()) || !(Services.isValidMobileNo(inputUserName.getText().toString().trim())))) {
+            isValid = false;
+        }
 
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                boolean isValid = true;
-
-
-                if (!Services.isNameValid(inputName.getText().toString())) {
-                    tilEmail.setErrorEnabled(true);
-                    tilName.setError(getString(R.string.text_name_invalid_msg));
-                    isValid = false;
-                    return;
-                } else {
-                    tilEmail.setError(null);
-                    tilEmail.setErrorEnabled(false);
-                }
-
-
-                if (!Services.isEmailValid(inputEmail.getText().toString())) {
-                    tilEmail.setErrorEnabled(true);
-                    tilEmail.setError(getString(R.string.text_email_invalid_msg));
-                    isValid = false;
-                    return;
-                } else {
-                    tilEmail.setError(null);
-                    tilEmail.setErrorEnabled(false);
-                }
-
-
-                if (isValid) {
+        if(isValid) {
+            btnSignIn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
-                } else {
-                    return;
+
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -408,14 +390,10 @@ public class LoginActivity extends AppCompatActivity implements
 
         final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
-        //GOOG:UID
-
-
         //Check if Goog with same email-id already present
         String checkFacebookEmail = sharedpreferences.getString(Constants.FacebookFields.FB_EMAIL_ID.name(), "");
         if ((!checkFacebookEmail.equals("")) && checkFacebookEmail.equals(acct.getEmail()))
             sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
-
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -442,6 +420,8 @@ public class LoginActivity extends AppCompatActivity implements
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_TOKEN_ID.name(), acct.getIdToken());
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_SERVE_AUTHCODE.name(), acct.getServerAuthCode());
                             sharedPrefEditor.commit();
+
+                            //start activity MainActivity.class
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
                         }
@@ -463,8 +443,6 @@ public class LoginActivity extends AppCompatActivity implements
         final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-
-
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -513,6 +491,8 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     /**
+     *
+     *
      * @param token
      */
     public AsyncTask.Status saveFacebookData(AccessToken token) {

@@ -12,7 +12,8 @@ public class Constants {
         DEVICE_TOKEN_ID,
         EMAIL_ID_SIMPLEAUTH,
         EMAIL_UID,
-        IS_SIMILAR_EMAILID
+        IS_SIMILAR_EMAILID,
+        CUSTOMER_ID
     }
 
     public enum FacebookFields {
@@ -28,7 +29,8 @@ public class Constants {
         FB_GENDER,
         FB_PICTURE,
         FB_TIME_ZONE,
-        FB_UID
+        FB_UID,
+        FB_CUSTOMER_ID
 
     }
 
@@ -39,7 +41,8 @@ public class Constants {
         GOOG_GIVEN_NAME,
         GOOG_PHOTO_URL,
         GOOG_SERVE_AUTHCODE,
-        GOOG_UID
+        GOOG_UID,
+        GOOG_CUSTOMER_ID
 
     }
 }
