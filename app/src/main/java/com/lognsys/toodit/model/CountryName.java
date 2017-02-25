@@ -12,6 +12,11 @@ public class CountryName {
     private String phonecode;
     private String is_delete;
 
+    public CountryName()
+    {
+
+    }
+
     public CountryName(String country_id, String name, String shortname, String phonecode, String is_delete) {
         this.country_id = country_id;
         this.name = name;
@@ -60,7 +65,8 @@ public class CountryName {
         this.is_delete = is_delete;
     }
    @Override
-    public String toString() {
+    public String toString()
+   {
         return name;
     }
 }

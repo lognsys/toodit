@@ -8,6 +8,13 @@ public class CityName {
    private String cityId;
    private String cityname;
    private String stateId;
+
+    public CityName(String stateId, String cityname, String cityId) {
+        this.stateId = stateId;
+        this.cityname = cityname;
+        this.cityId = cityId;
+    }
+
     public String getCityId() {
         return cityId;
     }
