@@ -4,8 +4,8 @@ package com.lognsys.toodit;
  * @author pdoshi
  * @date 01/02/2016
  * Description:
- *  This is the login activity which contains Google, Facebook OAUTH
- *  and custom authentication. It also has sign-up feature which calls activity registration form
+ * This is the login activity which contains Google, Facebook OAUTH
+ * and custom authentication. It also has sign-up feature which calls activity registration form
  *
  *  DONE (1)  : Shared preference to save boolean login status, tokenID (facebook and Google)
  *  DONE (2)  : Get device token-id
@@ -24,8 +24,8 @@ package com.lognsys.toodit;
  *  7) Facebook login email-id match with google login email-id  if present and copy Google cust_id to facebook cust_id
  *  8) Google login email-id match with facebook login email-id if present and copy facebook cust_id to Google cust_id
  *
+ *                                             OR
  *
- *  OR
  *  Follow Steps 1 - 4
  *  5) Facebook call register api... if API responds user already exists then login directly
  *  6) google call register api.. if user already exists (
@@ -81,11 +81,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.model.FBUser;
+import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.PropertyReader;
 import com.lognsys.toodit.util.Services;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Properties;
 
 
 public class LoginActivity extends AppCompatActivity implements
@@ -96,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements
     //faceboook callback manager
     private CallbackManager mCallbackManager;
     private static final int RC_SIGN_IN = 100;
-
+    private static final int RC_NETWORK_DIALOG = 101;
 
     //login_activity UI variable
     private EditText inputUserName, inputPassword;
@@ -117,15 +121,19 @@ public class LoginActivity extends AppCompatActivity implements
     private static final String SHARED_PREF_FILENAME = Constants.Shared.TOODIT_SHARED_PREF.name();
     SharedPreferences sharedpreferences;
 
-    private static final int RC_NETWORK_DIALOG = 101;
-
-
     //Shared preference variables;
     private String email = "";
     private boolean login_status = false;
     private String oauthId = "";
     private String device_token_id = "";
     private TextView tvRegistr;
+
+    //Properties
+    private PropertyReader propertyReader;
+    private Context context;
+    private Properties properties;
+    public static final String PROPERTIES_FILENAME = "toodit.properties";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,14 +145,20 @@ public class LoginActivity extends AppCompatActivity implements
         //SharedPreferences Editor
         SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
+        //Property Initliazer
+        context = this;
+        propertyReader = new PropertyReader(context);
+        properties = propertyReader.getMyProperties(PROPERTIES_FILENAME);
+
         //facebook initialize
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
 
         //Add device token
-        String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), android_id);
+        device_token_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), device_token_id);
         sharedPrefEditor.commit();
+
 
         //Use Case 1:If cust_id in shared pref then goto MainActivity
         String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
@@ -154,15 +168,11 @@ public class LoginActivity extends AppCompatActivity implements
             finish();
         }
 
-
-        //TODO :  Make API CALL for login and goto Main Activity
-        //Login:1 Simple Login Mechanism using username and password
-
-
-        //FB: Initialize callbackmanager factory object
+        /****************************** FACEBOOK AUTH *****************************************/
+        //FB:1 Initialize callbackmanager factory object
         mCallbackManager = CallbackManager.Factory.create();
 
-        //FB: Facebook authentication code
+        //FB:2 Facebook authentication code
         loginButton = (LoginButton) findViewById(R.id.fb_image);
         loginButton.setBackgroundResource(R.drawable.fb);
         loginButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
@@ -194,10 +204,14 @@ public class LoginActivity extends AppCompatActivity implements
                 args.putString("message", getString(R.string.text_network_msg));
                 dialog.setArguments(args);
                 dialog.setTargetFragment(dialog, RC_NETWORK_DIALOG);
-                dialog.show(getSupportFragmentManager(), "NetworkDialogFragment TAG");
+                dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+
                 return;
             }
         });
+        /******************************************************************************/
+
+        /*********************************GOOGLE AUTH*************************************/
 
         //GOOG:1 Google authentication code
         googSignIn = (ImageView) findViewById(R.id.google_image);
@@ -215,12 +229,17 @@ public class LoginActivity extends AppCompatActivity implements
                 .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
                 .build();
 
+        /******************************************************************************/
+
+
+        /*********************************FIREBASE************************************/
+
         //Initialize FirebaseAuth
         //You need to include google-services.json (downloaded from firebase console) file under the "app" folder of this project.
         mAuth = FirebaseAuth.getInstance();
 
 
-        // firebase authentication listener
+        // firebase authentication listener will chek if user is authenticated.
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -242,22 +261,14 @@ public class LoginActivity extends AppCompatActivity implements
             }
         };
 
+        /******************************************************************************/
 
 
-
-        // Resgitration Link
-        tvRegistr = (TextView) findViewById(R.id.tvRegister);
-        tvRegistr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(LoginActivity.this, RegistrationActivity.class);
-                startActivity(i);
-            }
-        });
+        /******************** USER REGISTATION SIGN IN  & VALIDATION **********************/
 
 
         //Case : 2) if calling login API and successful login
-        //User registraion through API
+        //User registration through API
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         tilUsername = (TextInputLayout) findViewById(R.id.til_username);
         inputUserName = (EditText) findViewById(R.id.username);
@@ -327,31 +338,59 @@ public class LoginActivity extends AppCompatActivity implements
         //This is the Sign-In button for already registered users
         //Test conditions if username & password is not blank
 
+        /**
+         * Button Sign_in function
+         * params : username, password, device_token
+         */
+
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 boolean isValid = false;
 
-                if ((!Services.isEmpty(inputPassword.getText().toString()) && !Services.isEmpty(inputUserName.getText().toString()))
-                        && (Services.isEmailValid(inputUserName.getText().toString()) || Services.isValidMobileNo(inputUserName.getText().toString()))) {
+                String username = inputUserName.getText().toString().trim();
+                String password = inputPassword.getText().toString().trim();
+
+
+                if ((!Services.isEmpty(password) && !Services.isEmpty(username))
+                        && (Services.isEmailValid(username) || Services.isValidMobileNo(username))) {
                     isValid = true;
                 }
 
-
+                String login_url = properties.getProperty(Constants.API_URL.customer_login_url.name());
 
                 if (isValid) {
-                    Log.d(TAG, "IS VALID - " + isValid);
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
+                    CallAPI callAPI = new CallAPI();
+                    callAPI.callCustomerLoginURL(properties.getProperty
+                                    (Constants.API_URL.customer_login_url.name()), username, password,
+                            device_token_id, LoginActivity.this);
                 } else return;
 
             }
         });
+
+        /*******************************************************************/
+
+
+        /*********************CALL REGISTRATION PAGE ***********************/
+        tvRegistr = (TextView) findViewById(R.id.tvRegister);
+        tvRegistr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(LoginActivity.this, RegistrationActivity.class);
+                startActivity(i);
+            }
+        });
+
+        /*******************************************************************/
+
+
     }
 
 
     /**
+     * CLick On Google IMAGE
      * View a root element used to call sub elements
      *
      * @param v
@@ -404,7 +443,7 @@ public class LoginActivity extends AppCompatActivity implements
                 args.putString("title", getString(R.string.text_google_error_title));
                 args.putString("message", getString(R.string.text_google_error_msg));
                 dialog.setArguments(args);
-                dialog.setTargetFragment(dialog, RC_NETWORK_DIALOG);
+                dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                 dialog.show(getSupportFragmentManager(), "NetworkDialogFragment TAG");
                 return;
 

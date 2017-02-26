@@ -13,7 +13,7 @@ public class Constants {
         EMAIL_ID_SIMPLEAUTH,
         EMAIL_UID,
         IS_SIMILAR_EMAILID,
-        CUSTOMER_ID
+        CUSTOMER_ID,
     }
 
     public enum FacebookFields {
@@ -43,4 +43,45 @@ public class Constants {
         GOOG_UID,
 
     }
+
+    public enum API_URL {
+        customer_login_url,
+        customer_registration_url,
+        country_api_url,
+        state_api_url,
+        city_api_url,
+        mall_api_url,
+        outlet_api_url
+    }
+
+    public enum API_CUSTOMER_LOGIN_ULR_PARAMS {
+
+        username,
+        password,
+        device_token
+    }
+
+    public enum REQUEST_CODE {
+
+        RC_NETWORK_DIALOG(101);
+
+        REQUEST_CODE(int requestCode) {
+            this.requestCode = requestCode;
+        }
+
+        public int requestCode;
+    }
+
+    public enum API_RESPONSE_ATTRIBUTES {
+        message(""),
+        status("success");
+
+        String responeVal;
+
+        API_RESPONSE_ATTRIBUTES(String responeVal) {
+            this.responeVal = responeVal;
+        }
+    }
+
+
 }

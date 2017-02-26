@@ -48,7 +48,8 @@
 
     <!-- Network Connection Error-->
     <string name="text_network_msg">Please check your network connection...</string>
-    <string name="text_network_title">Connection Error</string>
+    <string name="text_network_title">Network Error</string>
+
 
     <!-- Google Error -->
     <string name="text_google_error_msg">Unable to Sign in through Google... Please try again later..</string>
@@ -58,6 +59,11 @@
     <string name="text_username_empty_msg">Please enter valid username</string>
     <string name="text_username_invalid_msg">Please enter valid username</string>
     <string name="text_password_empty_msg">Please enter your password</string>
+
+    <!-- Registration Error -->
+    <string name="text_authentication_failure_title">Authentication Failed</string>
+    <string name="text_authentication_failure_msg">Username or Password does not match...</string>
+
 
     <!-- acitvity_registration layout Labels -->
     <string name="text_name_label"></string>
