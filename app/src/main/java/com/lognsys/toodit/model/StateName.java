@@ -9,6 +9,10 @@ public class StateName {
     private String stateId;
     private String stateName;
     private String countryId;
+    public StateName()
+    {
+
+    }
 
     public StateName(String stateId, String stateName, String countryId) {
         this.stateId = stateId;

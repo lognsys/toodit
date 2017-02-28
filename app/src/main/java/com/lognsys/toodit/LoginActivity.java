@@ -32,9 +32,11 @@ package com.lognsys.toodit;
  *  (Common parameters .. email_id, cust_id) reset them when logged out
  */
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -43,6 +45,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -55,6 +58,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -89,6 +98,8 @@ import com.lognsys.toodit.util.Services;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 
@@ -280,9 +291,9 @@ public class LoginActivity extends AppCompatActivity implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() < 1) {
+               if (s.length() < 1) {
                     tilUsername.setErrorEnabled(true);
-                    tilUsername.setError(getString(R.string.text_username_empty_msg));
+                    tilUsername.setError("");
                 }
 
                 if (s.length() > 0) {
@@ -299,7 +310,8 @@ public class LoginActivity extends AppCompatActivity implements
                 } else {
 
                     tilUsername.setErrorEnabled(true);
-                    tilUsername.setError(getString(R.string.text_username_invalid_msg));
+                    //tilUsername.setError(getString(R.string.text_username_invalid_msg));
+                    tilUsername.setError("");
                 }
             }
         });
@@ -317,7 +329,8 @@ public class LoginActivity extends AppCompatActivity implements
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() < 1) {
                     tilPassword.setErrorEnabled(true);
-                    tilPassword.setError(getString(R.string.text_password_empty_msg));
+                   // tilPassword.setError(getString(R.string.text_password_empty_msg));
+                    tilPassword.setError("");
                 }
 
                 if (s.length() > 0) {
@@ -347,25 +360,40 @@ public class LoginActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
 
-                boolean isValid = false;
+               boolean isValid = false;
 
                 String username = inputUserName.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
 
 
-                if ((!Services.isEmpty(password) && !Services.isEmpty(username))
+              /*  if ((!Services.isEmpty(password) && !Services.isEmpty(username))
                         && (Services.isEmailValid(username) || Services.isValidMobileNo(username))) {
                     isValid = true;
-                }
+                }*/
 
                 String login_url = properties.getProperty(Constants.API_URL.customer_login_url.name());
 
-                if (isValid) {
+              //  if (isValid) {
                     CallAPI callAPI = new CallAPI();
-                    callAPI.callCustomerLoginURL(properties.getProperty
-                                    (Constants.API_URL.customer_login_url.name()), username, password,
+                    String  response=callAPI.callCustomerLoginURL(properties.getProperty
+                                    (Constants.API_URL.customer_login_url.name()), inputUserName.getText().toString().trim(), inputPassword.getText().toString().trim(),
                             device_token_id, LoginActivity.this);
-                } else return;
+                try{
+
+                    JSONObject jsonObject= new JSONObject(response);
+                    String message=jsonObject.getString("message");
+
+                   // return;
+                }
+                catch(JSONException je)
+                {
+                    je.printStackTrace();
+                }
+
+
+               // }else return;
+                //return;
+
 
             }
         });
@@ -659,4 +687,5 @@ public class LoginActivity extends AppCompatActivity implements
 
         }
     }
+
 }

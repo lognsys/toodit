@@ -7,21 +7,38 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.ImageAdapter;
 import com.lognsys.toodit.adapter.OutletsRecylerViewAdapter;
 import com.lognsys.toodit.util.FragmentTag;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class HomeFragment extends Fragment {
@@ -37,7 +54,8 @@ public class HomeFragment extends Fragment {
 
     private GridLayoutManager lLayout;
     private Button findMoreBtn;
-
+    private Button btnWayToOutlets;
+    ArrayList<String>  listOfmalls= new ArrayList<>();;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -103,7 +121,20 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+        btnWayToOutlets=(Button)homeFragmentView.findViewById(R.id.btnSelectWayToOutlet) ;
+        //get Intent
+        String city=getActivity().getIntent().getStringExtra("city_id");
+        // Log.e("city", city);
+        HashMap<String, String> hashMap= new HashMap<>();
+        hashMap.put("city_id", city);
+        listOfmalls=mallsInCity("http://food.swatinfosystem.com/api/Mall_list", hashMap);
+        btnWayToOutlets.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                dialogWayToOutles(listOfmalls);
+            }
+        });
 //        findMoreBtn = (Button) homeFragmentView.findViewById(R.id.findmore_button);
 //        findMoreBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -133,4 +164,78 @@ public class HomeFragment extends Fragment {
             R.drawable.cafe_theoborma, R.drawable.mac_trans,
             R.drawable.domino
     };
+    private void dialogWayToOutles( ArrayList<String> listOfMall)
+    {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
+        alertDialog.setView(convertView);
+        alertDialog.setTitle("List");
+        ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
+        lv.setAdapter(adapter);
+        alertDialog.show();
+    }
+
+
+    private ArrayList<String> mallsInCity(String URL, final Map<String, String> params) {
+        String response = "";
+        final ArrayList<String> listOfMall1= new ArrayList<>();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+
+                        try {
+                            try {
+                                JSONArray countryArray;
+                                JSONObject jsonObject = new JSONObject(response);
+                                if(jsonObject.getJSONObject("data").getJSONArray("mall_list")!=null){
+                                    countryArray = jsonObject.getJSONObject("data").getJSONArray("mall_list");
+                                    for (int i = 0; i < countryArray.length(); i++) {
+                                        String mall = countryArray.getJSONObject(i).getString("mall_name");
+                                        Log.e("mallname", mall);
+                                        Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
+                                        listOfMall1.add(mall);
+
+                                    }
+                                }
+
+                                //Log.e("check", countryArray.toString());
+
+
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return listOfMall1;
+
+    }
 }

@@ -1,9 +1,12 @@
 package com.lognsys.toodit.util;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -35,7 +38,7 @@ public class CallAPI {
     private static final String ARG_MSG = "message";
     private static final String ARG_INTENT = "intent";
 
-
+    public static  String response="";
     public CallAPI() {
 
     }
@@ -45,10 +48,10 @@ public class CallAPI {
      * @param - input parameters
      *
      */
-    public void callCustomerLoginURL(String url, final String username, final String password, final String device_token,
+    public String callCustomerLoginURL(String url, final String username, final String password, final String device_token,
                                      final AppCompatActivity activity) {
 
-        RequestQueue queue = Volley.newRequestQueue(activity);
+        //RequestQueue queue = Volley.newRequestQueue(activity);
 
         final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.TooditTheme);
         progressDialog.setCancelable(false);
@@ -56,20 +59,23 @@ public class CallAPI {
         progressDialog.show();
 
 
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+        StringRequest postRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.v(TAG, response);
-
+                        response=response;
                         progressDialog.hide();
                         try {
                             JSONObject jsonObj = new JSONObject(response);
                             String status = jsonObj.getString(Constants.API_RESPONSE_ATTRIBUTES.status.name());
+                            String city=jsonObj.getJSONObject("data").getString("city");
+
 
                             if (status.equalsIgnoreCase(Constants.API_RESPONSE_ATTRIBUTES.status.responeVal)) {
 
                                 Intent i = new Intent(activity, MainActivity.class);
+                                i.putExtra("city_id", city);
                                 activity.startActivity(i);
                                 activity.finish();
 
@@ -97,7 +103,7 @@ public class CallAPI {
 
 
                         } catch (JSONException je) {
-                            Log.e(TAG, "Error: Parsing#CustomerLoginResult Failed - " + je.getMessage());
+                           Log.e(TAG, "Error: Parsing#CustomerLoginResult Failed - " + je.getMessage());
                         }
                     }
                 },
@@ -120,7 +126,7 @@ public class CallAPI {
                         dialog.setArguments(args);
                         dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                         dialog.show(activity.getSupportFragmentManager(), "NetworkDialogFragment");
-                        Log.e(TAG + "#customerLoginURL", error.getMessage());
+//                        Log.e(TAG + "#customerLoginURL", error.getMessage());
                     }
                 }
         ) {
@@ -136,8 +142,9 @@ public class CallAPI {
             }
 
         };
-
-        queue.add(postRequest);
-
+        RequestQueue requestQueue = Volley.newRequestQueue(activity);
+        requestQueue.add(postRequest);
+    return response;
     }
+
 }

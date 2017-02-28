@@ -26,6 +26,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
+        app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout"
         android:textColorHint="@color/white">
 
         <EditText
@@ -48,7 +49,8 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/white">
+        android:textColorHint="@color/white"
+        app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout">
 
         <EditText
             android:id="@+id/etEmail"
@@ -66,7 +68,8 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/white">
+        android:textColorHint="@color/white"
+        app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout">
 
         <EditText
             android:id="@+id/etMobileNo"
@@ -88,18 +91,20 @@
         android:gravity="center"
 
         />-->
-    <Spinner
+
+    <fr.ganfra.materialspinner.MaterialSpinner
         android:id="@+id/spnCountry"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="18dp"
-        android:layout_marginRight="18dp"
-        android:hint="Select country.."
-        android:background="@android:drawable/btn_dropdown"
-        android:gravity="center"
-        android:layout_gravity="center"
-        />
-    <Spinner
+        android:popupBackground="#FDF2E9"
+        app:ms_arrowColor="#FFFFFF"
+        app:ms_arrowSize="16dp"
+        app:ms_floatingLabelColor="#FFFFFF"
+        app:ms_hintColor="#FFFFFF"
+        app:ms_floatingLabelText="Select Country"
+        app:ms_hint="Select Country"
+        app:ms_multiline="true" />
+    <!--<Spinner
         android:id="@+id/spnState"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -110,8 +115,20 @@
         android:background="@android:drawable/btn_dropdown"
         android:layout_gravity="center"
 
-        />
-    <Spinner
+        />-->
+    <fr.ganfra.materialspinner.MaterialSpinner
+        android:id="@+id/spnState"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:popupBackground="#FDF2E9"
+        app:ms_arrowColor="#FFFFFF"
+        app:ms_arrowSize="16dp"
+        app:ms_hintColor="#FFFFFF"
+        app:ms_floatingLabelText="Select State"
+        app:ms_floatingLabelColor="#FFFFFF"
+        app:ms_hint="Select State"
+        app:ms_multiline="true" />
+    <!--<Spinner
         android:id="@+id/spnCity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -122,11 +139,24 @@
         android:gravity="center"
         android:layout_gravity="center"
 
-        />
+        />-->
+    <fr.ganfra.materialspinner.MaterialSpinner
+        android:id="@+id/spnCity"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        app:ms_arrowColor="#FFFFFF"
+        android:popupBackground="#FDF2E9"
+        app:ms_arrowSize="16dp"
+        app:ms_floatingLabelColor="#FFFFFF"
+        app:ms_hintColor="#FFFFFF"
+        app:ms_floatingLabelText="Select City"
+        app:ms_hint="Select City"
+        app:ms_multiline="true" />
     <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/white">
+        android:textColorHint="@color/white"
+        app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout">
 
         <EditText
             android:id="@+id/etUsername"
@@ -143,7 +173,8 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/white">
+        android:textColorHint="@color/white"
+        app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout">
 
         <EditText
             android:id="@+id/etPassword"
@@ -161,7 +192,8 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:textColorHint="@color/white">
+        android:textColorHint="@color/white"
+        app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout">
 
         <EditText
             android:id="@+id/etconfirmPassword"

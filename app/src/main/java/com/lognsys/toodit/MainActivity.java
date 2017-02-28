@@ -1,5 +1,7 @@
 package com.lognsys.toodit;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -9,16 +11,39 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.lognsys.toodit.fragment.CartFragment;
 import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
 import com.lognsys.toodit.fragment.SettingFragment;
+import com.lognsys.toodit.model.CityName;
 import com.lognsys.toodit.util.FragmentTag;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SELECTED_ITEM = "arg_selected_item";
     private BottomNavigationViewEx mBottomNav;
     private int mSelectedItem; //index of bottom nagivation bar
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         mBottomNav.enableAnimation(false);
         mBottomNav.enableShiftingMode(false);
         mBottomNav.enableItemShiftingMode(false);
+
 
         mBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationViewEx.OnNavigationItemSelectedListener() {
             @Override
@@ -158,4 +185,7 @@ public class MainActivity extends AppCompatActivity {
     private int getColorFromRes(@ColorRes int resId) {
         return ContextCompat.getColor(this, resId);
     }
+
+
+
 }

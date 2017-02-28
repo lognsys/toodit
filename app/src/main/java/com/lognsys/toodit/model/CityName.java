@@ -9,7 +9,10 @@ public class CityName {
    private String cityname;
    private String stateId;
 
-    public CityName(String stateId, String cityname, String cityId) {
+    public CityName(){
+
+    }
+    public CityName(String cityId, String cityname, String stateId) {
         this.stateId = stateId;
         this.cityname = cityname;
         this.cityId = cityId;

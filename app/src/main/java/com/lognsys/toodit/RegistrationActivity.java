@@ -2,6 +2,8 @@ package com.lognsys.toodit;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,7 @@ import com.lognsys.toodit.R;
 import com.lognsys.toodit.model.CityName;
 import com.lognsys.toodit.model.CountryName;
 import com.lognsys.toodit.model.StateName;
+import com.lognsys.toodit.util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +45,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.ganfra.materialspinner.MaterialSpinner;
+
+import static com.lognsys.toodit.util.Constants.API_RESPONSE_ATTRIBUTES.status;
+
 /**
  * Created by admin on 17-02-2017.
  */
@@ -50,13 +57,13 @@ public class RegistrationActivity extends Activity {
     private EditText etName, etEmail, etMobile,etUsername, etPassword, etConfirmPasword;
     private String name, email, mobile, password;
     private Button btnRegister;
-    private Spinner spnCountry, spnState, spnCity;
+    private MaterialSpinner spnCountry, spnState, spnCity;
     ArrayList<CountryName> countryList;
     ArrayList<StateName> stateList;
     ArrayList<CityName> cityList;
     Map<String, String> hashmap = new HashMap<String, String>();
     String state_id, country_id, city_id;
-
+    SharedPreferences sharedpreferences;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -75,17 +82,17 @@ public class RegistrationActivity extends Activity {
         etPassword = (EditText) findViewById(R.id.etPassword);
         etConfirmPasword = (EditText) findViewById(R.id.etconfirmPassword);
         btnRegister = (Button) findViewById(R.id.btnRegister);
-        spnCountry = (Spinner) findViewById(R.id.spnCountry);
-        spnState = (Spinner) findViewById(R.id.spnState);
-        spnCity = (Spinner) findViewById(R.id.spnCity);
+        spnCountry = (MaterialSpinner) findViewById(R.id.spnCountry);
+        spnState = (MaterialSpinner) findViewById(R.id.spnState);
+        spnCity = (MaterialSpinner) findViewById(R.id.spnCity);
 
         countryList = new ArrayList<CountryName>();
 
-        countryList.add(new CountryName("","Select country...","","",""));
+        //countryList.add(new CountryName("","Select country...","","",""));
         CountryName countryName= new CountryName();
 
 
-        hashmap.put("country_id", "IND");
+        /*hashmap.put("country_id", "IND");
         hashmap.put("name", "India");
 
         hashmap.put("name", "John");
@@ -100,7 +107,7 @@ public class RegistrationActivity extends Activity {
         hashmap.put("device_token","0987654321");
 
 
-        registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashmap);
+        registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashmap);*/
 
         String response = getCountry("http://food.swatinfosystem.com/api/Country", hashmap);
 
@@ -117,8 +124,11 @@ public class RegistrationActivity extends Activity {
         spnCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                 country_id = (((CountryName) spnCountry.getSelectedItem()).getCountry_id()).toString();
-                Log.e("country_id", country_id);
+                 //country_id = (((CountryName) spnCountry.getItemAtPosition(position))).getCountry_id();
+                CountryName countryName= new CountryName();
+                countryName.setName( spnCountry.getItemAtPosition(position).toString());
+                country_id=countryName.getCountry_id();
+               // Log.e("country_id", country_id);
                 Toast.makeText(RegistrationActivity.this,country_id,Toast.LENGTH_LONG).show();
 //food.swatinfosystem.com/api/State
                 Map<String, String> hashMap1= new HashMap<String, String>();
@@ -143,9 +153,13 @@ public class RegistrationActivity extends Activity {
       spnState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId()).toString();
+               // state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
 
-                Log.e("state_id", state_id);
+                StateName stateName= new StateName();
+                stateName.setStateName(spnState.getItemAtPosition(position).toString());
+                state_id=stateName.getStateId();
+
+               // Log.e("state_id", state_id);
                 Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
 //food.swatinfosystem.com/api/State
                 Map<String, String> hashMapCity= new HashMap<String, String>();
@@ -170,8 +184,11 @@ public class RegistrationActivity extends Activity {
         spnCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                city_id = (((CityName) spnCity.getItemAtPosition(position)).getCityId()).toString();
-
+                //city_id = (((CityName) spnCity.getSelectedItem()).getCityId());
+                CityName cityName= new CityName();
+                cityName.setCityname(spnCity.getItemAtPosition(position).toString());
+                city_id=cityName.getCityId();
+                Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
 
 
 
@@ -273,7 +290,7 @@ public class RegistrationActivity extends Activity {
                         hashMapRegister.put("username", etUsername.getText().toString().trim());
                         hashMapRegister.put("mobile", etMobile.getText().toString().trim());
                         hashMapRegister.put("email", etEmail.getText().toString());
-                        hashMapRegister.put("device_token","09876543210");
+                        hashMapRegister.put("device_token",Constants.Shared.DEVICE_TOKEN_ID.name());
 
 
                        String response=registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashMapRegister);
@@ -348,7 +365,8 @@ public class RegistrationActivity extends Activity {
                                     countryList.add(countryName);
 
                                 }
-                                Log.e("check", countryList.get(4).getName());
+                               //
+                                // Log.e("check", countryList.get(4).getName());
                                 //getCountryFromJson(countryArray.toString());
                             } catch (JSONException je) {
                                 je.printStackTrace();
@@ -383,12 +401,12 @@ public class RegistrationActivity extends Activity {
     private String registerState(String URL, final Map<String, String> params) {
         String response = "";
         stateList = new ArrayList<StateName>();
-        stateList.add(new StateName("","Select state...",""));
+       // stateList.add(new StateName("","Select state...",""));
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         StateName stateName;
                         try {
@@ -452,12 +470,12 @@ public class RegistrationActivity extends Activity {
     private String registerCity(String URL, final Map<String, String> params) {
         String response = "";
         cityList = new ArrayList<CityName>();
-        cityList.add(new CityName("","Select city...",""));
+        //cityList.add(new CityName("","Select city...",""));
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                       // Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                       Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         CityName cityName;
                         try {
@@ -474,6 +492,11 @@ public class RegistrationActivity extends Activity {
 
                                     }
                                 }
+
+
+
+
+
 
                                 //Log.e("check", countryArray.toString());
 
@@ -524,6 +547,7 @@ public class RegistrationActivity extends Activity {
                   public void onResponse(String response) {
                       Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                       response = response;
+
 
                   }
               },
