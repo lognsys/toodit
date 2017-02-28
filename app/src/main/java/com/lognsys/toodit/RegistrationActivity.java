@@ -135,7 +135,7 @@ public class RegistrationActivity extends Activity {
 
 
                // Log.e("country_id", country_id);
-                Toast.makeText(RegistrationActivity.this,country_id,Toast.LENGTH_LONG).show();
+               // Toast.makeText(RegistrationActivity.this,country_id,Toast.LENGTH_LONG).show();
 //food.swatinfosystem.com/api/State
                 Map<String, String> hashMap1= new HashMap<String, String>();
                 hashMap1.put("country_id", country_id);
@@ -171,7 +171,7 @@ public class RegistrationActivity extends Activity {
 
 
                // Log.e("state_id", state_id);
-                Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
+              //  Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
 //food.swatinfosystem.com/api/State
                 Map<String, String> hashMapCity= new HashMap<String, String>();
                 hashMapCity.put("state_id", state_id);
@@ -205,7 +205,7 @@ public class RegistrationActivity extends Activity {
                 }
 
 
-                Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
+               // Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
 
 
 
@@ -423,7 +423,7 @@ public class RegistrationActivity extends Activity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         StateName stateName;
                         try {
@@ -492,7 +492,7 @@ public class RegistrationActivity extends Activity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                       Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                       //Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         CityName cityName;
                         try {
@@ -562,7 +562,7 @@ public class RegistrationActivity extends Activity {
               new Response.Listener<String>() {
                   @Override
                   public void onResponse(String response) {
-                      Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                     // Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                       response = response;
 
 

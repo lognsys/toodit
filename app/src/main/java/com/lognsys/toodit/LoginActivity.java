@@ -30,6 +30,10 @@ package com.lognsys.toodit;
  *  5) Facebook call register api... if API responds user already exists then login directly
  *  6) google call register api.. if user already exists (
  *  (Common parameters .. email_id, cust_id) reset them when logged out
+ *
+ *
+ *  CHANGE LOG :
+ *
  */
 
 import android.app.Activity;
@@ -283,68 +287,8 @@ public class LoginActivity extends AppCompatActivity implements
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         tilUsername = (TextInputLayout) findViewById(R.id.til_username);
         inputUserName = (EditText) findViewById(R.id.username);
-        tilUsername.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-               if (s.length() < 1) {
-                    tilUsername.setErrorEnabled(true);
-                    tilUsername.setError("");
-                }
-
-                if (s.length() > 0) {
-                    tilUsername.setError(null);
-                    tilUsername.setErrorEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.length() > 0 && Services.isEmailValid(inputUserName.getText().toString().trim()) || Services.isValidMobileNo(inputUserName.getText().toString().trim())) {
-                    tilUsername.setError(null);
-                    tilUsername.setErrorEnabled(false);
-                } else {
-
-                    tilUsername.setErrorEnabled(true);
-                    //tilUsername.setError(getString(R.string.text_username_invalid_msg));
-                    tilUsername.setError("");
-                }
-            }
-        });
-
-
         tilPassword = (TextInputLayout) findViewById(R.id.til_password);
         inputPassword = (EditText) findViewById(R.id.password);
-        tilPassword.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() < 1) {
-                    tilPassword.setErrorEnabled(true);
-                   // tilPassword.setError(getString(R.string.text_password_empty_msg));
-                    tilPassword.setError("");
-                }
-
-                if (s.length() > 0) {
-                    tilPassword.setError(null);
-                    tilPassword.setErrorEnabled(false);
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
 
 
         //TODO: Do Authentication of name and email address and call API to validate User
@@ -360,39 +304,54 @@ public class LoginActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
 
-               boolean isValid = false;
+                boolean isValid = true;
 
                 String username = inputUserName.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
 
 
-              /*  if ((!Services.isEmpty(password) && !Services.isEmpty(username))
-                        && (Services.isEmailValid(username) || Services.isValidMobileNo(username))) {
-                    isValid = true;
-                }*/
+                if (Services.isEmpty(username) || Services.isEmpty(password)) {
+                    DialogFragment dialog = new NetworkStatusDialog();
+                    Bundle args = new Bundle();
+                    args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_authentication_failure_title));
+                    args.putString(NetworkStatusDialog.ARG_MSG, getString(R.string.text_username_password_empty_msg));
+                    dialog.setArguments(args);
+                    dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                    dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                    Log.e(TAG, "Username empty!");
+
+                    isValid = false;
+                }
+
+
+                if (!Services.isEmailValid(username) || !Services.isValidMobileNo(username)) {
+
+                    Log.v(TAG + "#Email", Services.isEmailValid(username) + "");
+
+                    Log.v(TAG + "#Mobile", Services.isValidMobileNo(username) + "");
+                    DialogFragment dialog = new NetworkStatusDialog();
+                    Bundle args = new Bundle();
+                    args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_authentication_failure_title));
+                    args.putString(NetworkStatusDialog.ARG_MSG, getString(R.string.text_username_invalid_msg));
+                    dialog.setArguments(args);
+                    dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                    dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                    Log.e(TAG, "Username Invalid!");
+
+                    isValid = false;
+                }
+
 
                 String login_url = properties.getProperty(Constants.API_URL.customer_login_url.name());
 
-              //  if (isValid) {
+                if (isValid) {
                     CallAPI callAPI = new CallAPI();
-                    String  response=callAPI.callCustomerLoginURL(properties.getProperty
+                    String response = callAPI.callCustomerLoginURL(properties.getProperty
                                     (Constants.API_URL.customer_login_url.name()), inputUserName.getText().toString().trim(), inputPassword.getText().toString().trim(),
                             device_token_id, LoginActivity.this);
-                try{
 
-                    JSONObject jsonObject= new JSONObject(response);
-                    String message=jsonObject.getString("message");
-                    dialog(message);
-                   // return;
-                }
-                catch(JSONException je)
-                {
-                    je.printStackTrace();
-                }
-
-
-               // }else return;
-                //return;
+                } else return;
+                return;
 
 
             }
@@ -687,31 +646,4 @@ public class LoginActivity extends AppCompatActivity implements
 
         }
     }
-    public void dialog(final String message) {
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-        builder1.setMessage(message);
-        builder1.setCancelable(true);
-
-        builder1.setPositiveButton(
-                "OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-
-       /* builder1.setNegativeButton(
-                "No",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });*/
-
-        AlertDialog alert11 = builder1.create();
-        alert11.show();
-    }
-
-
-
 }

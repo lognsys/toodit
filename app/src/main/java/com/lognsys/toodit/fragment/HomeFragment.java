@@ -128,13 +128,13 @@ public class HomeFragment extends Fragment {
         HashMap<String, String> hashMap= new HashMap<>();
         hashMap.put("city_id", city);
         listOfmalls=mallsInCity("http://food.swatinfosystem.com/api/Mall_list", hashMap);
-        btnWayToOutlets.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                dialogWayToOutles(listOfmalls);
-            }
-        });
+//        btnWayToOutlets.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                dialogWayToOutles(listOfmalls);
+//            }
+//        });
 //        findMoreBtn = (Button) homeFragmentView.findViewById(R.id.findmore_button);
 //        findMoreBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -164,18 +164,18 @@ public class HomeFragment extends Fragment {
             R.drawable.cafe_theoborma, R.drawable.mac_trans,
             R.drawable.domino
     };
-    private void dialogWayToOutles( ArrayList<String> listOfMall)
-    {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
-        alertDialog.setView(convertView);
-        alertDialog.setTitle("List");
-        ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
-        lv.setAdapter(adapter);
-        alertDialog.show();
-    }
+//    private void dialogWayToOutles( ArrayList<String> listOfMall)
+//    {
+//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+//        LayoutInflater inflater = getActivity().getLayoutInflater();
+//        View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
+//        alertDialog.setView(convertView);
+//        alertDialog.setTitle("List");
+//        ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
+//        lv.setAdapter(adapter);
+//        alertDialog.show();
+//    }
 
 
     private ArrayList<String> mallsInCity(String URL, final Map<String, String> params) {

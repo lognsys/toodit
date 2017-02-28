@@ -24,19 +24,26 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+
     <style name="RatingBar" parent="Theme.AppCompat">
         <item name="colorControlNormal">#000000</item>
         <item name="colorControlActivated">#FFAF0A</item>
     </style>
 
     <style name="tooditDialog" parent="Theme.AppCompat.Dialog">
+        //
         <item name="android:alertDialogStyle">@style/CustomAlertDialogStyle</item>
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">@color/red</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:width">100dip</item>
+        <item name="android:height">100dip</item>
+        <item name="colorAccent">@color/white</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <!-- Used for the background -->
+        <item name="android:background">#fa2618</item>
     </style>
 
     <style name="CustomAlertDialogStyle">
@@ -54,6 +61,12 @@
     <!--style for floating text of material edit text-->
     <style name="TextAppearence.App.TextInputLayout" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white</item>
+    </style>
 
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">#FFFF</item>
+        <item name="android:textColorPrimary">#FFFF</item>
+        <item name="android:background">#ff7f7f</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

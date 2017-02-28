@@ -2,14 +2,21 @@ package com.lognsys.toodit.Dialog;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.LoginFilter;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.lognsys.toodit.LoginActivity;
+import com.lognsys.toodit.R;
 
 
 /**
@@ -33,10 +40,23 @@ public class NetworkStatusDialog extends DialogFragment {
         String title = args.getString(ARG_TITLE, "");
         String message = args.getString(ARG_MSG, "");
         final Intent i = args.getParcelable(ARG_INTENT);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        View view = inflater.inflate(R.layout.viewname, null);
+//        builder.setView(view);
+//        TextView tv = new TextView(getActivity());
+//        tv.setText(title);
+//        tv.setBackgroundColor(Color.DKGRAY);
+//        tv.setPadding(10, 10, 10, 10);
+//        tv.setGravity(Gravity.CENTER);
+//        tv.setTextColor(Color.WHITE);
+//        tv.setTextSize(20);
+//        builder.setCustomTitle(tv);
 
-        return new AlertDialog.Builder(getActivity())
+        return new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(title)
                 .setMessage(message)
+
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -44,5 +64,7 @@ public class NetworkStatusDialog extends DialogFragment {
                         dialog.dismiss();
                     }
                 }).create();
+
+
     }
 }

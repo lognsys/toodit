@@ -55,10 +55,11 @@
     <string name="text_google_error_msg">Unable to Sign in through Google... Please try again later..</string>
     <string name="text_google_error_title">Google Error</string>
 
-    <!--Registration Validation-->
-    <string name="text_username_empty_msg">Please enter valid username</string>
-    <string name="text_username_invalid_msg">Please enter valid username</string>
-    <string name="text_password_empty_msg">Please enter your password</string>
+    <!--Validation Messages-->
+
+    <string name="text_username_empty_title">User Error</string>
+    <string name="text_username_invalid_msg">Please enter valid Email or Mobile No</string>
+    <string name="text_username_password_empty_msg">Username or Password cannot be empty</string>
 
     <!-- Registration Error -->
     <string name="text_authentication_failure_title">Authentication Failed</string>

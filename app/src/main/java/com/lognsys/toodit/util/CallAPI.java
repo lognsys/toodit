@@ -9,6 +9,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -38,7 +40,8 @@ public class CallAPI {
     private static final String ARG_MSG = "message";
     private static final String ARG_INTENT = "intent";
 
-    public static  String response="";
+    public static String response = "";
+
     public CallAPI() {
 
     }
@@ -49,14 +52,21 @@ public class CallAPI {
      *
      */
     public String callCustomerLoginURL(String url, final String username, final String password, final String device_token,
-                                     final AppCompatActivity activity) {
+                                       final AppCompatActivity activity) {
 
         //RequestQueue queue = Volley.newRequestQueue(activity);
 
-        final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.TooditTheme);
+        final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.tooditDialog);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
         progressDialog.show();
+        progressDialog.setMessage("Authenticating...");
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(progressDialog.getWindow().getAttributes());
+        lp.width = 500;
+        lp.height = 150;
+        lp.gravity = Gravity.CENTER;
+        progressDialog.getWindow().setAttributes(lp);
 
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -64,29 +74,21 @@ public class CallAPI {
                     @Override
                     public void onResponse(String response) {
                         Log.v(TAG, response);
-                        response=response;
+                        response = response;
                         progressDialog.hide();
                         try {
                             JSONObject jsonObj = new JSONObject(response);
                             String status = jsonObj.getString(Constants.API_RESPONSE_ATTRIBUTES.status.name());
-                            String city=jsonObj.getJSONObject("data").getString("city");
-
 
                             if (status.equalsIgnoreCase(Constants.API_RESPONSE_ATTRIBUTES.status.responeVal)) {
 
                                 Intent i = new Intent(activity, MainActivity.class);
-                                i.putExtra("city_id", city);
                                 activity.startActivity(i);
                                 activity.finish();
 
 
                             } else {
 
-
-//                                String title = activity.getString(R.string.text_authentication_failure_title);
-//                                String message = activity.getString(R.string.text_authentication_failure_msg);
-
-//                                DialogFragment dialog = NetworkStatusDialog.newInstance(title, message, i);
 
                                 Intent i = new Intent(activity, LoginActivity.class);
                                 DialogFragment dialog = new NetworkStatusDialog();
@@ -103,7 +105,7 @@ public class CallAPI {
 
 
                         } catch (JSONException je) {
-                           Log.e(TAG, "Error: Parsing#CustomerLoginResult Failed - " + je.getMessage());
+                            Log.e(TAG, "Error: Parsing#CustomerLoginResult Failed - " + je.getMessage());
                         }
                     }
                 },
@@ -112,10 +114,6 @@ public class CallAPI {
                     public void onErrorResponse(VolleyError error) {
 
                         progressDialog.hide();
-//                        String title = activity.getString(R.string.text_network_title);
-//                        String message = activity.getString(R.string.text_network_msg);
-//                        Intent i = new Intent(activity, LoginActivity.class);
-//                        DialogFragment dialog = NetworkStatusDialog.newInstance(title, message, i);
 
                         Intent i = new Intent(activity, LoginActivity.class);
                         DialogFragment dialog = new NetworkStatusDialog();
@@ -126,7 +124,7 @@ public class CallAPI {
                         dialog.setArguments(args);
                         dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                         dialog.show(activity.getSupportFragmentManager(), "NetworkDialogFragment");
-//                        Log.e(TAG + "#customerLoginURL", error.getMessage());
+                        Log.e(TAG + "#customerLoginURL", error.getMessage());
                     }
                 }
         ) {
@@ -144,7 +142,7 @@ public class CallAPI {
         };
         RequestQueue requestQueue = Volley.newRequestQueue(activity);
         requestQueue.add(postRequest);
-    return response;
+        return response;
     }
 
 }
