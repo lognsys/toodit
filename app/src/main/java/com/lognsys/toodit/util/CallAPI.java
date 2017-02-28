@@ -59,7 +59,7 @@ public class CallAPI {
         progressDialog.show();
 
 
-        StringRequest postRequest = new StringRequest(Request.Method.GET, url,
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

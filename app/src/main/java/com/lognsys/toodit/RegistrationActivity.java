@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 
@@ -124,10 +125,15 @@ public class RegistrationActivity extends Activity {
         spnCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                 //country_id = (((CountryName) spnCountry.getItemAtPosition(position))).getCountry_id();
-                CountryName countryName= new CountryName();
-                countryName.setName( spnCountry.getItemAtPosition(position).toString());
-                country_id=countryName.getCountry_id();
+                try{
+                    country_id = (((CountryName) spnCountry.getItemAtPosition(position))).getCountry_id();
+                }
+                catch (ClassCastException cce)
+                {
+                    cce.printStackTrace();
+                }
+
+
                // Log.e("country_id", country_id);
                 Toast.makeText(RegistrationActivity.this,country_id,Toast.LENGTH_LONG).show();
 //food.swatinfosystem.com/api/State
@@ -153,11 +159,16 @@ public class RegistrationActivity extends Activity {
       spnState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-               // state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
+                try{
+                    state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
+                }
+                catch(ClassCastException cce)
+                {
+                    cce.printStackTrace();
+                }
 
-                StateName stateName= new StateName();
-                stateName.setStateName(spnState.getItemAtPosition(position).toString());
-                state_id=stateName.getStateId();
+
+
 
                // Log.e("state_id", state_id);
                 Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
@@ -184,10 +195,16 @@ public class RegistrationActivity extends Activity {
         spnCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                //city_id = (((CityName) spnCity.getSelectedItem()).getCityId());
-                CityName cityName= new CityName();
-                cityName.setCityname(spnCity.getItemAtPosition(position).toString());
-                city_id=cityName.getCityId();
+
+                try{
+                    city_id = (((CityName) spnCity.getSelectedItem()).getCityId());
+                }
+                catch (ClassCastException cce)
+                {
+                    cce.printStackTrace();
+                }
+
+
                 Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
 
 

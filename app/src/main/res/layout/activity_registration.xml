@@ -120,6 +120,7 @@
         android:id="@+id/spnState"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:popupBackground="#FDF2E9"
         app:ms_arrowColor="#FFFFFF"
         app:ms_arrowSize="16dp"
@@ -152,6 +153,17 @@
         app:ms_floatingLabelText="Select City"
         app:ms_hint="Select City"
         app:ms_multiline="true" />
+
+    <!--Button
+        android:id="@+id/btnNext"
+        style="?android:textAppearanceMedium"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/round_btn"
+        android:text="Next"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold" />-->
     <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
