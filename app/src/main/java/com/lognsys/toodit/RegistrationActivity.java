@@ -5,7 +5,11 @@ import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,11 +32,13 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.model.CityName;
 import com.lognsys.toodit.model.CountryName;
 import com.lognsys.toodit.model.StateName;
 import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.Services;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 
@@ -54,10 +63,10 @@ import static com.lognsys.toodit.util.Constants.API_RESPONSE_ATTRIBUTES.status;
  * Created by admin on 17-02-2017.
  */
 
-public class RegistrationActivity extends Activity {
-    private EditText etName, etEmail, etMobile,etUsername, etPassword, etConfirmPasword;
+public class RegistrationActivity extends AppCompatActivity {
+    private EditText etName, etEmail, etMobile;
     private String name, email, mobile, password;
-    private Button btnRegister;
+    private Button btnNext;
     private MaterialSpinner spnCountry, spnState, spnCity;
     ArrayList<CountryName> countryList;
     ArrayList<StateName> stateList;
@@ -65,6 +74,7 @@ public class RegistrationActivity extends Activity {
     Map<String, String> hashmap = new HashMap<String, String>();
     String state_id, country_id, city_id;
     SharedPreferences sharedpreferences;
+    ArrayAdapter<CountryName> dataAdapter;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -79,10 +89,10 @@ public class RegistrationActivity extends Activity {
         etName = (EditText) findViewById(R.id.etName);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etMobile = (EditText) findViewById(R.id.etMobileNo);
-        etUsername=(EditText)findViewById(R.id.etUsername);
-        etPassword = (EditText) findViewById(R.id.etPassword);
-        etConfirmPasword = (EditText) findViewById(R.id.etconfirmPassword);
-        btnRegister = (Button) findViewById(R.id.btnRegister);
+       // etUsername=(EditText)findViewById(R.id.etUsername);
+        //etPassword = (EditText) findViewById(R.id.etPassword);
+        //etConfirmPasword = (EditText) findViewById(R.id.etconfirmPassword);
+        btnNext = (Button) findViewById(R.id.btnNext);
         spnCountry = (MaterialSpinner) findViewById(R.id.spnCountry);
         spnState = (MaterialSpinner) findViewById(R.id.spnState);
         spnCity = (MaterialSpinner) findViewById(R.id.spnCity);
@@ -107,24 +117,44 @@ public class RegistrationActivity extends Activity {
         hashmap.put("email", "john@123");
         hashmap.put("device_token","0987654321");
 
-
         registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashmap);*/
-
-        String response = getCountry("http://food.swatinfosystem.com/api/Country", hashmap);
 
         //create ObjectMapper instance
         //ObjectMapper objectMapper = new ObjectMapper();
+        String response = getCountry("http://food.swatinfosystem.com/api/Country", hashmap);
 
         //convert json string to object
         JSONArray countryArray = null;
-        ArrayAdapter<CountryName> dataAdapter = new ArrayAdapter<CountryName>(this,R.layout.spinner_item, countryList);
+        dataAdapter = new ArrayAdapter<CountryName>(this,R.layout.spinner_item, countryList);
         dataAdapter.notifyDataSetChanged();
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCountry.setAdapter(dataAdapter);
 
+        /*try {
+            if (spnCountry.getAdapter().getCount() < 2) {
+                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                scheduler.scheduleAtFixedRate(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        // Hit WebService
+
+
+                    }
+                }, 0, 3, TimeUnit.SECONDS);
+
+            }
+        }
+        catch (IllegalStateException ise)
+        {
+            ise.printStackTrace();
+        }*/
+        //dataAdapter.notifyDataSetChanged();
         spnCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
                 try{
                     country_id = (((CountryName) spnCountry.getItemAtPosition(position))).getCountry_id();
                 }
@@ -159,31 +189,29 @@ public class RegistrationActivity extends Activity {
       spnState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                try{
-                    state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
-                }
-                catch(ClassCastException cce)
-                {
-                    cce.printStackTrace();
-                }
 
 
+                    try {
+                        state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
+                    } catch (ClassCastException cce) {
+                        cce.printStackTrace();
+                    }
 
 
-               // Log.e("state_id", state_id);
-              //  Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
+                    // Log.e("state_id", state_id);
+                    //  Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
 //food.swatinfosystem.com/api/State
-                Map<String, String> hashMapCity= new HashMap<String, String>();
-                hashMapCity.put("state_id", state_id);
+                    Map<String, String> hashMapCity = new HashMap<String, String>();
+                    hashMapCity.put("state_id", state_id);
 
-                registerCity("http://food.swatinfosystem.com/api/City", hashMapCity);
-                ArrayAdapter<CityName> dataAdapter = new ArrayAdapter<CityName>(RegistrationActivity.this, R.layout.spinner_item, cityList);
-                dataAdapter.notifyDataSetChanged();
-                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spnCity.setAdapter(dataAdapter);
+                    registerCity("http://food.swatinfosystem.com/api/City", hashMapCity);
+                    ArrayAdapter<CityName> dataAdapter = new ArrayAdapter<CityName>(RegistrationActivity.this, R.layout.spinner_item, cityList);
+                    dataAdapter.notifyDataSetChanged();
+                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spnCity.setAdapter(dataAdapter);
+                }
 
 
-            }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -196,16 +224,15 @@ public class RegistrationActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                try{
-                    city_id = (((CityName) spnCity.getSelectedItem()).getCityId());
-                }
-                catch (ClassCastException cce)
-                {
-                    cce.printStackTrace();
-                }
+
+                    try {
+                        city_id = (((CityName) spnCity.getSelectedItem()).getCityId());
+                    } catch (ClassCastException cce) {
+                        cce.printStackTrace();
+                    }
 
 
-               // Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
+                    // Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
 
 
 
@@ -216,12 +243,13 @@ public class RegistrationActivity extends Activity {
 
                 // sometimes you need nothing here
             }
+
         });
 
 
 
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
+        btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -233,7 +261,7 @@ public class RegistrationActivity extends Activity {
                         etEmail.setError("Email not entered");
                         etEmail.requestFocus();
 
-                        final String email = etEmail.getText().toString().trim();
+                        /*final String email = etEmail.getText().toString().trim();
 
                         final String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
 
@@ -264,12 +292,47 @@ public class RegistrationActivity extends Activity {
                             public void onTextChanged(CharSequence s, int start, int before, int count) {
                                 // other stuffs
                             }
-                        });
+                        });*/
+                    }
+                       else if (!Services.isEmailValid(etEmail.getText().toString())) {
 
-                    } else if (etMobile.getText().toString().length() == 0) {
+                            Log.v("TAG" + "#Email", Services.isEmailValid(etEmail.getText().toString()) + "");
+
+                            Log.v("TAG" + "#Mobile", Services.isValidMobileNo(etEmail.getText().toString()) + "");
+                            DialogFragment dialog = new NetworkStatusDialog();
+                            Bundle args = new Bundle();
+                            args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                            args.putString(NetworkStatusDialog.ARG_MSG, "Please enter valid email");
+                            dialog.setArguments(args);
+                            dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                            dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                            Log.e("TAG", "Username Invalid!");
+
+
+                        }
+
+
+                    else if (etMobile.getText().toString().length() == 0) {
                         etMobile.setError("Mobile number is Required");
                         etMobile.requestFocus();
                     }
+                       else if(!Services.isValidMobileNo(etMobile.getText().toString())) {
+
+                            Log.v("TAG" + "#Email", Services.isValidMobileNo(etMobile.getText().toString()) + "");
+
+                            Log.v("TAG" + "#Mobile", Services.isValidMobileNo(etMobile.getText().toString()) + "");
+                            DialogFragment dialog = new NetworkStatusDialog();
+                            Bundle args = new Bundle();
+                            args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                            args.putString(NetworkStatusDialog.ARG_MSG, "Please enter valid mobile no");
+                            dialog.setArguments(args);
+                            dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                            dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                            Log.e("TAG", "Username Invalid!");
+
+
+                        }
+
                     else if (spnCountry.getSelectedItemPosition() == 0) {
                         Toast.makeText(RegistrationActivity.this,"Selection of Country is mandatory", Toast.LENGTH_LONG).show();
                     }
@@ -279,7 +342,7 @@ public class RegistrationActivity extends Activity {
                     else if (spnCity.getSelectedItemPosition() == 0) {
                         Toast.makeText(RegistrationActivity.this,"Selection of City is mandatory", Toast.LENGTH_LONG).show();
                     }
-                    else if (etUsername.getText().toString().length() == 0) {
+                  /*  else if (etUsername.getText().toString().length() == 0) {
                         etUsername.setError("Please entere username");
                         etUsername.requestFocus();
                     }
@@ -293,24 +356,44 @@ public class RegistrationActivity extends Activity {
                     else if (!etPassword.getText().toString().equals(etConfirmPasword.getText().toString()) ){
                         etConfirmPasword.setError("Password entered did not match");
                         etConfirmPasword.requestFocus();
-                    }
+                    }*/
 
                     else {
+                        String manufacturer = Build.MANUFACTURER; //this one will work for you.
+                        String product = Build.PRODUCT;
+                        String model = Build.MODEL;
+                        String s="Manufacturer:"+manufacturer+",Product:"+product+" ,"+"model: "+model;
                        // Toast.makeText(getApplicationContext(), "valid email address", Toast.LENGTH_SHORT).show();
                         HashMap<String , String> hashMapRegister=new HashMap<String, String>();
                         hashMapRegister.put("name", etName.getText().toString().trim());
-                        hashMapRegister.put("username", etUsername.getText().toString().trim());
-                        hashMapRegister.put("password", etPassword.getText().toString().trim());
+                        hashMapRegister.put("username", etEmail.getText().toString().trim());
+                        //hashMapRegister.put("password", etPassword.getText().toString().trim());
                         hashMapRegister.put("city_id", city_id);
                         hashMapRegister.put("state_id", state_id);
                         hashMapRegister.put("country_id",country_id);
-                        hashMapRegister.put("username", etUsername.getText().toString().trim());
-                        hashMapRegister.put("mobile", etMobile.getText().toString().trim());
+                        hashMapRegister.put("username", etEmail.getText().toString().trim());
+                       hashMapRegister.put("mobile", etMobile.getText().toString().trim());
                         hashMapRegister.put("email", etEmail.getText().toString());
                         hashMapRegister.put("device_token",Constants.Shared.DEVICE_TOKEN_ID.name());
+                        hashMapRegister.put("device_type","android tab");
+
+                        Intent i= new Intent(RegistrationActivity.this, RegistrationActivityPartTwo.class);
+                        i.putExtra("hashMapRegister", hashMapRegister);
+                        SharedPreferences sharedpreferences;
+                        //Initialize SharedPreferences
+                        sharedpreferences = PreferenceManager.getDefaultSharedPreferences(RegistrationActivity.this);
+                        //SharedPreferences Editor
+                        SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
 
-                       String response=registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashMapRegister);
+                        sharedPrefEditor.putString("device_type", s);
+                        sharedPrefEditor.putString("city_id",city_id);
+                        sharedPrefEditor.commit();
+                        startActivity(i);
+
+
+
+                       //String response=registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashMapRegister);
 
 
 
@@ -399,7 +482,8 @@ public class RegistrationActivity extends Activity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                       // Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegistrationActivity.this, "Internet not available !", Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
@@ -549,42 +633,5 @@ public class RegistrationActivity extends Activity {
         return response;
     }
 
-
-
-  /*  public class  RegistrationRequest extends Request<String>
-    {
-        private Map<String, String> mParams;
-
-    }*/
-  private String registerUser(String URL, final Map<String, String> params) {
-      String response = "";
-      StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
-              new Response.Listener<String>() {
-                  @Override
-                  public void onResponse(String response) {
-                     // Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
-                      response = response;
-
-
-                  }
-              },
-              new Response.ErrorListener() {
-                  @Override
-                  public void onErrorResponse(VolleyError error) {
-                      Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
-                  }
-              }) {
-          @Override
-          protected Map<String, String> getParams() {
-
-              return params;
-          }
-
-      };
-
-      RequestQueue requestQueue = Volley.newRequestQueue(RegistrationActivity.this);
-      requestQueue.add(stringRequest);
-      return response;
-  }
 
 }

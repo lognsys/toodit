@@ -44,6 +44,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -171,10 +172,16 @@ public class LoginActivity extends AppCompatActivity implements
 
         //Add device token
         device_token_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.e("devicetoken", device_token_id);
         sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), device_token_id);
         sharedPrefEditor.commit();
-
-
+//Add device type
+        String manufacturer = Build.MANUFACTURER; //this one will work for you.
+        String product = Build.PRODUCT;
+        String model = Build.MODEL;
+        String s="Manufacturer:"+manufacturer+",Product:"+product+" ,"+"model: "+model;
+        sharedPrefEditor.putString("device_type", "android tab");
+        sharedPrefEditor.commit();
         //Use Case 1:If cust_id in shared pref then goto MainActivity
         String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
         if (cust_id != null) {
@@ -324,34 +331,32 @@ public class LoginActivity extends AppCompatActivity implements
                 }
 
 
-                if (!Services.isEmailValid(username) || !Services.isValidMobileNo(username)) {
+              else  if ( !Services.isValidMobileNo(username) && !Services.isEmailValid(username)) {
+                        Log.v(TAG + "#Email", Services.isEmailValid(username) + "");
 
-                    Log.v(TAG + "#Email", Services.isEmailValid(username) + "");
-
-                    Log.v(TAG + "#Mobile", Services.isValidMobileNo(username) + "");
-                    DialogFragment dialog = new NetworkStatusDialog();
-                    Bundle args = new Bundle();
-                    args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_authentication_failure_title));
-                    args.putString(NetworkStatusDialog.ARG_MSG, getString(R.string.text_username_invalid_msg));
-                    dialog.setArguments(args);
-                    dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
-                    dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
-                    Log.e(TAG, "Username Invalid!");
-
-                    isValid = false;
-                }
+                        //Log.v(TAG + "#Mobile", Services.isValidMobileNo(username) + "");
+                        DialogFragment dialog = new NetworkStatusDialog();
+                        Bundle args = new Bundle();
+                        args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_authentication_failure_title));
+                        args.putString(NetworkStatusDialog.ARG_MSG, getString(R.string.text_username_invalid_msg));
+                        dialog.setArguments(args);
+                        dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                        dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                        isValid = false;
+                        Log.e(TAG, "Username Invalid!");
+                    }
 
 
-                String login_url = properties.getProperty(Constants.API_URL.customer_login_url.name());
+                    String login_url = properties.getProperty(Constants.API_URL.customer_login_url.name());
 
-                if (isValid) {
-                    CallAPI callAPI = new CallAPI();
-                    String response = callAPI.callCustomerLoginURL(properties.getProperty
-                                    (Constants.API_URL.customer_login_url.name()), inputUserName.getText().toString().trim(), inputPassword.getText().toString().trim(),
-                            device_token_id, LoginActivity.this);
+                    if (isValid) {
+                        CallAPI callAPI = new CallAPI();
+                        String response = callAPI.callCustomerLoginURL(properties.getProperty
+                                        (Constants.API_URL.customer_login_url.name()), inputUserName.getText().toString().trim(), inputPassword.getText().toString().trim(),
+                                device_token_id, LoginActivity.this);
 
-                } else return;
-                return;
+                    } else return;
+                    return;
 
 
             }

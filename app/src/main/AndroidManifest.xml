@@ -42,7 +42,12 @@
             android:screenOrientation="portrait"></activity>
         <activity android:screenOrientation="portrait"
                 android:configChanges="keyboardHidden"
-                android:name="com.lognsys.toodit.RegistrationActivity"/>
+                android:theme="@style/TooditTheme.NoActionBar"
+                android:name=".RegistrationActivity"/>
+        <activity android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden"
+            android:theme="@style/TooditTheme.NoActionBar"
+            android:name=".RegistrationActivityPartTwo"/>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">TOODIT</string>
     <string name="action_sign_up">Sign Up</string>
-    <string name="email">Email</string>
+    <string name="email">E-mail</string>
     <string name="minimum_password">Password too short, enter minimum 6 characters!</string>
     <string name="auth_failed">Authentication failed, check your email and password or sign up</string>
     <string name="change_email">Change Email</string>
@@ -64,6 +64,7 @@
     <!-- Registration Error -->
     <string name="text_authentication_failure_title">Authentication Failed</string>
     <string name="text_authentication_failure_msg">Username or Password does not match...</string>
+    <string name="text_registration_failed">Registration step one failed...</string>
 
 
     <!-- acitvity_registration layout Labels -->

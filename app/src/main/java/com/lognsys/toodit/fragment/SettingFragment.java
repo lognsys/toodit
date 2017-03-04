@@ -38,6 +38,7 @@ public class SettingFragment extends Fragment {
     private String name;
     private String loc;
     private Button logout;
+    private Button update;
     //Google API variable
     private GoogleApiClient mGoogleApiClient;
     ListView profileListView;
@@ -75,6 +76,16 @@ public class SettingFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
         logout = (Button) view.findViewById(R.id.logout);
+        update = (Button) view.findViewById(R.id.edit_profile);
+
+        update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = new UpdateFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+            }
+        });
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override

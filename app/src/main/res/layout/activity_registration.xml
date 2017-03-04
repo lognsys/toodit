@@ -33,13 +33,14 @@
             android:id="@+id/etName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             android:backgroundTint="@color/white"
             android:focusableInTouchMode="true"
             android:gravity="center_horizontal"
             android:hint="@string/hint_name"
             android:imeActionId="@+id/login"
             android:imeOptions="actionUnspecified"
-            android:inputType="textPersonName"
+            android:inputType="textPersonName|textCapWords"
             android:maxLines="1"
             android:textColor="@android:color/white" />
 
@@ -100,7 +101,7 @@
         app:ms_arrowColor="#FFFFFF"
         app:ms_baseColor="@color/white"
         app:ms_arrowSize="16dp"
-        app:ms_enableFloatingLabel="false"
+        app:ms_enableFloatingLabel="true"
         app:ms_enableErrorLabel="false"
         app:ms_floatingLabelColor="#FFFFFF"
         app:ms_hintColor="#FFFFFF"
@@ -125,6 +126,8 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        app:ms_enableFloatingLabel="true"
+        app:ms_enableErrorLabel="false"
         android:popupBackground="#ff9999"
         app:ms_arrowColor="#FFFFFF"
         app:ms_baseColor="@color/white"
@@ -150,6 +153,9 @@
         android:id="@+id/spnCity"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        app:ms_enableFloatingLabel="true"
+        app:ms_enableErrorLabel="false"
+        android:layout_gravity="center_horizontal"
         app:ms_arrowColor="#FFFFFF"
         android:popupBackground="#ff9999"
         app:ms_arrowSize="16dp"
@@ -160,17 +166,8 @@
         app:ms_hint="Select City"
         app:ms_multiline="true" />
 
-    <!--Button
-        android:id="@+id/btnNext"
-        style="?android:textAppearanceMedium"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/round_btn"
-        android:text="Next"
-        android:textColor="@android:color/holo_red_dark"
-        android:textStyle="bold" />-->
-    <android.support.design.widget.TextInputLayout
+
+   <!-- <android.support.design.widget.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:textColorHint="@color/white"
@@ -224,18 +221,30 @@
             android:maxLines="1"
             android:textColor="@android:color/white" />
 
-    </android.support.design.widget.TextInputLayout>
+    </android.support.design.widget.TextInputLayout>-->
+
 
     <Button
-        android:id="@+id/btnRegister"
+        android:id="@+id/btnNext"
         style="?android:textAppearanceMedium"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/round_btn"
-        android:text="Register"
+        android:text="Next"
         android:textColor="@android:color/holo_red_dark"
         android:textStyle="bold" />
+
+    <!--<Button-->
+        <!--android:id="@+id/btnRegister"-->
+        <!--style="?android:textAppearanceMedium"-->
+        <!--android:layout_width="300dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:background="@drawable/round_btn"-->
+        <!--android:text="Register"-->
+        <!--android:textColor="@android:color/holo_red_dark"-->
+        <!--android:textStyle="bold" />-->
 
     <!--<TextView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_marginTop="15dp"--><!--android:text="OR"--><!--android:textColor="@color/white"--><!--android:textSize="17dp" />-->
 

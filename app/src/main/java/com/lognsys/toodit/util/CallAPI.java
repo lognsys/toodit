@@ -4,7 +4,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.RegistrationActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,6 +86,15 @@ public class CallAPI {
                             if (status.equalsIgnoreCase(Constants.API_RESPONSE_ATTRIBUTES.status.responeVal)) {
 
                                 Intent i = new Intent(activity, MainActivity.class);
+                                SharedPreferences sharedpreferences;
+                                //Initialize SharedPreferences
+                                sharedpreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                                SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+                                sharedPrefEditor.putString("city_id","2707");
+                                sharedPrefEditor.putString("name",jsonObj.getJSONObject("data").getString("name"));
+                                sharedPrefEditor.putString("mobile",jsonObj.getJSONObject("data").getString("mobile"));
+                                sharedPrefEditor.putString("email",jsonObj.getJSONObject("data").getString("email"));
+                                sharedPrefEditor.commit();
                                 activity.startActivity(i);
                                 activity.finish();
 
@@ -124,7 +136,7 @@ public class CallAPI {
                         dialog.setArguments(args);
                         dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                         dialog.show(activity.getSupportFragmentManager(), "NetworkDialogFragment");
-                        Log.e(TAG + "#customerLoginURL", error.getMessage());
+                      //  Log.e(TAG + "#customerLoginURL", error.getMessage());
                     }
                 }
         ) {

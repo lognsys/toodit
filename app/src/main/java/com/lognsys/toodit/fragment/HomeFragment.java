@@ -1,5 +1,8 @@
 package com.lognsys.toodit.fragment;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 
 import android.content.Context;
@@ -15,9 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -26,10 +31,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.RegistrationActivity;
 import com.lognsys.toodit.adapter.ImageAdapter;
 import com.lognsys.toodit.adapter.OutletsRecylerViewAdapter;
+import com.lognsys.toodit.util.Constants;
 import com.lognsys.toodit.util.FragmentTag;
 
 import org.json.JSONArray;
@@ -56,7 +64,7 @@ public class HomeFragment extends Fragment {
     private Button findMoreBtn;
     private Button btnWayToOutlets;
     ArrayList<String>  listOfmalls= new ArrayList<>();;
-
+    ArrayList<ListMall>  listMalls= new ArrayList<ListMall>();
     public HomeFragment() {
         // Required empty public constructor
         Log.d(TAG, "HOME FRAGMENT CALLED");
@@ -123,18 +131,24 @@ public class HomeFragment extends Fragment {
         });
         btnWayToOutlets=(Button)homeFragmentView.findViewById(R.id.btnSelectWayToOutlet) ;
         //get Intent
-        String city=getActivity().getIntent().getStringExtra("city_id");
-        // Log.e("city", city);
+        //String city=getActivity().getIntent().getStringExtra("city_id");
+        //SharedPreferences sharedpreferences;
+        //Initialize SharedPreferences
+        //sharedpreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+       String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
+        //Log.e("city", city);
         HashMap<String, String> hashMap= new HashMap<>();
-        hashMap.put("city_id", city);
-        listOfmalls=mallsInCity("http://food.swatinfosystem.com/api/Mall_list", hashMap);
-//        btnWayToOutlets.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                dialogWayToOutles(listOfmalls);
-//            }
-//        });
+        hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
+        listMalls=mallsInCity("http://food.swatinfosystem.com/api/Mall_list", hashMap);
+
+      btnWayToOutlets.setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+
+
+               dialogWayToOutles(listOfmalls);
+           }
+       });
 //        findMoreBtn = (Button) homeFragmentView.findViewById(R.id.findmore_button);
 //        findMoreBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -164,28 +178,47 @@ public class HomeFragment extends Fragment {
             R.drawable.cafe_theoborma, R.drawable.mac_trans,
             R.drawable.domino
     };
-//    private void dialogWayToOutles( ArrayList<String> listOfMall)
-//    {
-//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-//        LayoutInflater inflater = getActivity().getLayoutInflater();
-//        View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
-//        alertDialog.setView(convertView);
-//        alertDialog.setTitle("List");
-//        ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
-//        lv.setAdapter(adapter);
-//        alertDialog.show();
-//    }
+   private void dialogWayToOutles( ArrayList<String> listOfMall)
+   {
+       MyBaseAdapter myBaseAdapter = new MyBaseAdapter(getActivity(),listMalls);
+       final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+       LayoutInflater inflater = getActivity().getLayoutInflater();
+       final View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
+       alertDialog.setView(convertView);
+       alertDialog.setCancelable(true);
+      alertDialog.setTitle("Malls in the City");
+       ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
+      // ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
+       lv.setAdapter(myBaseAdapter);
+       alertDialog.show();
+       lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+           @Override
+           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+               TextView tvMallName=(TextView)view.findViewById(R.id.tvMallName);
+               String test=tvMallName.getText().toString();
+                  //String malli_id = ((ListMall)  tvMallName.getText()).getMallId();
+               String mall_id=((ListMall)listMalls.get(position)).getMallId();
+               Fragment fragment = new FragmentsForMallOutlets();
+               Bundle args = new Bundle();
+               args.putString("mall_id", mall_id);
+               fragment .setArguments(args);
+               getActivity().getSupportFragmentManager().beginTransaction()
+                       .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+              // Log.e("mall_id",String.valueOf(listMalls.get(position).getMallId())+""+mall_id);
+               //alertDialog.dismiss();
 
+           }
+       });
+  }
 
-    private ArrayList<String> mallsInCity(String URL, final Map<String, String> params) {
+    private ArrayList<ListMall> mallsInCity(String URL, final Map<String, String> params) {
         String response = "";
-        final ArrayList<String> listOfMall1= new ArrayList<>();
+        final ArrayList<ListMall> listOfMall1= new ArrayList<>();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {
@@ -195,10 +228,13 @@ public class HomeFragment extends Fragment {
                                 if(jsonObject.getJSONObject("data").getJSONArray("mall_list")!=null){
                                     countryArray = jsonObject.getJSONObject("data").getJSONArray("mall_list");
                                     for (int i = 0; i < countryArray.length(); i++) {
-                                        String mall = countryArray.getJSONObject(i).getString("mall_name");
-                                        Log.e("mallname", mall);
-                                        Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
-                                        listOfMall1.add(mall);
+                                        String mall_name = countryArray.getJSONObject(i).getString("mall_name");
+                                        String mall_address = countryArray.getJSONObject(i).getString("mall_address");
+                                        String mall_id = countryArray.getJSONObject(i).getString("mall_id");
+                                        ListMall listMall= new ListMall(mall_name,mall_address,mall_id);
+                                       // Log.e("mallname", mall);
+                                       // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
+                                        listOfMall1.add(listMall);
 
                                     }
                                 }
@@ -238,4 +274,73 @@ public class HomeFragment extends Fragment {
         return listOfMall1;
 
     }
-}
+    private ArrayList<ListMall> getDataInList() {
+
+
+            return listMalls;
+        }
+
+
+
+    public class MyBaseAdapter extends BaseAdapter {
+
+        private  ArrayList<ListMall> myList = new ArrayList<ListMall>();
+        LayoutInflater inflater;
+        Context context=getActivity();
+
+
+        public MyBaseAdapter(Context context, ArrayList<ListMall> myList) {
+            this.myList = myList;
+            this.context = context;
+            inflater = LayoutInflater.from(this.context);
+        }
+
+        @Override
+        public int getCount() {
+            return myList.size();
+        }
+
+        @Override
+        public ListMall getItem(int position) {
+            return myList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            HomeFragment.MyBaseAdapter.MyViewHolder mViewHolder;
+
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.list_raw_way_to_outlets, parent, false);
+                mViewHolder = new MyViewHolder(convertView);
+                convertView.setTag(mViewHolder);
+            } else {
+                mViewHolder = (HomeFragment.MyBaseAdapter.MyViewHolder) convertView.getTag();
+            }
+
+            ListMall currentListMall = getItem(position);
+
+           mViewHolder.tvMallName.setText(currentListMall.getMallName());
+            //Log.e("check",currentListMall.getProfileName());
+           //mViewHolder.tvMallAdd.setText("\""+currentListMall.getMallAddress()+"\"");
+
+            return convertView;
+        }
+
+        private class MyViewHolder {
+            TextView tvMallName, tvMallAdd;
+
+
+            public MyViewHolder(View item) {
+                tvMallName = (TextView) item.findViewById(R.id.tvMallName);
+                tvMallAdd= (TextView) item.findViewById(R.id.tvMallAdd);
+
+            }
+        }
+
+    }
+    }
