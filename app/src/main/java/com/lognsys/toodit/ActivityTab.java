@@ -47,6 +47,7 @@ public class ActivityTab  extends AppCompatActivity {
         adapter.addFragment(new FragmentNewListOfItems(), "Fast Food");
       /*  adapter.addFragment(new TwoFragment(), "TWO");
         adapter.addFragment(new ThreeFragment(), "THREE");*/
+
         viewPager.setAdapter(adapter);
     }
 
