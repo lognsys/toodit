@@ -192,7 +192,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
 
                     try {
-                        state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
+                   state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
                     } catch (ClassCastException cce) {
                         cce.printStackTrace();
                     }
@@ -359,7 +359,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     }*/
 
                     else {
-                        String manufacturer = Build.MANUFACTURER; //this one will work for you.
+                         String manufacturer = Build.MANUFACTURER; //this one will work for you.
                         String product = Build.PRODUCT;
                         String model = Build.MODEL;
                         String s="Manufacturer:"+manufacturer+",Product:"+product+" ,"+"model: "+model;
@@ -372,11 +372,11 @@ public class RegistrationActivity extends AppCompatActivity {
                         hashMapRegister.put("state_id", state_id);
                         hashMapRegister.put("country_id",country_id);
                         hashMapRegister.put("username", etEmail.getText().toString().trim());
-                       hashMapRegister.put("mobile", etMobile.getText().toString().trim());
+                        hashMapRegister.put("mobile", etMobile.getText().toString().trim());
                         hashMapRegister.put("email", etEmail.getText().toString());
                         hashMapRegister.put("device_token",Constants.Shared.DEVICE_TOKEN_ID.name());
                         hashMapRegister.put("device_type","android tab");
-
+                        int i2=hashMapRegister.size();
                         Intent i= new Intent(RegistrationActivity.this, RegistrationActivityPartTwo.class);
                         i.putExtra("hashMapRegister", hashMapRegister);
                         SharedPreferences sharedpreferences;
@@ -541,7 +541,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         try {
                             JSONObject jsonError= new JSONObject(error.toString());
                            if(error.getMessage().equals("Please provide country id"))  {
-                               Toast.makeText(RegistrationActivity.this, "Please wait to populate spinner", Toast.LENGTH_LONG).show();
+                              // Toast.makeText(RegistrationActivity.this, "Please wait to populate spinner", Toast.LENGTH_LONG).show();
                            }
                             else
                            {

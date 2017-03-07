@@ -315,7 +315,8 @@ public class LoginActivity extends AppCompatActivity implements
 
                 String username = inputUserName.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
-
+                username="9876543210";
+                password="sachin";
 
                 if (Services.isEmpty(username) || Services.isEmpty(password)) {
                     DialogFragment dialog = new NetworkStatusDialog();
@@ -352,7 +353,7 @@ public class LoginActivity extends AppCompatActivity implements
                     if (isValid) {
                         CallAPI callAPI = new CallAPI();
                         String response = callAPI.callCustomerLoginURL(properties.getProperty
-                                        (Constants.API_URL.customer_login_url.name()), inputUserName.getText().toString().trim(), inputPassword.getText().toString().trim(),
+                                        (Constants.API_URL.customer_login_url.name()), username, password,
                                 device_token_id, LoginActivity.this);
 
                     } else return;

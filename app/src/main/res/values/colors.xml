@@ -24,4 +24,7 @@
     <color name="btn_logut_bg">#ff6861</color>
     <color name="transparent">#00000000</color>
     <color name="red">#fa2600</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
 </resources>

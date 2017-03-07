@@ -1,23 +1,20 @@
 package com.lognsys.toodit.fragment;
 
-import android.content.SharedPreferences;
+import android.app.Dialog;
+import android.content.Intent;
 import android.preference.PreferenceManager;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -31,14 +28,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.lognsys.toodit.Dialog.NetworkStatusDialog;
-import com.lognsys.toodit.MainActivity;
+import com.lognsys.toodit.ActivityTab;
 import com.lognsys.toodit.R;
-import com.lognsys.toodit.RegistrationActivity;
 import com.lognsys.toodit.adapter.ImageAdapter;
-import com.lognsys.toodit.adapter.OutletsRecylerViewAdapter;
-import com.lognsys.toodit.util.Constants;
-import com.lognsys.toodit.util.FragmentTag;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -112,6 +104,15 @@ public class HomeFragment extends Fragment {
                                     int position, long id) {
                 Toast.makeText(getActivity(), "" + position,
                         Toast.LENGTH_SHORT).show();
+                if(position==1)
+                {
+
+                    Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);
+                   /* Fragment fragment1 = new FragmentNewListOfItems();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();*/
+                }
                 //Akhilesh changes
                 if(position==7){
 
@@ -181,12 +182,12 @@ public class HomeFragment extends Fragment {
    private void dialogWayToOutles( ArrayList<String> listOfMall)
    {
        MyBaseAdapter myBaseAdapter = new MyBaseAdapter(getActivity(),listMalls);
-       final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+       final Dialog alertDialog = new Dialog(getActivity());
        LayoutInflater inflater = getActivity().getLayoutInflater();
        final View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
-       alertDialog.setView(convertView);
+       alertDialog.setContentView(convertView);
        alertDialog.setCancelable(true);
-      alertDialog.setTitle("Malls in the City");
+      alertDialog.setTitle("Title...");
        ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
       // ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
        lv.setAdapter(myBaseAdapter);
@@ -204,6 +205,7 @@ public class HomeFragment extends Fragment {
                fragment .setArguments(args);
                getActivity().getSupportFragmentManager().beginTransaction()
                        .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+            alertDialog.dismiss();
               // Log.e("mall_id",String.valueOf(listMalls.get(position).getMallId())+""+mall_id);
                //alertDialog.dismiss();
 
