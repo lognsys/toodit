@@ -1,8 +1,7 @@
 package com.lognsys.toodit.fragment;
-
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
  * Created by admin on 06-03-2017.
  */
 
-public class FragmentNewListOfItems extends android.support.v4.app.Fragment {
+public class FragmentNewListOfItems extends Fragment {
     private ListView lvComment;
 
     Context context = null;
