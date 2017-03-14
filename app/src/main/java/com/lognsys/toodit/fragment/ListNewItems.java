@@ -9,7 +9,15 @@ public class ListNewItems {
     private String itemName;
     private String itemDescription;
     private int image;
+    private String amount;
 
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
     /*public ListNewItems(String itemName, String itemDescription, int image) {
         this.itemName = itemName;
         this.itemDescription = itemDescription;

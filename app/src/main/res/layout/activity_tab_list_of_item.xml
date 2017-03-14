@@ -8,20 +8,26 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/TooditTheme">
+        android:background="#F5F5F5"
+        android:theme="@style/MyMaterialTheme.Base">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/lbl_name"
+            android:background="@color/white"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:paddingBottom="2dp"
+            app:tabIndicatorHeight="4dp"
+            app:tabIndicatorColor="@color/red"
+            app:tabTextColor="@color/red"
+            android:layout_height="@dimen/custom_tab_layout_height"
             app:tabMode="fixed"
             app:tabGravity="fill"/>
     </android.support.design.widget.AppBarLayout>
@@ -31,4 +37,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
+
 </android.support.design.widget.CoordinatorLayout>

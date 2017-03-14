@@ -12,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -81,6 +83,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 //        if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
 //            mParam2 = getArguments().getString(ARG_PARAM2);
@@ -104,24 +107,85 @@ public class HomeFragment extends Fragment {
                                     int position, long id) {
                 Toast.makeText(getActivity(), "" + position,
                         Toast.LENGTH_SHORT).show();
+                if(position==0)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }
                 if(position==1)
                 {
 
-                    Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);
-                   /* Fragment fragment1 = new FragmentNewListOfItems();
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new FragmentMyOrders();
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();*/
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
                 }
+                if(position==2)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }
+                if(position==3)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }
+                if(position==4)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }
+                if(position==5)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }  if(position==6)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }
+                if(position==8)
+                {
+
+                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
+                    startActivity(i);*/
+                    Fragment fragment1 = new TestFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                }
+
                 //Akhilesh changes
                 if(position==7){
 
                   // Fragment fragment1 = new Fragment();
-                    Fragment fragment = new FragmentCentralGrill();
+                    Fragment fragment1 = new TestFragment();
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
-
-
+                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
 
 
 
@@ -345,4 +409,5 @@ public class HomeFragment extends Fragment {
         }
 
     }
+
     }

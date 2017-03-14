@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -45,13 +47,8 @@
                 android:layout_marginLeft="10dp"
                 android:textSize="10dp"
                 android:text="With added cheasy cream"/>
-            <EditText
-
-
-
-
-
-                android:id="@+id/tvItemQuantity"
+       <!--     <EditText
+        android:id="@+id/tvItemQuantity"
                 android:layout_width="60dp"
                 android:layout_height="25dp"
                 android:layout_marginTop="14dp"
@@ -61,7 +58,21 @@
                 android:text="Qty"
                 android:textStyle="bold"
                 android:textSize="12sp"
+                android:textColor="#FFFFFF"/>-->
+            <Spinner
+                android:id="@+id/spinnerItemQuantity"
+                android:layout_width="60dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/round_button_green"
+                android:gravity="center"
+                android:text="Qty"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textSize="12sp"
                 android:textColor="#FFFFFF"/>
+
             </LinearLayout>
 
         <ImageView
@@ -75,7 +86,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="55dp"
         android:layout_marginTop="30dp"
         android:background="#E5E4E2"
         android:orientation="horizontal">
@@ -88,10 +99,49 @@
             android:layout_marginLeft="20dp"
             android:layout_weight="1"
             android:textStyle="bold"
+            android:inputType="text"
             android:text="Customise"
             android:textColor="#4d79ff"
             />
+        <LinearLayout
+            android:id="@+id/linear_customizetext"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:visibility="gone"
+            android:layout_marginTop="10dip"
+            android:background="#E5E4E2"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
+            <EditText
+                 android:id="@+id/itemCustomizetext"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_marginLeft="10dip"
+                 android:layout_gravity="left|center"
+                 android:layout_weight="0.3"
+                android:padding="4dip"
+                android:inputType="textImeMultiLine"
+                android:background="@drawable/round_edittext"
+                 android:textColorHint="@color/hint_text_color"
+
+                 android:hint="@string/hint_customise_edittext"
+                 />
+
+            <Button
+                android:id="@+id/btnDone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:text="@string/done"
+                android:padding="5dip"
+                android:inputType="text"
+                android:layout_weight="0.7"
+                android:layout_gravity="left|center"
+                android:gravity="center|left"
+                android:textColor="#4d79ff"
+                />
+        </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -119,6 +169,7 @@
             </LinearLayout>
         </LinearLayout>
 </LinearLayout>
+
     <LinearLayout
         android:id="@+id/llTotalAmount"
         android:layout_width="match_parent"
@@ -230,6 +281,7 @@
             android:textStyle="bold"
             android:textSize="15sp"
             />
+
     </LinearLayout>
 
 </LinearLayout>

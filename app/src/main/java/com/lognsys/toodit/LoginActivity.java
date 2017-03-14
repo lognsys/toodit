@@ -315,8 +315,8 @@ public class LoginActivity extends AppCompatActivity implements
 
                 String username = inputUserName.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
-                username="9876543210";
-                password="sachin";
+               // username="9876543210";
+               // password="sachin";
 
                 if (Services.isEmpty(username) || Services.isEmpty(password)) {
                     DialogFragment dialog = new NetworkStatusDialog();
@@ -358,6 +358,8 @@ public class LoginActivity extends AppCompatActivity implements
 
                     } else return;
                     return;
+
+
 
 
             }

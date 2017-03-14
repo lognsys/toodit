@@ -1,68 +1,68 @@
-package com.lognsys.toodit;
+package com.lognsys.toodit.fragment;
+
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
+import com.lognsys.toodit.ActivityTab;
 import com.lognsys.toodit.R;
-import com.lognsys.toodit.fragment.FragmentAll;
-import com.lognsys.toodit.fragment.FragmentBeverages;
-import com.lognsys.toodit.fragment.FragmentFastFood;
-import com.lognsys.toodit.fragment.FragmentNewListOfItems;
-import com.lognsys.toodit.fragment.FragmentStarter;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * Created by admin on 07-03-2017.
+ * Created by admin on 08-03-2017.
  */
 
-
-public class ActivityTab  extends AppCompatActivity {
+public class TestFragment extends Fragment {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tab_list_of_item);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        View v = inflater.inflate(R.layout.activity_tab_list_of_item, container, false);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        updateToolbarText("");
-     //  setSupportActionBar(toolbar);
+        tabLayout = (TabLayout) v.findViewById(R.id.tabs);
+        toolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
-      //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //updateToolbarText("");
+        //  setSupportActionBar(toolbar);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        viewPager = (ViewPager) v.findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setTabTextColors(
-                ContextCompat.getColor(ActivityTab.this, R.color.black),
-                ContextCompat.getColor(ActivityTab.this, R.color.red)
+                ContextCompat.getColor(getActivity(), R.color.light_black),
+                ContextCompat.getColor(getActivity(), R.color.red)
         );
+
        /* TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
         tabOne.setText("ONE");
         tabLayout.getTabAt(0).setCustomView(tabOne);*/
+        return  v;
     }
-
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        ViewPagerAdapter  adapter = new  ViewPagerAdapter(getChildFragmentManager());
         adapter.addFragment(new FragmentFastFood(), "Fast Food");
         adapter.addFragment(new FragmentStarter(), "Starter");
         adapter.addFragment(new FragmentBeverages(), "Beverages");
@@ -73,8 +73,8 @@ public class ActivityTab  extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
+    public class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<android.support.v4.app.Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
         public ViewPagerAdapter(FragmentManager manager) {
@@ -82,7 +82,7 @@ public class ActivityTab  extends AppCompatActivity {
         }
 
         @Override
-        public Fragment getItem(int position) {
+        public android.support.v4.app.Fragment getItem(int position) {
             return mFragmentList.get(position);
         }
 
@@ -91,7 +91,7 @@ public class ActivityTab  extends AppCompatActivity {
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        public void addFragment(android.support.v4.app.Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
@@ -101,7 +101,7 @@ public class ActivityTab  extends AppCompatActivity {
             return mFragmentTitleList.get(position);
         }
     }
-    //Update Action Bar
+   /* //Update Action Bar
     private void updateToolbarText(CharSequence text) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -111,5 +111,10 @@ public class ActivityTab  extends AppCompatActivity {
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
         }
-    }
+    }*/
+   @Override
+   public void onPrepareOptionsMenu(Menu menu) {
+       MenuItem item = menu.findItem(R.id.action_map);
+       item.setVisible(false);
+   }
 }

@@ -22,6 +22,8 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -31,10 +33,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.adapter.OutletRecylerViewHolders;
 
 import java.util.ArrayList;
 
@@ -108,7 +111,7 @@ public class CartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.fragment_cart, container, false);
 
         li = (ListView) v.findViewById(R.id.lvCart);
@@ -204,8 +207,21 @@ public class CartFragment extends Fragment {
 
 
             mViewHolder.llAmount.setVisibility(View.GONE);
-
-
+            mViewHolder.cusstomise.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewHolder.linear_customizetext.setVisibility(View.VISIBLE);
+                    v.setVisibility(View.GONE);
+                }
+            });
+            mViewHolder.btnDone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewHolder.cusstomise.setText("Customise "+mViewHolder.itemCustomizetext.getText().toString());
+                    mViewHolder.linear_customizetext.setVisibility(View.GONE);
+                    mViewHolder.cusstomise.setVisibility(View.VISIBLE);
+                }
+            });
 
             int itemPos = li.getCount();
             if (position == itemPos - 1) {
@@ -213,44 +229,26 @@ public class CartFragment extends Fragment {
 
             }
 
-            mViewHolder.itemQuantity.addTextChangedListener(new TextWatcher() {
+            // Create an ArrayAdapter using the string array and a default spinner layout
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                    R.array.quantity_array, android.R.layout.simple_spinner_item);
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // Apply the adapter to the spinner
+            mViewHolder.spinnerItemQuantity.setAdapter(adapter);
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before,
-                                          int count) {
-                    // TODO Auto-generated method stub
-
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count,
-                                              int after) {
-                    // TODO Auto-generated method stub
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    if (!s.toString().startsWith("Qty :")) {
-                        mViewHolder.itemQuantity.setText("Qty :");
-//                                                           Selection.setSelection(itemQuantity.getText(), itemQuantity
-//                                                                   .getText().length());
-
-                    }
-
-                }
-            });
             ListDataCartFragments currentListData = getItem(position);
             mViewHolder.temName.setText(currentListData.getCartItemSelected());
             mViewHolder.itemQuality.setText(currentListData.getCartItemComment());
-            mViewHolder.itemQuantity.setText(currentListData.getCartItemquanatity());
+//          mViewHolder.itemQuantity.setText(currentListData.getCartItemquanatity());
+            mViewHolder.spinnerItemQuantity.setTag(currentListData.getCartItemquanatity());
             mViewHolder.itemAmount.setText(currentListData.getCartItemPrice());
 
-            String next = "<font color='#CCCCCC'>Rs. </font>";
+            String next = "<font color='#CCCCCC'> "+getResources().getString(R.string.rs)+"</font>";
 
             mViewHolder.subTotal.setText(Html.fromHtml(next + "261.00"));
             mViewHolder.taxes.setText(Html.fromHtml(next + "31.00"));
-            mViewHolder.Total.setText(Html.fromHtml(next + "291.00"));
+            mViewHolder.Total.setText(Html.fromHtml(next + " 291.00"));
             //CircleImageView img = (de.hdodenhof.circleimageview.CircleImageView)v.findViewById(R.id.ivItemInCart);
 
             //img.setBackgroundResource(image[position]);
@@ -273,14 +271,38 @@ public class CartFragment extends Fragment {
                 }
             });
 
+            mViewHolder.makePayment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String totalAmount =mViewHolder.Total.getText().toString();
+                    if(totalAmount!=null && totalAmount.length()>0){
+
+                            Fragment fragment = new PaymentFragment();
+                        Bundle args = new Bundle();
+                        args.putString("totalAmount", totalAmount);
+                        fragment .setArguments(args);
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container,
+                                        fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+
+                    }
+                    else{
+                        Toast.makeText(getContext(),"Please Add Products to Cart",Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
             return convertView;
         }
 
         private class MyViewHolder {
             TextView subTotal, taxes, Total, temName, itemAmount, cusstomise, itemQuality;
-            Button makePayment;
+            LinearLayout linear_customizetext;
+            Button makePayment,btnDone;
             ImageView cancelSelection, img;
-            EditText itemQuantity;
+            EditText itemCustomizetext;
+            Spinner spinnerItemQuantity;
             LinearLayout llAmount;
 
             public MyViewHolder(View item) {
@@ -289,14 +311,17 @@ public class CartFragment extends Fragment {
                 taxes = (TextView) item.findViewById(R.id.tvTaxes);
                 Total = (TextView) item.findViewById(R.id.tvTotal);
                 makePayment = (Button) item.findViewById(R.id.btnMakePayment);
+                btnDone = (Button) item.findViewById(R.id.btnDone);
                 cancelSelection = (ImageView) item.findViewById(R.id.ivCancelSelection);
                 img = (ImageView) item.findViewById(R.id.ivItemInCart);
                 temName = (TextView) item.findViewById(R.id.tvItemName);
                 itemQuality = (TextView) item.findViewById(R.id.tvItemQuality);
-                itemQuantity = (EditText) item.findViewById(R.id.tvItemQuantity);
+                spinnerItemQuantity = (Spinner) item.findViewById(R.id.spinnerItemQuantity);
+                itemCustomizetext = (EditText) item.findViewById(R.id.itemCustomizetext);
                 itemAmount = (TextView) item.findViewById(R.id.tvAmount);
                 cusstomise = (TextView) item.findViewById(R.id.tvCustomise);
                 llAmount = (LinearLayout) item.findViewById(R.id.llTotalAmount);
+                linear_customizetext = (LinearLayout) item.findViewById(R.id.linear_customizetext);
 
             }
         }
@@ -344,6 +369,10 @@ public class CartFragment extends Fragment {
 
         }
     }
-
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_map);
+        item.setVisible(false);
+    }
 }
 

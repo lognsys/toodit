@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -36,7 +38,7 @@ public class FragmentsListOfItems extends Fragment {
 
     FragmentsListOfItems.MyBaseAdapter.MyViewHolder mViewHolder;
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.fragment_list_of_item, container, false);
         ArrayList<ListFoodItem> value = getArguments().getParcelableArrayList("listFoodItems");
         ListView lvListOfItems = (ListView) v.findViewById(R.id.lvListOfItem);
@@ -186,5 +188,9 @@ public class FragmentsListOfItems extends Fragment {
 
     }
 
-
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_map);
+        item.setVisible(false);
+    }
 }

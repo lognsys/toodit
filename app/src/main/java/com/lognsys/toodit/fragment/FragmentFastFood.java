@@ -1,40 +1,49 @@
 package com.lognsys.toodit.fragment;
+
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.FragmentTabHost;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.lognsys.toodit.R;
 
 import java.util.ArrayList;
 
 /**
- * Created by admin on 06-03-2017.
+ * Created by admin on 07-03-2017.
  */
 
-public class FragmentNewListOfItems extends Fragment {
+public class FragmentFastFood extends Fragment {
+
     private ListView lvComment;
-
     Context context = null;
-    FragmentNewListOfItems.MyBaseAdapter myBaseAdapter;
+    FragmentFastFood.MyBaseAdapter myBaseAdapter;
     private static int noOfItems=1;
-
+    private BottomNavigationViewEx mBottomNav;
+    private int mSelectedItem; //index of bottom nagivation bar
     private ArrayList<ListNewItems> myList = new ArrayList<ListNewItems>();
 
-    String[] item = {"Tomato Garlic Pizza", "Cheese Veg Burger"};
-    String[] qualit = {"With added cheasy cream", "With added cheasy cream"};
-    int[] image = {R.drawable.tomato_cheese, R.drawable.tomato_cheese};
+    String[] item = {"Tomato Garlic Special Pizza", "Cheesy onion Veg Burger"};
+    String[] qualit = {"With added cheasy cream", "With extra butter chease"};
+    String[] amount={"61.00", "61.00"};
+    int[] image = {R.drawable.tomato_cheese, R.drawable.cheese_burger};
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -42,9 +51,25 @@ public class FragmentNewListOfItems extends Fragment {
         context = this.getActivity();
         lvComment= (ListView)v.findViewById(R.id.lvComment);
         getDataInList();
-        myBaseAdapter= new FragmentNewListOfItems.MyBaseAdapter(this.getActivity(), myList);
+        myBaseAdapter= new FragmentFastFood.MyBaseAdapter(this.getActivity(), myList);
 
         lvComment.setAdapter(myBaseAdapter);
+        lvComment.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1,int position, long arg3)
+            {
+               Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
+                Fragment fragment = new FragmentCentralGrill();
+                Bundle args = new Bundle();
+                args.putString("position", String.valueOf(position));
+                fragment.setArguments(args);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+
+            }
+        });
 
 
 
@@ -59,6 +84,7 @@ public class FragmentNewListOfItems extends Fragment {
             ld.setItemName(item [i]);
             ld.setItemDescription(qualit[i]);
             ld.setImage(image[i]);
+            ld.setAmount(amount[i]);
             // Add this object into the ArrayList myList
             myList.add(ld);
 
@@ -97,21 +123,22 @@ public class FragmentNewListOfItems extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final FragmentNewListOfItems.MyBaseAdapter.MyViewHolder mViewHolder;
+            final FragmentFastFood.MyBaseAdapter.MyViewHolder mViewHolder;
 
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.fragment_litem_list, parent, false);
-                mViewHolder = new FragmentNewListOfItems.MyBaseAdapter.MyViewHolder(convertView);
+                mViewHolder = new FragmentFastFood.MyBaseAdapter.MyViewHolder(convertView);
                 convertView.setTag(mViewHolder);
             } else {
-                mViewHolder = (FragmentNewListOfItems.MyBaseAdapter.MyViewHolder) convertView.getTag();
+                mViewHolder = (FragmentFastFood.MyBaseAdapter.MyViewHolder) convertView.getTag();
             }
 
             ListNewItems currentListNewItems = getItem(position);
             mViewHolder.llItemImage.setBackgroundResource(currentListNewItems.getImage());
             mViewHolder.tvItemName.setText(currentListNewItems.getItemName());
-           // Log.e("check",currentListNewItems.getProfileName());
+            // Log.e("check",currentListNewItems.getProfileName());
             mViewHolder.tvItemDescript.setText(currentListNewItems.getItemDescription());
+            mViewHolder.tvAmount.setText(currentListNewItems.getAmount());
             mViewHolder.ivAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -134,7 +161,7 @@ public class FragmentNewListOfItems extends Fragment {
 
         private class MyViewHolder {
             private ImageView ivAdd, iivMinus, ivLogbook;
-            private  TextView tvItemName, tvItemDescript, tvNoOfAddedItems;
+            private TextView tvItemName, tvItemDescript, tvNoOfAddedItems, tvAmount;
             private RatingBar rbRating;
             private LinearLayout llItemImage;
 
@@ -147,22 +174,21 @@ public class FragmentNewListOfItems extends Fragment {
                 tvItemName=(TextView)item.findViewById(R.id.tvItemName);
                 tvItemDescript=(TextView)item.findViewById(R.id.tvItemQuality);
                 llItemImage=(LinearLayout)item.findViewById(R.id.llItemImage);
+                tvAmount=(TextView)item.findViewById(R.id.tvAmount);
             }
         }
 
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myList.clear();
     }
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_map);
         item.setVisible(false);
     }
-
-    }
-
-
-
-
-
-
-
+}

@@ -13,6 +13,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -64,6 +66,7 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             name = getArguments().getString(ARG_NAME);
             loc = getArguments().getString(ARG_LOC);
@@ -151,5 +154,10 @@ public class SettingFragment extends Fragment {
         titles[2] = getContext().getResources().getString(R.string.text_profile_title_privacy);
         titles[3] = getContext().getResources().getString(R.string.text_profile_title_tc);
 
+    }
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_map);
+        item.setVisible(false);
     }
 }

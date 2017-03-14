@@ -9,6 +9,8 @@ import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -44,11 +46,13 @@ public class FragmentCentralGrill extends Fragment {
     String[] profileName = new String[]{
             "Rahul Sharma", "Sneha"};
 
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.fragment_central_grill, container, false);
         context = this.getActivity();
+        ivItemImage=(ImageView)v.findViewById(R.id.ivItemImage);
+        tvItemName=(TextView)v.findViewById(R.id.tvItemName);
+        tvItemDescript=(TextView)v.findViewById(R.id.tvItemQuality) ;
         lvComment=(ListView)v.findViewById(R.id.lvComment);
         rbRating=(RatingBar)v.findViewById(R.id.rbRating) ;
         ivAdd=(ImageView) v.findViewById(R.id.ivAdd) ;
@@ -59,6 +63,14 @@ public class FragmentCentralGrill extends Fragment {
         getDataInList();
         myBaseAdapter= new MyBaseAdapter(this.getActivity(), myList);
         new Helper().getListViewSize(lvComment);
+//Retrieve the value
+        String value = getArguments().getString("position");
+        if(value.equals("1")){
+            ivItemImage.setImageResource(R.drawable.cheese_burger);
+            tvItemName.setText("Cheesy Onion Veg Burger");
+            tvItemDescript.setText("With extra buter cheese");
+
+        }
         lvComment.setAdapter(myBaseAdapter);
 
 
@@ -181,5 +193,10 @@ public class FragmentCentralGrill extends Fragment {
             // print height of adapter on log
             Log.i("height of listItem:", String.valueOf(totalHeight));
         }
+    }
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_map);
+        item.setVisible(false);
     }
 }

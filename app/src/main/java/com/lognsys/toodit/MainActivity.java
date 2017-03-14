@@ -16,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,6 +37,7 @@ import com.lognsys.toodit.fragment.HomeFragment;
 import com.lognsys.toodit.fragment.NotificationFragment;
 import com.lognsys.toodit.fragment.SettingFragment;
 import com.lognsys.toodit.model.CityName;
+import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.FragmentTag;
 
 import org.json.JSONArray;
@@ -113,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void selectFragment(MenuItem item) {
         Fragment fragment = null;
+        CallAPI callAPI = new CallAPI();
+
         String fragmentTag = "";
 
         switch (item.getItemId()) {
@@ -120,20 +125,26 @@ public class MainActivity extends AppCompatActivity {
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
                 fragment = HomeFragment.newInstance();
                 fragmentTag = FragmentTag.FRAGMENT_HOME.getFragmentTag();
+                callAPI.updateToolbarText(fragmentTag,MainActivity.this);
                 break;
             case R.id.menu_notifications:
                item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+
                  /*fragment = NotificationFragment.newInstance(getString(R.string.text_notification),
+
                         getColorFromRes(R.color.colorAccent));*/
                 fragment = new NotificationFragment();
 
                fragmentTag = FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag();
+                callAPI.updateToolbarText(fragmentTag,MainActivity.this);
+
                 break;
             case R.id.menu_cart:
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
 
                 fragment = new CartFragment();
                fragmentTag = FragmentTag.FRAGMENT_CART.getFragmentTag();
+                callAPI.updateToolbarText(fragmentTag,MainActivity.this);
 
                 /*getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_frame, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();*/
@@ -142,6 +153,8 @@ public class MainActivity extends AppCompatActivity {
                 item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
                 fragment = new SettingFragment();
                 fragmentTag = FragmentTag.FRAGMENT_SETTING.getFragmentTag();
+                callAPI.updateToolbarText(fragmentTag,MainActivity.this);
+
                 break;
         }
 
@@ -160,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Update ActionBar Based on Fragment
-        updateToolbarText(item.getTitle());
+        //updateToolbarText(item.getTitle());
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -169,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Update Action Bar
+   /* //Update Action Bar
     private void updateToolbarText(CharSequence text) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -179,8 +192,13 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
         }
+    }*/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
-
 
     private int getColorFromRes(@ColorRes int resId) {
         return ContextCompat.getColor(this, resId);
@@ -189,3 +207,4 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
+

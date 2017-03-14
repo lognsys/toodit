@@ -5,14 +5,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -155,6 +161,59 @@ public class CallAPI {
         RequestQueue requestQueue = Volley.newRequestQueue(activity);
         requestQueue.add(postRequest);
         return response;
+    }
+    public void updateToolbarText(String text, AppCompatActivity appCompatActivity) {
+        {
+            /* ActionBar actionBar = appCompatActivity.getSupportActionBar();
+            if (actionBar != null) {
+                if(text!=null)
+                actionBar.setTitle(text);
+                else{
+                    actionBar.setLogo(R.drawable.toodit_logo);
+                }
+                actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+                actionBar.setDisplayUseLogoEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(true);
+            }
+            */
+            // Inflate your custom layout
+            final ViewGroup actionBarLayout = (ViewGroup)appCompatActivity.getLayoutInflater().inflate(
+                    R.layout.activity_actionbar,
+                    null);
+//            Log.d("PaymentFragment","Rest updateToolbarText = "+text+" appCompatActivity ="+appCompatActivity);
+
+            // Set up your ActionBar
+            ActionBar actionBar =appCompatActivity.getSupportActionBar();
+            actionBar.setDisplayShowHomeEnabled(false);
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setCustomView(actionBarLayout);
+
+            // You customization
+            final int actionBarColor = appCompatActivity.getResources().getColor(R.color.black);
+            actionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
+
+            ImageView action_bar_logo = (ImageView)appCompatActivity.findViewById(R.id.action_bar_logo);
+            TextView action_bar_text = (TextView)appCompatActivity.findViewById(R.id.action_bar_text);
+            if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_CART.getFragmentTag().toString())){
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+            }
+            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_PAYMENT.getFragmentTag().toString())){
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+            }
+            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag().toString())){
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+            }
+            else{
+                action_bar_logo.setVisibility(View.VISIBLE);
+                action_bar_text.setVisibility(View.GONE);
+
+            }
+
+        }
     }
 
 }
