@@ -31,12 +31,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.ActivityTab;
+import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.ImageAdapter;
+import com.lognsys.toodit.util.CallAPI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +59,7 @@ public class HomeFragment extends Fragment {
 
     private GridLayoutManager lLayout;
     private Button findMoreBtn;
-    private Button btnWayToOutlets;
+    private TextView tvListOfMalls;
     ArrayList<String>  listOfmalls= new ArrayList<>();;
     ArrayList<ListMall>  listMalls= new ArrayList<ListMall>();
     public HomeFragment() {
@@ -99,14 +102,15 @@ public class HomeFragment extends Fragment {
 
         //Grid Layout Disable for now
         final GridView gridview = (GridView) homeFragmentView.findViewById(R.id.gridview);
+        tvListOfMalls=(TextView)homeFragmentView.findViewById(R.id.tvListOfMalls);
         ImageAdapter a = new ImageAdapter(getContext());
         gridview.setAdapter(a);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(getActivity(), "" + position,
-                        Toast.LENGTH_SHORT).show();
+              /*  Toast.makeText(getActivity(), "" + position,
+                        Toast.LENGTH_SHORT).show();*/
                 if(position==0)
                 {
 
@@ -194,7 +198,7 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        btnWayToOutlets=(Button)homeFragmentView.findViewById(R.id.btnSelectWayToOutlet) ;
+        //tvListOfMalls=(Button)homeFragmentView.findViewById(R.id.btnSelectWayToOutlet) ;
         //get Intent
         //String city=getActivity().getIntent().getStringExtra("city_id");
         //SharedPreferences sharedpreferences;
@@ -203,10 +207,11 @@ public class HomeFragment extends Fragment {
        String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
         //Log.e("city", city);
         HashMap<String, String> hashMap= new HashMap<>();
-        hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
+       // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
+        hashMap.put("city_name", "mumbai");
         listMalls=mallsInCity("http://food.swatinfosystem.com/api/Mall_list", hashMap);
 
-      btnWayToOutlets.setOnClickListener(new View.OnClickListener() {
+        tvListOfMalls.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
 
@@ -251,7 +256,7 @@ public class HomeFragment extends Fragment {
        final View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
        alertDialog.setContentView(convertView);
        alertDialog.setCancelable(true);
-      alertDialog.setTitle("Title...");
+       alertDialog.setTitle("List of Malls");
        ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
       // ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
        lv.setAdapter(myBaseAdapter);

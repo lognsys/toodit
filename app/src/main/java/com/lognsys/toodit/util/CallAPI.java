@@ -48,6 +48,7 @@ public class CallAPI {
     private static final String ARG_TITLE = "title";
     private static final String ARG_MSG = "message";
     private static final String ARG_INTENT = "intent";
+    ImageView map_indicator;
 
     public static String response = "";
 
@@ -97,6 +98,7 @@ public class CallAPI {
                                 sharedpreferences = PreferenceManager.getDefaultSharedPreferences(activity);
                                 SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
                                 sharedPrefEditor.putString("city_id","2707");
+                                sharedPrefEditor.putString("customer_id",jsonObj.getJSONObject("data").getString("customer_id"));
                                 sharedPrefEditor.putString("name",jsonObj.getJSONObject("data").getString("name"));
                                 sharedPrefEditor.putString("mobile",jsonObj.getJSONObject("data").getString("mobile"));
                                 sharedPrefEditor.putString("email",jsonObj.getJSONObject("data").getString("email"));
@@ -150,7 +152,7 @@ public class CallAPI {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.username.name(), username);
+                params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.email_or_mobile.name(), username);
                 params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.password.name(), password);
                 params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.device_token.name(), device_token);
 
@@ -194,23 +196,38 @@ public class CallAPI {
             actionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
 
             ImageView action_bar_logo = (ImageView)appCompatActivity.findViewById(R.id.action_bar_logo);
+             map_indicator=(ImageView)appCompatActivity.findViewById(R.id.action_map) ;
             TextView action_bar_text = (TextView)appCompatActivity.findViewById(R.id.action_bar_text);
             if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_CART.getFragmentTag().toString())){
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            }
+            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_HOME.getFragmentTag().toString())){
+                //action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.VISIBLE);
+                action_bar_text.setVisibility(View.GONE);
             }
             else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_PAYMENT.getFragmentTag().toString())){
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
             }
             else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag().toString())){
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
             }
+            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_SETTING.getFragmentTag().toString())){
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            }
+
             else{
                 action_bar_logo.setVisibility(View.VISIBLE);
                 action_bar_text.setVisibility(View.GONE);
-
+                map_indicator.setVisibility(View.GONE);
             }
 
         }

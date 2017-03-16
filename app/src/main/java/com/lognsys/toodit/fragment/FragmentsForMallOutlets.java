@@ -203,9 +203,9 @@ return  homeFragmentView;
 
                                     }
 
-                                    Fragment fragment = new FragmentsListOfItems();
+                                    Fragment fragment = new TestFragment();
                                     Bundle args = new Bundle();
-                                    args.putParcelableArrayList("listFoodItems", listFoodItems);
+                                    args.putParcelableArrayList("ListFoodItems", listFoodItems);
                                     //listFoodItems.size();
                                     fragment .setArguments(args);
                                     getActivity().getSupportFragmentManager().beginTransaction()
@@ -319,10 +319,6 @@ return  homeFragmentView;
         return outlet_id;
 
     }
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_map);
-        item.setVisible(false);
-    }
+
 }
 

@@ -1,6 +1,7 @@
 package com.lognsys.toodit.fragment;
 
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.RegistrationActivity;
 import com.lognsys.toodit.model.CountryName;
@@ -33,13 +35,16 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by admin on 02-03-2017.
  */
 
 public class UpdateFragment extends Fragment {
 
-
+   private  String name, email, mobile;
+    private  EditText etName, etEmail, etMobile;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,15 +56,17 @@ public class UpdateFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View updateFragment = inflater.inflate(R.layout.fragment_update, container, false);
-        final EditText etName=(EditText)updateFragment.findViewById(R.id.etNameUpdate);
-        final EditText etMobile=(EditText)updateFragment.findViewById(R.id.etMobileNoUpdate);
-        final EditText etEmail=(EditText)updateFragment.findViewById(R.id.etEmailUpdate);
+        etName=(EditText)updateFragment.findViewById(R.id.etNameUpdate);
+       etMobile=(EditText)updateFragment.findViewById(R.id.etMobileNoUpdate);
+     etEmail=(EditText)updateFragment.findViewById(R.id.etEmailUpdate);
         Button btnUpdate=(Button)updateFragment.findViewById(R.id.btnUpdate);
 
-        etName.setText(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("name", ""));
-        etMobile.setText(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("mobile", ""));
-        etEmail.setText(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("email", ""));
 
+        HashMap<String, String> hashMapProfile= new HashMap();
+        //hashMapProfile.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("name", ""));
+        hashMapProfile.put("customer_id", "1");
+
+        getProfileData("http://food.swatinfosystem.com/api/Profile",hashMapProfile);
 
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +76,8 @@ public class UpdateFragment extends Fragment {
                 String name=etName.getText().toString().trim();
                 String email=etEmail.getText().toString().trim();
                 String mobile=etMobile.getText().toString().trim();
+               // hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("name", "") );
+                hashMap.put("customer_id","1" );
                 hashMap.put("name",name);
                 hashMap.put("mobile", mobile);
                 hashMap.put("email",email);
@@ -96,11 +105,82 @@ public class UpdateFragment extends Fragment {
                     public void onResponse(String response) {
                       //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
+
                         CountryName countryName;
                         try {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
+                                if (!(jsonObject.getString("message").equals("Profile Updated")||jsonObject.getString("message").equals( "Customer registration successfully otp send to your email id and mobile"))) {
+                                    DialogFragment dialog = new NetworkStatusDialog();
+                                    Bundle args = new Bundle();
+                                    args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                                    args.putString(NetworkStatusDialog.ARG_MSG, jsonObject.getString("message"));
+                                    dialog.setArguments(args);
+                                    dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                                    dialog.show(getFragmentManager(), "NetworkDialogFragment");
+                                    Log.e(TAG, "Username Invalid!");
+                                } else {
+                                    DialogFragment dialog = new NetworkStatusDialog();
+                                    Bundle args = new Bundle();
+                                    args.putString(NetworkStatusDialog.ARG_TITLE, "Updation ");
+                                    args.putString(NetworkStatusDialog.ARG_MSG, jsonObject.getString("message"));
+                                    dialog.setArguments(args);
+                                    dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                                    dialog.show(getFragmentManager(), "NetworkDialogFragment");
+                                    //Log.e("check", countryArray.toString);
 
+                                    //
+                                }  // Log.e("check", countryList.get(4).getName());
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getActivity(), "Internet not available !", Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        return response;
+    }
+
+    private String getProfileData(String URL, final Map<String, String> params) {
+        String response = "";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+                        CountryName countryName;
+                        try {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                name=jsonObject.getJSONObject("customer_data").getString("name");
+                                email=jsonObject.getJSONObject("customer_data").getString("email");
+                                mobile=jsonObject.getJSONObject("customer_data").getString("mobile");
+                                etName.setText(name);
+                                etEmail.setText(email);
+                                etMobile.setText(mobile);
                                 //Log.e("check", countryArray.toString);
 
                                 //
@@ -136,9 +216,5 @@ public class UpdateFragment extends Fragment {
         requestQueue.add(stringRequest);
         return response;
     }
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_map);
-        item.setVisible(false);
-    }
+
 }

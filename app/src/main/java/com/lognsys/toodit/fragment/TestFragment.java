@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.lognsys.toodit.ActivityTab;
 import com.lognsys.toodit.R;
@@ -33,11 +34,13 @@ public class TestFragment extends Fragment {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    ArrayList<ListFoodItem> value;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.activity_tab_list_of_item, container, false);
-
+        if(!(null==getArguments()))
+        { value = getArguments().getParcelableArrayList("ListFoodItems");}
         tabLayout = (TabLayout) v.findViewById(R.id.tabs);
         toolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -51,28 +54,44 @@ public class TestFragment extends Fragment {
 
 
         tabLayout.setupWithViewPager(viewPager);
+//        setupTabIcons();
         tabLayout.setTabTextColors(
                 ContextCompat.getColor(getActivity(), R.color.light_black),
                 ContextCompat.getColor(getActivity(), R.color.red)
         );
 
-       /* TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
-        tabOne.setText("ONE");
-        tabLayout.getTabAt(0).setCustomView(tabOne);*/
         return  v;
     }
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter  adapter = new  ViewPagerAdapter(getChildFragmentManager());
+
         adapter.addFragment(new FragmentFastFood(), "Fast Food");
         adapter.addFragment(new FragmentStarter(), "Starter");
         adapter.addFragment(new FragmentBeverages(), "Beverages");
         adapter.addFragment(new FragmentAll(), "All");
-      /*  adapter.addFragment(new TwoFragment(), "TWO");
+      /*  adapter.addFragment(new TwoFragment(), "TWO
         adapter.addFragment(new ThreeFragment(), "THREE");*/
 
         viewPager.setAdapter(adapter);
     }
+    /*private void setupTabIcons() {
 
+        TextView tabOne = (TextView) LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
+        tabOne.setText("Fast Food");
+        tabLayout.getTabAt(0).setCustomView(tabOne);
+
+        TextView tabTwo = (TextView) LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
+        tabTwo.setText("Starter");
+
+        tabLayout.getTabAt(1).setCustomView(tabTwo);
+
+        TextView tabThree = (TextView) LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
+        tabThree.setText("Beverages");
+        tabLayout.getTabAt(2).setCustomView(tabThree);
+        TextView tabFour = (TextView) LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
+        tabThree.setText("All");
+        tabLayout.getTabAt(3).setCustomView(tabFour);
+    }*/
     public class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<android.support.v4.app.Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
@@ -92,6 +111,9 @@ public class TestFragment extends Fragment {
         }
 
         public void addFragment(android.support.v4.app.Fragment fragment, String title) {
+            Bundle bundle= new Bundle();
+            bundle.putParcelableArrayList("ListFoodItems", value);
+            fragment.setArguments(bundle);
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
@@ -112,9 +134,5 @@ public class TestFragment extends Fragment {
             actionBar.setDisplayShowHomeEnabled(true);
         }
     }*/
-   @Override
-   public void onPrepareOptionsMenu(Menu menu) {
-       MenuItem item = menu.findItem(R.id.action_map);
-       item.setVisible(false);
-   }
+
 }

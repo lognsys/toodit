@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 fragment = HomeFragment.newInstance();
                 fragmentTag = FragmentTag.FRAGMENT_HOME.getFragmentTag();
                 callAPI.updateToolbarText(fragmentTag,MainActivity.this);
+
                 break;
             case R.id.menu_notifications:
                item.getIcon().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
@@ -193,12 +194,6 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayShowHomeEnabled(true);
         }
     }*/
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
 
     private int getColorFromRes(@ColorRes int resId) {
         return ContextCompat.getColor(this, resId);

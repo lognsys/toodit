@@ -105,8 +105,8 @@
             android:numStars="5"
             android:rating="4"
             style="?android:attr/ratingBarStyleIndicator"
-            android:scaleX=".6"
-            android:scaleY=".6"
+            android:scaleX=".5"
+            android:scaleY=".5"
             android:transformPivotX="0dp"
             android:transformPivotY="0dp"
             android:indeterminate="false"
@@ -118,17 +118,11 @@
         <TextView
             android:id="@+id/tvItemQuality"
             android:layout_width="wrap_content"
-            android:layout_below="@+id/tvItemName"
-            android:layout_toRightOf="@+id/rbRating"
-            android:layout_toEndOf="@+id/rbRating"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="115dp"
             android:textSize="12sp"
-            android:text="With added cheasy cream" />
-
-
-
-
-
+            android:text="With added cheasy cream"
+            android:layout_below="@+id/tvItemName"/>
         <ImageView
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -138,5 +132,8 @@
             android:layout_gravity="right"
             android:src="@drawable/image_arrow"/>
 
-</RelativeLayout>
+    </RelativeLayout>
+
+
+
 </LinearLayout>

@@ -369,10 +369,5 @@ public class CartFragment extends Fragment {
 
         }
     }
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_map);
-        item.setVisible(false);
-    }
 }
 

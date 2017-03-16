@@ -4,8 +4,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,6 +31,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,6 +45,11 @@ import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.ProfileListAdapter;
+import com.lognsys.toodit.util.Constants;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 
 public class SettingFragment extends Fragment {
@@ -41,6 +60,7 @@ public class SettingFragment extends Fragment {
     private String loc;
     private Button logout;
     private Button update;
+    private ImageView profile_image;
     //Google API variable
     private GoogleApiClient mGoogleApiClient;
     ListView profileListView;
@@ -80,6 +100,10 @@ public class SettingFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
         logout = (Button) view.findViewById(R.id.logout);
         update = (Button) view.findViewById(R.id.edit_profile);
+        profile_image=(ImageView)view.findViewById(R.id.profile_image);
+
+        new SettingFragment.ImageLoadTask(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.FacebookFields.FB_PICTURE.name(), ""),profile_image ).execute();
+
 
         update.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,9 +179,80 @@ public class SettingFragment extends Fragment {
         titles[3] = getContext().getResources().getString(R.string.text_profile_title_tc);
 
     }
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_map);
-        item.setVisible(false);
+
+    public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
+
+        private String url;
+        private ImageView imageView;
+
+        public ImageLoadTask(String url, ImageView imageView) {
+            this.url = url;
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            try {
+                URL urlConnection = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) urlConnection
+                        .openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                return myBitmap;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+          /*  mViewHolder.progressView15.setType(GeometricProgressView.TYPE.TRIANGLE);
+            mViewHolder.progressView15.setFigurePaddingInDp(1);
+            mViewHolder.progressView15.setNumberOfAngles(30);
+            mViewHolder.progressView15.setVisibility(View.VISIBLE);*/
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            super.onPostExecute(result);
+            imageView.setImageBitmap(result);
+            //mViewHolder.progressView15.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+
+        }
     }
+    public class ImageConverter {
+
+        public Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
+            Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+
+            final int color = 0xff424242;
+            final Paint paint = new Paint();
+            final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            final RectF rectF = new RectF(rect);
+            final float roundPx = pixels;
+
+            paint.setAntiAlias(true);
+            canvas.drawARGB(0, 0, 0, 0);
+            paint.setColor(color);
+            canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(bitmap, rect, rect, paint);
+
+            return output;
+        }
+    }
+
 }

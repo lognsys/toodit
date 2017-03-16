@@ -56,7 +56,7 @@ public class Constants {
 
     public enum API_CUSTOMER_LOGIN_ULR_PARAMS {
 
-        username,
+        email_or_mobile,
         password,
         device_token
     }

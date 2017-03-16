@@ -12,6 +12,7 @@
         android:padding="35dp">
 
         <TextView
+            android:id="@+id/tvListOfMalls"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:padding="6dp"
