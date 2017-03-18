@@ -68,7 +68,7 @@ public class FragmentFastFood extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1,int position, long arg3)
             {
-               Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
+             //  Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
                 Fragment fragment = new FragmentCentralGrill();
                 Bundle args = new Bundle();
                 args.putString("position", String.valueOf(position));

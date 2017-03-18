@@ -163,7 +163,7 @@ public class SettingFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 String selectedTitle = titles[+position];
-                Toast.makeText(getActivity(), selectedTitle, Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getActivity(), selectedTitle, Toast.LENGTH_SHORT).show();
             }
         });
     }

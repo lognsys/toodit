@@ -232,7 +232,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         try {
                             JSONObject jsonObject = new JSONObject(response);
@@ -292,7 +292,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                       // Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                         DialogFragment dialog = new NetworkStatusDialog();
                         Bundle args = new Bundle();

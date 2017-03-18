@@ -92,7 +92,7 @@ public class ActivityOTPValidation extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(ActivityOTPValidation.this, response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(ActivityOTPValidation.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         try {
                             JSONObject jsonObject = new JSONObject(response);
@@ -152,7 +152,7 @@ public class ActivityOTPValidation extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(ActivityOTPValidation.this, error.toString(), Toast.LENGTH_LONG).show();
+                       // Toast.makeText(ActivityOTPValidation.this, error.toString(), Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                         DialogFragment dialog = new NetworkStatusDialog();
                         Bundle args = new Bundle();
@@ -188,7 +188,7 @@ public class ActivityOTPValidation extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(ActivityOTPValidation.this, response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(ActivityOTPValidation.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         try {
                             JSONObject jsonObject = new JSONObject(response);
@@ -216,8 +216,7 @@ public class ActivityOTPValidation extends AppCompatActivity {
 
 
                                        otp = jsonObject.getJSONObject("data").getString("otp");
-
-
+                                        etOTP.setText(otp);
                                         // Log.e("mallname", mall);
                                         // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
 
@@ -239,7 +238,7 @@ public class ActivityOTPValidation extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(ActivityOTPValidation.this, error.toString(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(ActivityOTPValidation.this, error.toString(), Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                         DialogFragment dialog = new NetworkStatusDialog();
                         Bundle args = new Bundle();

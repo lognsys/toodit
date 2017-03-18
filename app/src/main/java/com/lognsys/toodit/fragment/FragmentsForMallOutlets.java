@@ -74,8 +74,8 @@ public class FragmentsForMallOutlets extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(getActivity(), "" + position,
-                        Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getActivity(), "" + position,
+                       // Toast.LENGTH_SHORT).show();
                 //Akhilesh changes
                 if (position == 0) {
 
@@ -102,7 +102,7 @@ return  homeFragmentView;
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {
@@ -178,7 +178,7 @@ return  homeFragmentView;
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {
@@ -257,7 +257,7 @@ return  homeFragmentView;
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                      //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {

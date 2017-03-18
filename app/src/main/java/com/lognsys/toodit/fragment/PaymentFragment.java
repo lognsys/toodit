@@ -92,7 +92,7 @@ public class PaymentFragment extends Fragment {
                     // find the radiobutton by returned id
                     radioButton = (RadioButton)rootview.findViewById(selectedId);
 
-                    Toast.makeText(getContext(),radioButton.getText(), Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(getContext(),radioButton.getText(), Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e){
                     Log.d("PaymentFragment","Rest onClick Exception "+e);

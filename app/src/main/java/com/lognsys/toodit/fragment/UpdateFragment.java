@@ -63,8 +63,8 @@ public class UpdateFragment extends Fragment {
 
 
         HashMap<String, String> hashMapProfile= new HashMap();
-        //hashMapProfile.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("name", ""));
-        hashMapProfile.put("customer_id", "1");
+        hashMapProfile.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+        //hashMapProfile.put("customer_id", "1");
 
         getProfileData("http://food.swatinfosystem.com/api/Profile",hashMapProfile);
 
@@ -76,8 +76,8 @@ public class UpdateFragment extends Fragment {
                 String name=etName.getText().toString().trim();
                 String email=etEmail.getText().toString().trim();
                 String mobile=etMobile.getText().toString().trim();
-               // hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("name", "") );
-                hashMap.put("customer_id","1" );
+                hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "") );
+               // hashMap.put("customer_id","1" );
                 hashMap.put("name",name);
                 hashMap.put("mobile", mobile);
                 hashMap.put("email",email);

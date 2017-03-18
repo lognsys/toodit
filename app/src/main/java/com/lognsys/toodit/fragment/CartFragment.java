@@ -36,10 +36,23 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.OutletRecylerViewHolders;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -58,10 +71,12 @@ public class CartFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private ArrayList<ListDataCartFragments> myList = new ArrayList<ListDataCartFragments>();
     NotificationFragment.MyBaseAdapter myBaseAdapter;
+    MyBaseAdapter.MyViewHolder mViewHolder;
+    private  String cart_id, sub_total, service_tax, vat, add_vat,total_amount;
     //by Akhilesh
-    String[] item = {"Tomato Garlic Pizza", "Cheese Veg Burger"};
+   /* String[] item = {"Tomato Garlic Pizza", "Cheese Veg Burger"};
     String[] qualit = {"With added cheasy cream", "With added cheasy cream"};
-    String[] quant = {"Qty :1", "Qty :3"};
+    String[] quant = {"Qty :1", "Qty :3"};*/
     String[] amoun = {" 50", " 250"};
     ListView li;
     int[] image = {R.drawable.tomato12, R.drawable.vegitable12};
@@ -115,11 +130,13 @@ public class CartFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_cart, container, false);
 
         li = (ListView) v.findViewById(R.id.lvCart);
-        getDataInList();
-
+        //getDataInList();
+        HashMap<String, String> hashMap= new HashMap<String, String>();
+        hashMap.put("customer_id","28");
+        hashMap.put("outlet_id","1");
+        getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
         //CartFragment.PasswordAdapter pwd=new CartFragment().PasswordAdapter(getActivity(),R.layout.list_raw_cart,item, qualit, quant, amoun);
-        MyBaseAdapter pwd = new MyBaseAdapter(getActivity(), myList);
-        li.setAdapter(pwd);
+
         return v;
         // return inflater.inflate(R.layout.fragment_cart, container, false);
 
@@ -195,7 +212,7 @@ public class CartFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final MyViewHolder mViewHolder;
+
 
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_raw_cart, parent, false);
@@ -228,7 +245,10 @@ public class CartFragment extends Fragment {
                 mViewHolder.llAmount.setVisibility(View.VISIBLE);
 
             }
-
+            String next = "<font color='#CCCCCC'> "+getResources().getString(R.string.rs)+"</font>";
+            mViewHolder.subTotal.setText(Html.fromHtml(next + sub_total));
+            mViewHolder.taxes.setText(Html.fromHtml(next + String.valueOf(Double.valueOf(service_tax)+Double.valueOf(vat)+Double.valueOf(add_vat))));
+            mViewHolder.Total.setText(Html.fromHtml(next +total_amount));
             // Create an ArrayAdapter using the string array and a default spinner layout
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                     R.array.quantity_array, android.R.layout.simple_spinner_item);
@@ -244,19 +264,15 @@ public class CartFragment extends Fragment {
             mViewHolder.spinnerItemQuantity.setTag(currentListData.getCartItemquanatity());
             mViewHolder.itemAmount.setText(currentListData.getCartItemPrice());
 
-            String next = "<font color='#CCCCCC'> "+getResources().getString(R.string.rs)+"</font>";
 
-            mViewHolder.subTotal.setText(Html.fromHtml(next + "261.00"));
-            mViewHolder.taxes.setText(Html.fromHtml(next + "31.00"));
-            mViewHolder.Total.setText(Html.fromHtml(next + " 291.00"));
             //CircleImageView img = (de.hdodenhof.circleimageview.CircleImageView)v.findViewById(R.id.ivItemInCart);
 
             //img.setBackgroundResource(image[position]);
-            Bitmap bitmap = BitmapFactory.decodeResource(CartFragment.this.getResources(), currentListData.getCartItemImage());
+           /* Bitmap bitmap = BitmapFactory.decodeResource(CartFragment.this.getResources(), currentListData.getCartItemImage());
             Bitmap circularBitmap = new ImageConverter().getRoundedCornerBitmap(bitmap, 100);
 
 
-            mViewHolder.img.setImageBitmap(circularBitmap);
+            mViewHolder.img.setImageBitmap(circularBitmap);*/
             mViewHolder.cancelSelection.setTag(position);
            // final int posison = position;
             mViewHolder.cancelSelection.setOnClickListener(new View.OnClickListener() {
@@ -266,6 +282,11 @@ public class CartFragment extends Fragment {
                      int deletePosition=(int)position;
                     myList.remove(deletePosition); //remove the item from data source
                     Log.e("myList Size", String.valueOf(myList.size()));
+
+                    HashMap<String, String> hashMap= new HashMap<String, String>();
+                    hashMap.put("transaction_id","16");
+                    hashMap.put("remove_quanity","1");
+                    deleteCartItems("http://food.swatinfosystem.com/api/Delete_cart_item", hashMap);
                     notifyDataSetChanged(); //notify to refresh
                    // li.setAdapter( new MyBaseAdapter(getActivity(), myListMain));
                 }
@@ -351,9 +372,97 @@ public class CartFragment extends Fragment {
         }
     }
 
+    private ArrayList<ListDataCartFragments> getFoodItemList(String URL, final Map<String, String> params) {
+        String response = "";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+
+                        try {
+                            try {
+                                JSONArray cartItemArray;
+                                JSONObject jsonObject = new JSONObject(response);
+                                JSONObject jsonObject1=jsonObject.getJSONObject("cart_data");
+                                cart_id=jsonObject1.getString("cart_id");
+                                sub_total=jsonObject1.getString("sub_total");
+                                service_tax=jsonObject1.getString("service_tax");
+                                vat=jsonObject1.getString("vat");
+                                add_vat=jsonObject1.getString("add_vat");
+                                total_amount=jsonObject1.getString("total_amount");
 
 
-    private void getDataInList() {
+
+
+                                if(jsonObject.getJSONObject("cart_data").getJSONArray("item_details")!=null){
+                                    cartItemArray = jsonObject.getJSONObject("cart_data").getJSONArray("item_details");
+                                    for (int i = 0; i < cartItemArray.length(); i++) {
+                                        String food_name = cartItemArray.getJSONObject(i).getString("food_name");
+                                        String food_type= cartItemArray.getJSONObject(i).getString("food_type");
+                                        String price=cartItemArray.getJSONObject(i).getString("price");
+                                        String quantity=cartItemArray.getJSONObject(i).getString("price");
+                                        String transaction_id=cartItemArray.getJSONObject(i).getString("transaction_id");
+                                        ListDataCartFragments listDataCartFragments= new ListDataCartFragments();
+                                        listDataCartFragments.setCartItemSelected(food_name);
+                                        listDataCartFragments.setCartItemComment(food_type);
+                                        listDataCartFragments.setCartItemquanatity(quantity);
+                                        listDataCartFragments.setCartItemPrice(price);
+                                       // listDataCartFragments.setCartItemImage(image[i]);
+
+
+
+                                        // Log.e("mallname", mall);
+                                        // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
+                                        myList.add(listDataCartFragments);
+
+                                    }
+
+                                    MyBaseAdapter pwd = new MyBaseAdapter(getActivity(), myList);
+                                    li.setAdapter(pwd);
+
+
+                                }
+
+                                //Log.e("check", countryArray.toString());
+
+
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return myList;
+
+    }
+
+   /* private void getDataInList() {
         for (int i = 0; i < image.length; i++) {
             // Create a new object for each list item
             ListDataCartFragments ld = new ListDataCartFragments();
@@ -368,6 +477,61 @@ public class CartFragment extends Fragment {
 
 
         }
-    }
+    }*/
+   private ArrayList<ListDataCartFragments> deleteCartItems(String URL, final Map<String, String> params) {
+       String response = "";
+
+       StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+               new Response.Listener<String>() {
+                   @Override
+                   public void onResponse(String response) {
+                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                       response = response;
+
+                       try {
+                           try {
+
+                               JSONObject jsonObject = new JSONObject(response);
+
+                               HashMap<String, String> hashMap= new HashMap<String, String>();
+                               hashMap.put("customer_id","1");
+                               hashMap.put("outlet_id","1");
+                               getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
+                               //Log.e("check", countryArray.toString());
+
+
+                               //getCountryFromJson(countryArray.toString());
+                           } catch (JSONException je) {
+                               je.printStackTrace();
+                           }
+
+                           //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                       } catch (Exception e) {
+                           e.printStackTrace();
+                       }
+
+                   }
+               },
+               new Response.ErrorListener() {
+                   @Override
+                   public void onErrorResponse(VolleyError error) {
+                       //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                   }
+               }) {
+           @Override
+           protected Map<String, String> getParams() {
+
+               return params;
+           }
+
+       };
+
+       RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+       requestQueue.add(stringRequest);
+       //  Log.e("Lisof malls", listOfMall1.get(0));
+       return myList;
+
+   }
 }
+
 
