@@ -31,10 +31,13 @@ import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.RegistrationActivity;
+import com.lognsys.toodit.fragment.ListMallOutlets;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,19 +46,36 @@ import java.util.Map;
  */
 
 public class CallAPI {
+    ArrayList<ListMallOutlets> listOfMallOutlets = new ArrayList<>();
 
     private final String TAG = this.getClass().getName();
     private static final String ARG_TITLE = "title";
     private static final String ARG_MSG = "message";
     private static final String ARG_INTENT = "intent";
     ImageView map_indicator;
-
+    ProgressDialog progressDialog;
     public static String response = "";
 
     public CallAPI() {
 
     }
 
+    public void showProgressbar(AppCompatActivity activity) {
+        progressDialog = new ProgressDialog(activity,R.style.Theme_MyDialog);
+        progressDialog.setMessage("Please Wait for a while....");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
+    }
+
+    public void hideProgressbar(AppCompatActivity activity) {
+
+        if (progressDialog !=null && progressDialog.isShowing()) {
+          Log.d(TAG,"progress dialog hide  is showing "+progressDialog.isShowing());
+            progressDialog.dismiss();
+        }
+
+    }
 
     /*
      * @param - input parameters
@@ -97,11 +117,11 @@ public class CallAPI {
                                 //Initialize SharedPreferences
                                 sharedpreferences = PreferenceManager.getDefaultSharedPreferences(activity);
                                 SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
-                                sharedPrefEditor.putString("city_id","2707");
-                                sharedPrefEditor.putString("customer_id",jsonObj.getJSONObject("data").getString("customer_id"));
-                                sharedPrefEditor.putString("name",jsonObj.getJSONObject("data").getString("name"));
-                                sharedPrefEditor.putString("mobile",jsonObj.getJSONObject("data").getString("mobile"));
-                                sharedPrefEditor.putString("email",jsonObj.getJSONObject("data").getString("email"));
+                                sharedPrefEditor.putString("city_id", "2707");
+                                sharedPrefEditor.putString("customer_id", jsonObj.getJSONObject("data").getString("customer_id"));
+                                sharedPrefEditor.putString("name", jsonObj.getJSONObject("data").getString("name"));
+                                sharedPrefEditor.putString("mobile", jsonObj.getJSONObject("data").getString("mobile"));
+                                sharedPrefEditor.putString("email", jsonObj.getJSONObject("data").getString("email"));
                                 sharedPrefEditor.commit();
                                 activity.startActivity(i);
                                 activity.finish();
@@ -144,7 +164,7 @@ public class CallAPI {
                         dialog.setArguments(args);
                         dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                         dialog.show(activity.getSupportFragmentManager(), "NetworkDialogFragment");
-                      //  Log.e(TAG + "#customerLoginURL", error.getMessage());
+                        //  Log.e(TAG + "#customerLoginURL", error.getMessage());
                     }
                 }
         ) {
@@ -164,6 +184,7 @@ public class CallAPI {
         requestQueue.add(postRequest);
         return response;
     }
+
     public void updateToolbarText(String text, AppCompatActivity appCompatActivity) {
         {
             /* ActionBar actionBar = appCompatActivity.getSupportActionBar();
@@ -179,13 +200,13 @@ public class CallAPI {
             }
             */
             // Inflate your custom layout
-            final ViewGroup actionBarLayout = (ViewGroup)appCompatActivity.getLayoutInflater().inflate(
+            final ViewGroup actionBarLayout = (ViewGroup) appCompatActivity.getLayoutInflater().inflate(
                     R.layout.activity_actionbar,
                     null);
 //            Log.d("PaymentFragment","Rest updateToolbarText = "+text+" appCompatActivity ="+appCompatActivity);
 
             // Set up your ActionBar
-            ActionBar actionBar =appCompatActivity.getSupportActionBar();
+            ActionBar actionBar = appCompatActivity.getSupportActionBar();
             actionBar.setDisplayShowHomeEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayShowCustomEnabled(true);
@@ -195,36 +216,30 @@ public class CallAPI {
             final int actionBarColor = appCompatActivity.getResources().getColor(R.color.black);
             actionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
 
-            ImageView action_bar_logo = (ImageView)appCompatActivity.findViewById(R.id.action_bar_logo);
-             map_indicator=(ImageView)appCompatActivity.findViewById(R.id.action_map) ;
-            TextView action_bar_text = (TextView)appCompatActivity.findViewById(R.id.action_bar_text);
-            if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_CART.getFragmentTag().toString())){
+            ImageView action_bar_logo = (ImageView) appCompatActivity.findViewById(R.id.action_bar_logo);
+            map_indicator = (ImageView) appCompatActivity.findViewById(R.id.action_map);
+            TextView action_bar_text = (TextView) appCompatActivity.findViewById(R.id.action_bar_text);
+            if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_CART.getFragmentTag().toString())) {
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
-            }
-            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_HOME.getFragmentTag().toString())){
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_HOME.getFragmentTag().toString())) {
                 //action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.VISIBLE);
                 action_bar_text.setVisibility(View.GONE);
-            }
-            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_PAYMENT.getFragmentTag().toString())){
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_PAYMENT.getFragmentTag().toString())) {
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
-            }
-            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag().toString())){
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag().toString())) {
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
-            }
-            else  if(text.equalsIgnoreCase(FragmentTag.FRAGMENT_SETTING.getFragmentTag().toString())){
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_SETTING.getFragmentTag().toString())) {
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
-            }
-
-            else{
+            } else {
                 action_bar_logo.setVisibility(View.VISIBLE);
                 action_bar_text.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
@@ -232,5 +247,13 @@ public class CallAPI {
 
         }
     }
-
 }
+
+
+
+
+
+
+
+
+

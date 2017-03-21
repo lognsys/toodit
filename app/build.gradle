@@ -46,7 +46,8 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
+//    FOR IMAGE MONIKA ADD PICASO
+    compile 'com.squareup.picasso:picasso:2.5.2'
     //Google Sign In SDK
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'

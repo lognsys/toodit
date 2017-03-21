@@ -93,7 +93,7 @@
     <!--hint size-->
     <string name="edittext_hint"><font size="10">Write your review here</font></string>
 
-
+   <string name="outlet_list_url">http://food.swatinfosystem.com/api/Outlet_list</string>
 
     <!--cart fragments layout label-->
     <string name="hint_customise_edittext"><font size="11">Remarks e.g. Less spicy, more onions</font></string>

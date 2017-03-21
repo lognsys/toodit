@@ -34,4 +34,5 @@
 
     <color name="hint_text_color">#B9B9B9</color>
 
+    <color name="home_popup_header_color">#F7F9F8</color>
 </resources>

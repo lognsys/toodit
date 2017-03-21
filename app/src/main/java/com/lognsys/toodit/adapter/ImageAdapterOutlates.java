@@ -1,119 +1,142 @@
-package com.lognsys.toodit.adapter;
+         package com.lognsys.toodit.adapter;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.os.AsyncTask;
-import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
+         import android.app.Activity;
+         import android.content.Context;
+         import android.graphics.Bitmap;
+         import android.graphics.BitmapFactory;
+         import android.graphics.Canvas;
+         import android.graphics.Paint;
+         import android.graphics.PorterDuff;
+         import android.graphics.PorterDuffXfermode;
+         import android.graphics.Rect;
+         import android.graphics.RectF;
+         import android.os.AsyncTask;
+         import android.support.annotation.IdRes;
+         import android.support.annotation.LayoutRes;
+         import android.support.annotation.NonNull;
+         import android.support.v7.app.AppCompatActivity;
+         import android.support.v7.widget.RecyclerView;
+         import android.text.Html;
+         import android.util.DisplayMetrics;
+         import android.util.Log;
+         import android.view.LayoutInflater;
+         import android.view.View;
+         import android.view.ViewGroup;
+         import android.widget.ArrayAdapter;
+         import android.widget.BaseAdapter;
+         import android.widget.GridView;
+         import android.widget.ImageView;
+         import android.widget.TextView;
 
-import com.lognsys.toodit.R;
-import com.lognsys.toodit.fragment.CartFragment;
-import com.lognsys.toodit.fragment.ListMallOutlets;
+         import com.lognsys.toodit.R;
+         import com.lognsys.toodit.fragment.CartFragment;
+         import com.lognsys.toodit.fragment.HomeFragment;
+         import com.lognsys.toodit.fragment.ListMallOutlets;
+         import com.lognsys.toodit.util.CallAPI;
+         import com.squareup.picasso.Picasso;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
+         import java.io.IOException;
+         import java.io.InputStream;
+         import java.net.HttpURLConnection;
+         import java.net.URL;
+         import java.util.ArrayList;
 
 /**
  * Created by admin on 03-03-2017.
  */
 
-public class ImageAdapterOutlates extends BaseAdapter {
+public class ImageAdapterOutlates extends ArrayAdapter<ListMallOutlets> {
     private Context mContext;
-    private ArrayList<ListMallOutlets> imageUrl=new ArrayList<>();
-
-    public ImageAdapterOutlates(Context c , ArrayList<ListMallOutlets> imageUrl) {
-        mContext = c;
-        this.imageUrl=imageUrl;
+    private int layoutResourceId;
+    private ArrayList<ListMallOutlets> items = new ArrayList<ListMallOutlets>();
+    public ImageAdapterOutlates(Context mContext, int layoutResourceId, ArrayList<ListMallOutlets> items) {
+        super(mContext, layoutResourceId, items);
+        this.layoutResourceId = layoutResourceId;
+        this.mContext = mContext;
+        this.items = items;
     }
-
-    public int getCount() {
-
-        return imageUrl.size();
+    /**
+     * Updates grid data and refresh grid items.
+     * @param mGridData
+     */
+    public void setGridData(ArrayList<ListMallOutlets> mGridData) {
+        this.items = items;
+        notifyDataSetChanged();
     }
-
-    public Object getItem(int position) {
-        return null;
-    }
-
-    public long getItemId(int position) {
-        return 0;
-    }
-
     // create a new ImageView for each item referenced by the Adapter
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        de.hdodenhof.circleimageview.CircleImageView imageView;
-        if (convertView == null) {
-
-            // if it's not recycled, initialize some attributes
-
-            DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-            int screenWidth = metrics.widthPixels;
-            imageView = new de.hdodenhof.circleimageview.CircleImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(screenWidth / 4, screenWidth / 4));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
+    public View getView(int position, View convertView, ViewGroup parent){
+        View row = convertView;
+        ViewHolder holder;
+        if (row == null) {
+            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+            row = inflater.inflate(layoutResourceId, parent, false);
+            holder = new ViewHolder();
+            holder.titleTextView = (TextView) row.findViewById(R.id.grid_item_title);
+            holder.imageview = (ImageView) row.findViewById(R.id.grid_item_image);
+            row.setTag(holder);
         } else {
-            imageView = (de.hdodenhof.circleimageview.CircleImageView) convertView;
+            holder = (ViewHolder) row.getTag();
         }
-
-
-      new ImageLoadTask(imageUrl.get(position).getOutlet_image().toString(),imageView).execute();
-
-        return imageView;
+        ListMallOutlets item = items.get(position);
+        holder.titleTextView.setText(Html.fromHtml(item.getOutlet_name()));
+        Picasso.with(mContext).load(item.getOutlet_image()).into(holder.imageview);
+        return row;
     }
 
+class ViewHolder{
+    ImageView imageview;
+    String imageviewstring;
+    Bitmap bitmap;
+    TextView titleTextView;
+    int position;
+}
 
-
-    public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
-
-        private String url;
-        private ImageView imageView;
-
-        public ImageLoadTask(String url, ImageView imageView) {
-            this.url = url;
-            this.imageView = imageView;
-        }
+    public class ImageLoadTask extends AsyncTask<ViewHolder, Void, ViewHolder> {
 
         @Override
-        protected Bitmap doInBackground(Void... params) {
+       protected ViewHolder doInBackground(ViewHolder... params) {
+
+            //load image directly
+
+            ViewHolder viewHolder = params[0];
+
             try {
-                URL urlConnection = new URL(url);
-                HttpURLConnection connection = (HttpURLConnection) urlConnection
-                        .openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                Bitmap myBitmap = BitmapFactory.decodeStream(input);
-                Bitmap circularBitmap = new ImageConverter().getRoundedCornerBitmap(myBitmap, 80);
+                Log.d("error", "adapter doInBackground Image viewHolder.imageviewstring "+viewHolder.imageviewstring);
 
-                return circularBitmap;
-            } catch (Exception e) {
-                e.printStackTrace();
+                URL imageURL = new URL(viewHolder.imageviewstring);
+
+                viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+
+            } catch (IOException e) {
+
+                Log.e("error", "adapter Downloading Image Failed");
+
+                viewHolder.bitmap = null;
+
             }
-            return null;
-        }
 
+            return viewHolder;
+
+        }
         @Override
-        protected void onPostExecute(Bitmap result) {
-            super.onPostExecute(result);
-            imageView.setImageBitmap(result);
+
+        protected void onPostExecute(ViewHolder result) {
+            Log.d("error", "adapter onPostExecute Image result "+result);
+
+            if (result.bitmap == null) {
+
+                result.imageview.setImageResource(R.drawable.ic_launcher_toodit);
+
+            } else {
+
+                result.imageview.setImageBitmap(result.bitmap);
+
+            }
+
         }
 
-    }
+}
     public class ImageConverter {
 
         public Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {

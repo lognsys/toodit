@@ -1,7 +1,9 @@
 package com.lognsys.toodit.fragment;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 
@@ -9,6 +11,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,11 +20,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +40,10 @@ import com.lognsys.toodit.ActivityTab;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.ImageAdapter;
+import com.lognsys.toodit.adapter.ImageAdapterOutlates;
 import com.lognsys.toodit.util.CallAPI;
+import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.PropertyReader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +52,9 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 
 public class HomeFragment extends Fragment {
@@ -55,16 +66,30 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
-
+    CallAPI callAPI;
+    AlertDialog dialog;
+    static  String outlet_id;
     private GridLayoutManager lLayout;
     private Button findMoreBtn;
     private TextView tvListOfMalls;
     ArrayList<String>  listOfmalls= new ArrayList<>();;
     ArrayList<ListMall>  listMalls= new ArrayList<ListMall>();
+    ArrayList<ListMallOutlets> listMallOutletses;
+    ProgressBar mProgressBar;
+
+    ArrayList<ListFoodItem> listFoodItems;
+    String value;
+
+    //Properties
+    private PropertyReader propertyReader;
+    private Properties properties;
+    public static final String PROPERTIES_FILENAME = "toodit.properties";
+
+    GridView gridview;
+
     public HomeFragment() {
         // Required empty public constructor
-        Log.d(TAG, "HOME FRAGMENT CALLED");
+//        Log.d(TAG, "HOME FRAGMENT CALLED");
     }
 
     /**
@@ -86,7 +111,9 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        callAPI=new CallAPI();
+        propertyReader = new PropertyReader(getContext());
+        properties = propertyReader.getMyProperties(PROPERTIES_FILENAME);
 //        if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
 //            mParam2 = getArguments().getString(ARG_PARAM2);
@@ -98,141 +125,306 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View homeFragmentView = inflater.inflate(R.layout.fragment_home, container, false);
+      if(getArguments()!=null){
+          if(getArguments().getString("mall_id")!=null){
+              value = getArguments().getString("mall_id");
+              mProgressBar = (ProgressBar) homeFragmentView.findViewById(R.id.progressBar);
+              mProgressBar.setVisibility(View.VISIBLE);
+          }
+      }
+
+            gridview = (GridView) homeFragmentView.findViewById(R.id.gridview);
 
 
-        //Grid Layout Disable for now
-        final GridView gridview = (GridView) homeFragmentView.findViewById(R.id.gridview);
-        tvListOfMalls=(TextView)homeFragmentView.findViewById(R.id.tvListOfMalls);
-        ImageAdapter a = new ImageAdapter(getContext());
-        gridview.setAdapter(a);
+        TextView tvListOfMalls=(TextView)homeFragmentView.findViewById(R.id.tvListOfMalls);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-              /*  Toast.makeText(getActivity(), "" + position,
-                        Toast.LENGTH_SHORT).show();*/
-              /*  if(position==0)
-                {
 
-                   *//* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*//*
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }*/
-                if(position==1)
-                {
 
-                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*/
-                    Fragment fragment1 = new FragmentMyOrders();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }
-                if(position==2)
-                {
+                String category_api= properties.getProperty(Constants.API_URL.category_api_url.name());
+                getItemCategory(category_api);
+           }
+        });
 
-                   /* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*/
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }
-              /*  if(position==3)
-                {
+        if(value != null ) {
+            HashMap<String, String> hashMap = new HashMap<>();
+            hashMap.put("mall_id", value);
+            String outlet_list_api= properties.getProperty(Constants.API_URL.outlet_api_url.name());
 
-                   *//* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*//*
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }
-                if(position==4)
-                {
+            outlet_id= getOutletsInMall(outlet_list_api, hashMap);
 
-                   *//* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*//*
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }
-                if(position==5)
-                {
+        }
+        else{
+            String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
+            //Log.e("city", city);
+            HashMap<String, String> hashMapcity= new HashMap<>();
+            // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
+            hashMapcity.put("city_name", "mumbai");
 
-                   *//* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*//*
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }  if(position==6)
-                {
+            String mall_list_api= properties.getProperty(Constants.API_URL.mall_api_url.name());
+            listMalls=mallsInCity(mall_list_api, hashMapcity);
+        }
 
-                   *//* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*//*
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-                }
-                if(position==8)
-                {
+            tvListOfMalls.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
+                //Log.e("city", city);
+                HashMap<String, String> hashMapcity= new HashMap<>();
+                // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
+                hashMapcity.put("city_name", "mumbai");
 
-                   *//* Intent i= new Intent(getActivity(), ActivityTab.class);
-                    startActivity(i);*//*
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
+                String mall_list_api= properties.getProperty(Constants.API_URL.mall_api_url.name());
+                listMalls=mallsInCity(mall_list_api, hashMapcity);
+                if(listMalls!=null){
+                    dialogWayToOutles(listMalls);
                 }
 
-                //Akhilesh changes
-                if(position==7){
-
-                  // Fragment fragment1 = new Fragment();
-                    Fragment fragment1 = new TestFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, fragment1, fragment1.getClass().getSimpleName()).addToBackStack(null).commit();
-
-
-
-
-
-                }*/
             }
         });
-        //tvListOfMalls=(Button)homeFragmentView.findViewById(R.id.btnSelectWayToOutlet) ;
-        //get Intent
-        //String city=getActivity().getIntent().getStringExtra("city_id");
-        //SharedPreferences sharedpreferences;
-        //Initialize SharedPreferences
-        //sharedpreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-       String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
-        //Log.e("city", city);
-        HashMap<String, String> hashMap= new HashMap<>();
-       // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
-        hashMap.put("city_name", "mumbai");
-        listMalls=mallsInCity("http://food.swatinfosystem.com/api/Mall_list", hashMap);
-
-        tvListOfMalls.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-
-
-               dialogWayToOutles(listOfmalls);
-           }
-       });
-//        findMoreBtn = (Button) homeFragmentView.findViewById(R.id.findmore_button);
-//        findMoreBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ImageAdapter a = new ImageAdapter(getContext());
-//                a.startLazyLoadImages();
-//                gridview.setAdapter(a);
-//            }
-//        });
-
-        // Inflate the layout for this fragment
         return homeFragmentView;
     }
 
+    private ArrayList<ListFoodItemCategory> getItemCategory(String URL) {
+        String response = "";
+
+        callAPI.showProgressbar((AppCompatActivity) getActivity());
+
+        final ArrayList<ListFoodItemCategory> listFoodItemCategories= new ArrayList<>();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+//                        Log.d(TAG,"HOME category reponse"+response);
+                        try {
+                            try {
+                                JSONArray countryArray;
+                                JSONObject jsonObject = new JSONObject(response);
+                                if(jsonObject.getJSONObject("data").getJSONArray("category_details")!=null){
+                                    countryArray = jsonObject.getJSONObject("data").getJSONArray("category_details");
+                                    for (int i = 0; i < countryArray.length(); i++) {
+                                        String category_id = countryArray.getJSONObject(i).getString("category_id");
+                                        String name = countryArray.getJSONObject(i).getString("name");
+                                        String description= countryArray.getJSONObject(i).getString("description");
+                                        String image=countryArray.getJSONObject(i).getString("image");
+                                        ListFoodItemCategory listFoodItemCategory= new ListFoodItemCategory(category_id,name,description,image);
+                                          // Log.e("mallname", mall);
+                                        // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
+                                        listFoodItemCategories.add(listFoodItemCategory);
+
+                                    }
+                                    boolean flage=true;
+                                    listFoodItems= new ArrayList<>();
+                                    for(int i=0;i<listFoodItemCategories.size();i++)
+                                    {
+                                        String category_id= listFoodItemCategories.get(i).getCateggory_id();
+                                        HashMap<String, String> hashMap= new HashMap<String ,String>();
+                                        hashMap.put("outlet_id", outlet_id);
+                                        hashMap.put("category_id",category_id);
+//                                        Log.d(TAG,"Home category_id"+category_id);
+//                                        Log.d(TAG,"Home outlet_id"+outlet_id);
+
+                                        String food_item_list_api= properties.getProperty(Constants.API_URL.food_item_list_api_url.name());
+
+                                        getFoodItemList(food_item_list_api,hashMap);
+                                    }
+
+
+                                }
+
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+           /* @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }*/
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return listFoodItemCategories;
+
+    }
+    private ArrayList<ListFoodItem> getFoodItemList(String URL, final Map<String, String> params) {
+        String response = "";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+
+                        try {
+                            try {
+                                JSONArray jsonArray;
+                                JSONObject jsonObject = new JSONObject(response);
+                                if(jsonObject.getJSONObject("data").getJSONArray("food_list")!=null){
+                                    jsonArray = jsonObject.getJSONObject("data").getJSONArray("food_list");
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        String food_id = jsonArray.getJSONObject(i).getString("food_id");
+                                        String name = jsonArray.getJSONObject(i).getString("name");
+                                        String food_type= jsonArray.getJSONObject(i).getString("food_type");
+                                        String image=jsonArray.getJSONObject(i).getString("image");
+                                        String category_name = jsonArray.getJSONObject(i).getString("category_name");
+                                        String description= jsonArray.getJSONObject(i).getString("description");
+                                        String price=jsonArray.getJSONObject(i).getString("price");
+                                        String outlet_id=jsonArray.getJSONObject(i).getString("outlet_id");
+
+                                        ListFoodItem listFoodItemCategory= new ListFoodItem( food_id,  name,  food_type,  category_name,  description,  price,  outlet_id,  image);
+                                        listFoodItems.add(listFoodItemCategory);
+
+                                    }
+                                    callAPI.hideProgressbar((AppCompatActivity) getActivity());
+
+                                    Fragment fragment = new TestFragment();
+                                    Bundle args = new Bundle();
+                                    args.putParcelableArrayList("ListFoodItems", listFoodItems);
+                                    //listFoodItems.size();
+                                    fragment .setArguments(args);
+                                    getActivity().getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+                                }
+
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                                Log.d(TAG,"Home countryArray JSONException "+je);
+
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            Log.d(TAG,"Home countryArray Exception "+e);
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG,"Home countryArray VolleyError "+error);
+
+                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return listFoodItems;
+
+    }
+
+
+    private String getOutletsInMall(String URL, final Map<String, String> params) {
+        String response = "";
+
+        final ArrayList<ListMallOutlets> listOfMallOutlets= new ArrayList<>();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+
+                        try {
+                            try {
+                                JSONArray countryArray;
+                                JSONObject jsonObject = new JSONObject(response);
+                                if(jsonObject.getJSONObject("data").getJSONArray("outlet_list")!=null){
+                                    countryArray = jsonObject.getJSONObject("data").getJSONArray("outlet_list");
+                                    for (int i = 0; i < countryArray.length(); i++) {
+                                        String mall_id = countryArray.getJSONObject(i).getString("mall_id");
+                                        String mall_name = countryArray.getJSONObject(i).getString("mall_name");
+                                        String outlet_name = countryArray.getJSONObject(i).getString("outlet_name");
+                                        outlet_id = countryArray.getJSONObject(i).getString("outlet_id");
+                                        String image=countryArray.getJSONObject(i).getString("image");
+                                        Log.d("","Home test image"+image);
+                                        ListMallOutlets listMall= new ListMallOutlets(mall_id,mall_name,outlet_name,outlet_id,image);
+
+                                        listMall.setOutlet_image(image);
+                                        listMall.setMall_id(mall_id);
+                                        listMall.setMall_name(mall_name);
+                                        listMall.setOutlet_id(outlet_id);
+                                        listMall.setOutlet_name(outlet_name);
+                                        Log.d("","Home test listMall"+image);
+
+                                        listOfMallOutlets.add(listMall);
+
+                                    }
+                                    Log.d(TAG,"HOME listOfMallOutlets ===="+listOfMallOutlets.size());
+                                    if(listOfMallOutlets!=null && listOfMallOutlets.size()>0) {
+                                      populateAdapter(listOfMallOutlets);
+                                        onStop();
+                                    }
+                                }
+
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+          return outlet_id;
+
+    }
+
+    private void populateAdapter(ArrayList<ListMallOutlets> listOfMallOutlets) {
+
+        ImageAdapterOutlates imageAdapterOutlates = new ImageAdapterOutlates(getContext(),R.layout.list_image, listOfMallOutlets);
+        gridview.setAdapter(imageAdapterOutlates);
+        mProgressBar.setVisibility(View.GONE);
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -248,49 +440,63 @@ public class HomeFragment extends Fragment {
             R.drawable.cafe_theoborma, R.drawable.mac_trans,
             R.drawable.domino
     };
-   private void dialogWayToOutles( ArrayList<String> listOfMall)
+   private void dialogWayToOutles(ArrayList<ListMall> listOfMall)
    {
-       MyBaseAdapter myBaseAdapter = new MyBaseAdapter(getActivity(),listMalls);
-       final Dialog alertDialog = new Dialog(getActivity());
-       LayoutInflater inflater = getActivity().getLayoutInflater();
-       final View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
-       alertDialog.setContentView(convertView);
-       alertDialog.setCancelable(true);
-       alertDialog.setTitle("List of Malls");
-       ListView lv = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
-      // ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,listOfMall);
-       lv.setAdapter(myBaseAdapter);
-       alertDialog.show();
-       lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-           @Override
-           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               TextView tvMallName=(TextView)view.findViewById(R.id.tvMallName);
-               String test=tvMallName.getText().toString();
-                  //String malli_id = ((ListMall)  tvMallName.getText()).getMallId();
-               String mall_id=((ListMall)listMalls.get(position)).getMallId();
-               Fragment fragment = new FragmentsForMallOutlets();
-               Bundle args = new Bundle();
-               args.putString("mall_id", mall_id);
-               fragment .setArguments(args);
-               getActivity().getSupportFragmentManager().beginTransaction()
-                       .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
-            alertDialog.dismiss();
-              // Log.e("mall_id",String.valueOf(listMalls.get(position).getMallId())+""+mall_id);
-               //alertDialog.dismiss();
+//      changed by monika 18/04/17 for dialog
+       if(listOfMall!=null && listOfMall.size()>0){
+//           Log.d(TAG, "HOME FRAGMENT CALLED dialogWayToOutles listOfMall size"+listOfMall.size());
+           MyBaseAdapter myBaseAdapter = new MyBaseAdapter(getActivity(),listOfMall);
+           LayoutInflater inflater = getActivity().getLayoutInflater();
+           View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
 
-           }
-       });
+           ListView listView = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
+           listView.setAdapter(myBaseAdapter);
+
+           final AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
+           builder.setIcon(R.drawable.action_bar_map);
+           builder.setTitle("Mumbai");
+           builder.setCancelable(true);
+           builder.setView(convertView);
+
+          dialog=builder.create();
+//           dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+           dialog.getWindow().clearFlags(WindowManager.LayoutParams.DIM_AMOUNT_CHANGED);
+           dialog.setCanceledOnTouchOutside(false);
+           dialog.show();
+
+           listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+               @Override
+               public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                   TextView tvMallName=(TextView)view.findViewById(R.id.tvMallName);
+                   String test=tvMallName.getText().toString();
+                   //String malli_id = ((ListMall)  tvMallName.getText()).getMallId();
+                   String mall_id=((ListMall)listMalls.get(position)).getMallId();
+//                   Fragment fragment = new FragmentsForMallOutlets();
+                   Fragment fragment = new HomeFragment();
+                   Bundle args = new Bundle();
+                   args.putString("mall_id", mall_id);
+                   fragment .setArguments(args);
+                   getActivity().getSupportFragmentManager().beginTransaction()
+                           .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+                   dialog.dismiss();
+               }
+           });
+       }
+
+
   }
 
-    private ArrayList<ListMall> mallsInCity(String URL, final Map<String, String> params) {
+//  monika added  here
+  private ArrayList<ListMall> mallsInCity(String URL, final Map<String, String> params) {
         String response = "";
+
+        callAPI.showProgressbar((AppCompatActivity) getActivity());
         final ArrayList<ListMall> listOfMall1= new ArrayList<>();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                        response = response;
 
                         try {
                             try {
@@ -308,6 +514,11 @@ public class HomeFragment extends Fragment {
                                         listOfMall1.add(listMall);
 
                                     }
+                                    if(listOfMall1!=null && listOfMall1.size()>0){
+                                        callAPI.hideProgressbar((AppCompatActivity) getActivity());
+                                        Log.e("mallname", "HOME mail listOfMall1 size "+listOfMall1.size());
+                                        dialogWayToOutles(listOfMall1);
+                                    }
                                 }
 
                                 //Log.e("check", countryArray.toString());
@@ -316,11 +527,13 @@ public class HomeFragment extends Fragment {
                                 //getCountryFromJson(countryArray.toString());
                             } catch (JSONException je) {
                                 je.printStackTrace();
+
                             }
 
                             //CountryName emp = objectMapper.readValue(response, CountryName.class);
                         } catch (Exception e) {
                             e.printStackTrace();
+
                         }
 
                     }
@@ -328,6 +541,8 @@ public class HomeFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        callAPI.hideProgressbar((AppCompatActivity) getActivity());
+
                         //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
                     }
                 }) {
@@ -397,7 +612,7 @@ public class HomeFragment extends Fragment {
 
            mViewHolder.tvMallName.setText(currentListMall.getMallName());
             //Log.e("check",currentListMall.getProfileName());
-           //mViewHolder.tvMallAdd.setText("\""+currentListMall.getMallAddress()+"\"");
+           mViewHolder.tvMallAdd.setText(currentListMall.getMallAddress());
 
             return convertView;
         }

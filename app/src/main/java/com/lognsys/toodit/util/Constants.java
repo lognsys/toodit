@@ -51,7 +51,9 @@ public class Constants {
         state_api_url,
         city_api_url,
         mall_api_url,
-        outlet_api_url
+        outlet_api_url,
+        category_api_url,
+        food_item_list_api_url
     }
 
     public enum API_CUSTOMER_LOGIN_ULR_PARAMS {
