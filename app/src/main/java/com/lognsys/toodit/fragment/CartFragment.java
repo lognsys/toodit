@@ -1,7 +1,9 @@
 package com.lognsys.toodit.fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,6 +16,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -36,7 +39,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -45,7 +47,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.OutletRecylerViewHolders;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,15 +72,16 @@ public class CartFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private ArrayList<ListDataCartFragments> myList = new ArrayList<ListDataCartFragments>();
     NotificationFragment.MyBaseAdapter myBaseAdapter;
-    MyBaseAdapter.MyViewHolder mViewHolder;
+    private boolean flag= false;
+
     private  String cart_id, sub_total, service_tax, vat, add_vat,total_amount;
     //by Akhilesh
    /* String[] item = {"Tomato Garlic Pizza", "Cheese Veg Burger"};
     String[] qualit = {"With added cheasy cream", "With added cheasy cream"};
     String[] quant = {"Qty :1", "Qty :3"};*/
-    String[] amoun = {" 50", " 250"};
+   // String[] amoun = {" 50", " 250"};
     ListView li;
-    int[] image = {R.drawable.tomato12, R.drawable.vegitable12};
+    //int[] image = {R.drawable.tomato12, R.drawable.vegitable12};
     MyBaseAdapter pwd;
 //
 
@@ -128,12 +130,19 @@ public class CartFragment extends Fragment {
         // Inflate the layout for this fragment
         setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.fragment_cart, container, false);
-
+        getArguments();
         li = (ListView) v.findViewById(R.id.lvCart);
         //getDataInList();
         HashMap<String, String> hashMap= new HashMap<String, String>();
-        hashMap.put("customer_id","28");
-        hashMap.put("outlet_id","1");
+        if(getArguments()!=null) {
+            hashMap.put("customer_id", getArguments().getString("customer_id"));
+            hashMap.put("outlet_id", getArguments().getString("outlet_id"));
+        }
+        else
+        {
+            hashMap.put("customer_id", "28");
+            hashMap.put("outlet_id", "1");
+        }
         getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
         //CartFragment.PasswordAdapter pwd=new CartFragment().PasswordAdapter(getActivity(),R.layout.list_raw_cart,item, qualit, quant, amoun);
 
@@ -213,7 +222,7 @@ public class CartFragment extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
-
+            final MyBaseAdapter.MyViewHolder mViewHolder;
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_raw_cart, parent, false);
                 mViewHolder = new MyViewHolder(convertView);
@@ -224,21 +233,6 @@ public class CartFragment extends Fragment {
 
 
             mViewHolder.llAmount.setVisibility(View.GONE);
-            mViewHolder.cusstomise.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mViewHolder.linear_customizetext.setVisibility(View.VISIBLE);
-                    v.setVisibility(View.GONE);
-                }
-            });
-            mViewHolder.btnDone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mViewHolder.cusstomise.setText("Customise "+mViewHolder.itemCustomizetext.getText().toString());
-                    mViewHolder.linear_customizetext.setVisibility(View.GONE);
-                    mViewHolder.cusstomise.setVisibility(View.VISIBLE);
-                }
-            });
 
             int itemPos = li.getCount();
             if (position == itemPos - 1) {
@@ -246,23 +240,53 @@ public class CartFragment extends Fragment {
 
             }
             String next = "<font color='#CCCCCC'> "+getResources().getString(R.string.rs)+"</font>";
-            mViewHolder.subTotal.setText(Html.fromHtml(next + sub_total));
+            mViewHolder.subTotal.setText(Html.fromHtml(next +sub_total));
             mViewHolder.taxes.setText(Html.fromHtml(next + String.valueOf(Double.valueOf(service_tax)+Double.valueOf(vat)+Double.valueOf(add_vat))));
             mViewHolder.Total.setText(Html.fromHtml(next +total_amount));
             // Create an ArrayAdapter using the string array and a default spinner layout
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+           /* ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                     R.array.quantity_array, android.R.layout.simple_spinner_item);
             // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             // Apply the adapter to the spinner
-            mViewHolder.spinnerItemQuantity.setAdapter(adapter);
+         //   mViewHolder.tvItemQuantity.setAdapter(adapter);*/
 
-            ListDataCartFragments currentListData = getItem(position);
+            mViewHolder.tvItemQuantity.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                    LayoutInflater li = LayoutInflater.from(context);
+                    View promptsView = li.inflate(R.layout.prompt_edit_qty, null);
+                    final EditText etEnterQuantity=(EditText) promptsView.findViewById(R.id.etEnterQuantity) ;
+                    // set prompts.xml to alertdialog builder
+                    alert.setView(promptsView);
+                   // alert.setMessage("Message");
+
+                    alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                                   mViewHolder.tvItemQuantity.setText("Qty: "+etEnterQuantity.getText().toString());
+                            // Do something with value!
+                        }
+                    });
+
+                    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            // Canceled.
+                        }
+                    });
+
+                    alert.show();
+
+                }
+            });
+
+           final ListDataCartFragments currentListData = getItem(position);
             mViewHolder.temName.setText(currentListData.getCartItemSelected());
             mViewHolder.itemQuality.setText(currentListData.getCartItemComment());
 //          mViewHolder.itemQuantity.setText(currentListData.getCartItemquanatity());
-            mViewHolder.spinnerItemQuantity.setTag(currentListData.getCartItemquanatity());
+            mViewHolder.tvItemQuantity.setText("Qty :"+currentListData.getCartItemquanatity());
             mViewHolder.itemAmount.setText(currentListData.getCartItemPrice());
+            mViewHolder.TransactionId.setText(currentListData.getTransactionId());
 
 
             //CircleImageView img = (de.hdodenhof.circleimageview.CircleImageView)v.findViewById(R.id.ivItemInCart);
@@ -274,21 +298,39 @@ public class CartFragment extends Fragment {
 
             mViewHolder.img.setImageBitmap(circularBitmap);*/
             mViewHolder.cancelSelection.setTag(position);
-           // final int posison = position;
+            // final int posison = position;
             mViewHolder.cancelSelection.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Integer position= (Integer) v.getTag(); //get inde
-                     int deletePosition=(int)position;
+                    int deletePosition=(int)position;
                     myList.remove(deletePosition); //remove the item from data source
                     Log.e("myList Size", String.valueOf(myList.size()));
 
                     HashMap<String, String> hashMap= new HashMap<String, String>();
-                    hashMap.put("transaction_id","16");
-                    hashMap.put("remove_quanity","1");
+                    hashMap.put("transaction_id",currentListData.getTransactionId() );
+                    Log.e("currentListData", currentListData.getTransactionId().toString());
+                    hashMap.put("remove_quanity", currentListData.getCartItemquanatity() );
+                    Log.e("remove_quantity", currentListData.getCartItemquanatity());
                     deleteCartItems("http://food.swatinfosystem.com/api/Delete_cart_item", hashMap);
                     notifyDataSetChanged(); //notify to refresh
-                   // li.setAdapter( new MyBaseAdapter(getActivity(), myListMain));
+                    // li.setAdapter( new MyBaseAdapter(getActivity(), myListMain));
+                }
+            });
+            mViewHolder.cusstomise.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewHolder.linear_customizetext.setVisibility(View.VISIBLE);
+                    v.setVisibility(View.GONE);
+                }
+            });
+            mViewHolder.btnDone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewHolder.cusstomise.setText("Customise "+mViewHolder.itemCustomizetext.getText().toString());
+                    mViewHolder.cusstomise.setVisibility(View.VISIBLE);
+                    mViewHolder.linear_customizetext.setVisibility(View.GONE);
+
                 }
             });
 
@@ -298,13 +340,13 @@ public class CartFragment extends Fragment {
                     String totalAmount =mViewHolder.Total.getText().toString();
                     if(totalAmount!=null && totalAmount.length()>0){
 
-                            Fragment fragment = new PaymentFragment();
+                        Fragment fragment = new PaymentFragment();
                         Bundle args = new Bundle();
                         args.putString("totalAmount", totalAmount);
                         fragment .setArguments(args);
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container,
-                                        fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+                                        fragment, fragment.getClass().getSimpleName()).commit();
 
 
                     }
@@ -318,12 +360,12 @@ public class CartFragment extends Fragment {
         }
 
         private class MyViewHolder {
-            TextView subTotal, taxes, Total, temName, itemAmount, cusstomise, itemQuality;
+            TextView subTotal, taxes, Total, temName, itemAmount, cusstomise, itemQuality, tvItemQuantity, TransactionId;
             LinearLayout linear_customizetext;
             Button makePayment,btnDone;
             ImageView cancelSelection, img;
             EditText itemCustomizetext;
-            Spinner spinnerItemQuantity;
+            //Spinner tvItemQuantity;
             LinearLayout llAmount;
 
             public MyViewHolder(View item) {
@@ -337,13 +379,13 @@ public class CartFragment extends Fragment {
                 img = (ImageView) item.findViewById(R.id.ivItemInCart);
                 temName = (TextView) item.findViewById(R.id.tvItemName);
                 itemQuality = (TextView) item.findViewById(R.id.tvItemQuality);
-                spinnerItemQuantity = (Spinner) item.findViewById(R.id.spinnerItemQuantity);
+                tvItemQuantity = (TextView) item.findViewById(R.id.tvItemQuantity);
                 itemCustomizetext = (EditText) item.findViewById(R.id.itemCustomizetext);
                 itemAmount = (TextView) item.findViewById(R.id.tvAmount);
                 cusstomise = (TextView) item.findViewById(R.id.tvCustomise);
                 llAmount = (LinearLayout) item.findViewById(R.id.llTotalAmount);
                 linear_customizetext = (LinearLayout) item.findViewById(R.id.linear_customizetext);
-
+                TransactionId=(TextView)item.findViewById(R.id.tvTransactionId);
             }
         }
     }
@@ -379,7 +421,7 @@ public class CartFragment extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                         Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {
@@ -394,6 +436,8 @@ public class CartFragment extends Fragment {
                                 add_vat=jsonObject1.getString("add_vat");
                                 total_amount=jsonObject1.getString("total_amount");
 
+                                flag=true;
+
 
 
 
@@ -403,14 +447,15 @@ public class CartFragment extends Fragment {
                                         String food_name = cartItemArray.getJSONObject(i).getString("food_name");
                                         String food_type= cartItemArray.getJSONObject(i).getString("food_type");
                                         String price=cartItemArray.getJSONObject(i).getString("price");
-                                        String quantity=cartItemArray.getJSONObject(i).getString("price");
+                                        String quantity=cartItemArray.getJSONObject(i).getString("quantity");
                                         String transaction_id=cartItemArray.getJSONObject(i).getString("transaction_id");
                                         ListDataCartFragments listDataCartFragments= new ListDataCartFragments();
                                         listDataCartFragments.setCartItemSelected(food_name);
                                         listDataCartFragments.setCartItemComment(food_type);
                                         listDataCartFragments.setCartItemquanatity(quantity);
                                         listDataCartFragments.setCartItemPrice(price);
-                                       // listDataCartFragments.setCartItemImage(image[i]);
+                                        listDataCartFragments.setTransactionId(transaction_id);
+                                        // listDataCartFragments.setCartItemImage(image[i]);
 
 
 
@@ -420,12 +465,13 @@ public class CartFragment extends Fragment {
 
                                     }
 
-                                    MyBaseAdapter pwd = new MyBaseAdapter(getActivity(), myList);
+                                    pwd = new MyBaseAdapter(getActivity(), myList);
                                     li.setAdapter(pwd);
-
-
+                                    pwd.notifyDataSetChanged();
+                                    Toast.makeText(getActivity(), "update", Toast.LENGTH_LONG).show();
                                 }
 
+                                flag=false;
                                 //Log.e("check", countryArray.toString());
 
 
@@ -444,7 +490,7 @@ public class CartFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
@@ -462,76 +508,83 @@ public class CartFragment extends Fragment {
 
     }
 
-   /* private void getDataInList() {
-        for (int i = 0; i < image.length; i++) {
-            // Create a new object for each list item
-            ListDataCartFragments ld = new ListDataCartFragments();
-            ld.setCartItemImage(image[i]);
-            ld.setCartItemSelected(item[i]);
-            ld.setCartItemComment(qualit[i]);
-            ld.setCartItemPrice(amoun[i]);
-            ld.setCartItemquanatity(quant[i]);
+    /* private void getDataInList() {
+         for (int i = 0; i < image.length; i++) {
+             // Create a new object for each list item
+             ListDataCartFragments ld = new ListDataCartFragments();
+             ld.setCartItemImage(image[i]);
+             ld.setCartItemSelected(item[i]);
+             ld.setCartItemComment(qualit[i]);
+             ld.setCartItemPrice(amoun[i]);
+             ld.setCartItemquanatity(quant[i]);
 
-            // Add this object into the ArrayList myList
-            myList.add(ld);
-
-
-        }
-    }*/
-   private ArrayList<ListDataCartFragments> deleteCartItems(String URL, final Map<String, String> params) {
-       String response = "";
-
-       StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
-               new Response.Listener<String>() {
-                   @Override
-                   public void onResponse(String response) {
-                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                       response = response;
-
-                       try {
-                           try {
-
-                               JSONObject jsonObject = new JSONObject(response);
-
-                               HashMap<String, String> hashMap= new HashMap<String, String>();
-                               hashMap.put("customer_id","1");
-                               hashMap.put("outlet_id","1");
-                               getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
-                               //Log.e("check", countryArray.toString());
+             // Add this object into the ArrayList myList
+             myList.add(ld);
 
 
-                               //getCountryFromJson(countryArray.toString());
-                           } catch (JSONException je) {
-                               je.printStackTrace();
-                           }
+         }
+     }*/
+    private ArrayList<ListDataCartFragments> deleteCartItems(String URL, final Map<String, String> params) {
+        String response = "";
 
-                           //CountryName emp = objectMapper.readValue(response, CountryName.class);
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                       }
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
 
-                   }
-               },
-               new Response.ErrorListener() {
-                   @Override
-                   public void onErrorResponse(VolleyError error) {
-                       //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
-                   }
-               }) {
-           @Override
-           protected Map<String, String> getParams() {
+                        try {
+                            try {
 
-               return params;
-           }
+                                JSONObject jsonObject = new JSONObject(response);
+                                myList=new ArrayList<>();
+                                HashMap<String, String> hashMap= new HashMap<String, String>();
+                                hashMap.put("customer_id","28");
+                                hashMap.put("outlet_id","1");
+                                getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
+                                //Log.e("check", countryArray.toString());
 
-       };
 
-       RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-       requestQueue.add(stringRequest);
-       //  Log.e("Lisof malls", listOfMall1.get(0));
-       return myList;
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
 
-   }
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return myList;
+
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
 }
 
 

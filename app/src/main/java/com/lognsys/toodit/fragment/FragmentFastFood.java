@@ -1,11 +1,13 @@
 package com.lognsys.toodit.fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
@@ -26,13 +28,26 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
+import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.util.Constants;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by admin on 07-03-2017.
@@ -46,9 +61,10 @@ public class FragmentFastFood extends Fragment {
     private static int noOfItems=1;
     private BottomNavigationViewEx mBottomNav;
     private int mSelectedItem; //index of bottom nagivation bar
-   /* private ArrayList<ListFoodItem> myList = new ArrayList<ListFoodItem>();
-
-    String[] item = {"Tomato Garlic Special Pizza", "Cheesy onion Veg Burger"};
+    private ArrayList<ListFoodItem> myList = new ArrayList<ListFoodItem>();
+    private ArrayList<ListFoodItem> value;
+    private String food_id, quantity, customer_id, outlet_id;
+    /*String[] item = {"Tomato Garlic Special Pizza", "Cheesy onion Veg Burger"};
     String[] qualit = {"With added cheasy cream", "With extra butter chease"};
     String[] amount={"61.00", "61.00"};
     int[] image = {R.drawable.tomato_cheese, R.drawable.cheese_burger};*/
@@ -56,7 +72,7 @@ public class FragmentFastFood extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.fragment_new_list_of_item, container, false);
-        final ArrayList<ListFoodItem> value = getArguments().getParcelableArrayList("ListFoodItems");
+        value = getArguments().getParcelableArrayList("ListFoodItems");
         context = this.getActivity();
         lvComment= (ListView)v.findViewById(R.id.lvComment);
         //getDataInList();
@@ -67,9 +83,7 @@ public class FragmentFastFood extends Fragment {
         {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1,int position, long arg3)
-            {
-             //  Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
-                Fragment fragment = new FragmentCentralGrill();
+            {  Fragment fragment = new FragmentCentralGrill();
                 Bundle args = new Bundle();
                 args.putString("position", String.valueOf(position));
                 args.putString("food_id" ,value.get(position).getFood_id());
@@ -77,6 +91,8 @@ public class FragmentFastFood extends Fragment {
                 fragment.setArguments(args);
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+             //  Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
+
 
 
             }
@@ -133,7 +149,7 @@ public class FragmentFastFood extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             final FragmentFastFood.MyBaseAdapter.MyViewHolder mViewHolder;
 
             if (convertView == null) {
@@ -168,11 +184,34 @@ public class FragmentFastFood extends Fragment {
                     mViewHolder.tvNoOfAddedItems.setText(String.valueOf(noOfItems));
                 }
             });
+            mViewHolder.ivAddToCart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    HashMap<String, String> hashMap= new HashMap<String, String>();
+                    hashMap.put("food_id", value.get(position).getFood_id());
+                   // Log.e("food_id", value.get(position).getFood_id());
+                    food_id=value.get(position).getFood_id();
+                    hashMap.put("quantity", mViewHolder.tvNoOfAddedItems.getText().toString());
+                    //Log.e("quantity", mViewHolder.tvNoOfAddedItems.getText().toString());
+                    quantity=mViewHolder.tvNoOfAddedItems.getText().toString();
+                   // SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+                    Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+                    customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
+                    hashMap.put("outlet_id", value.get(position).getOutlet_id());
+                    outlet_id= value.get(position).getOutlet_id();
+                    Log.e("otlet id",value.get(position).getOutlet_id());
+
+                    addToCart("http://food.swatinfosystem.com/api/Add_to_cart", hashMap);
+
+                }
+            });
             return convertView;
         }
 
         private class MyViewHolder {
-            private ImageView ivAdd, iivMinus, ivLogbook;
+            private ImageView ivAdd, iivMinus, ivAddToCart;
            // mViewHolder.tvNoOfAddedItems.setText(String.valueOf(noOfItems));
             private TextView tvItemName, tvItemQuality, tvNoOfAddedItems, tvAmount;
             private RatingBar rbRating;
@@ -188,6 +227,7 @@ public class FragmentFastFood extends Fragment {
                 tvItemQuality=(TextView)item.findViewById(R.id.tvItemQuality);
                 llItemImage=(LinearLayout)item.findViewById(R.id.llItemImage);
                 tvAmount=(TextView)item.findViewById(R.id.tvAmount);
+                ivAddToCart=(ImageView)item.findViewById(R.id.ivAddTo_cart);
             }
         }
 
@@ -249,6 +289,63 @@ public class FragmentFastFood extends Fragment {
             imageView.setVisibility(View.VISIBLE);
 
         }
+    }
+    private ArrayList<ListFoodItem> addToCart(String URL, final Map<String, String> params) {
+        String response = "";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+
+                        try {
+                            try {
+
+                                JSONObject jsonObject = new JSONObject(response);
+
+                                Fragment fragment = new CartFragment();
+                                Bundle args = new Bundle();
+                                args.putString("food_id", food_id );
+                                args.putString("customer_id" ,customer_id);
+                                args.putString("outlet_id", outlet_id);
+                                args.putString("quantity", quantity);
+                                fragment.setArguments(args);
+                                getActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return myList;
+
     }
 
     }

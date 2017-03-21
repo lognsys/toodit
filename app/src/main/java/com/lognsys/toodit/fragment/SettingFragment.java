@@ -127,7 +127,8 @@ public class SettingFragment extends Fragment {
                                 mAuth = FirebaseAuth.getInstance();
                                 // Firebase sign out
                                 mAuth.signOut();
-
+                                SharedPreferences settings = getActivity().getSharedPreferences(Constants.Shared.TOODIT_SHARED_PREF.name(), Context.MODE_PRIVATE);
+                                settings.edit().clear().commit();
                                 Intent i = new Intent(getActivity(), LoginActivity.class);
                                 getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);

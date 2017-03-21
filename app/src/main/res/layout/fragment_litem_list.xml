@@ -55,6 +55,7 @@
             android:gravity="right"
             android:text="Rs."
             />
+
         <TextView
             android:id="@+id/tvAmount"
             android:layout_width="60dp"
@@ -67,7 +68,7 @@
             android:layout_marginRight="15dp"
             android:textColor="#FFFFFF"/>
         <ImageView
-            android:id="@+id/ivLogbook"
+            android:id="@+id/ivAddTo_cart"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginRight="15dp"
