@@ -600,8 +600,10 @@ public class MainActivity extends AppCompatActivity implements
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.container, fragment, fragmentTag);
-            ft.commit();
+//            ft.replace(R.id.container, fragment, fragmentTag);
+              ft.replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+//            ft.commit();
         }
     }
 

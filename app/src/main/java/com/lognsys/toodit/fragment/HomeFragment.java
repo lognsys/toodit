@@ -3,7 +3,6 @@ package com.lognsys.toodit.fragment;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -40,11 +39,11 @@ import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.ActivityTab;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.TooditApplication;
 import com.lognsys.toodit.adapter.ImageAdapter;
 import com.lognsys.toodit.adapter.ImageAdapterOutlates;
 import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.Constants;
-import com.lognsys.toodit.util.FragmentTag;
 import com.lognsys.toodit.util.PropertyReader;
 
 import org.json.JSONArray;
@@ -114,6 +113,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         callAPI=new CallAPI();
+
         propertyReader = new PropertyReader(getContext());
         properties = propertyReader.getMyProperties(PROPERTIES_FILENAME);
 //        if (getArguments() != null) {
@@ -127,15 +127,15 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View homeFragmentView = inflater.inflate(R.layout.fragment_home, container, false);
-      if(getArguments()!=null){
-          if(getArguments().getString("mall_id")!=null){
-              value = getArguments().getString("mall_id");
-              mProgressBar = (ProgressBar) homeFragmentView.findViewById(R.id.progressBar);
-              mProgressBar.setVisibility(View.VISIBLE);
-          }
-      }
+        if(getArguments()!=null){
+            if(getArguments().getString("mall_id")!=null){
+                value = getArguments().getString("mall_id");
+                mProgressBar = (ProgressBar) homeFragmentView.findViewById(R.id.progressBar);
+                mProgressBar.setVisibility(View.VISIBLE);
+            }
+        }
 
-            gridview = (GridView) homeFragmentView.findViewById(R.id.gridview);
+        gridview = (GridView) homeFragmentView.findViewById(R.id.gridview);
 
 
         TextView tvListOfMalls=(TextView)homeFragmentView.findViewById(R.id.tvListOfMalls);
@@ -147,7 +147,7 @@ public class HomeFragment extends Fragment {
 
                 String category_api= properties.getProperty(Constants.API_URL.category_api_url.name());
                 getItemCategory(category_api);
-           }
+            }
         });
 
         if(value != null ) {
@@ -163,20 +163,30 @@ public class HomeFragment extends Fragment {
             //Log.e("city", city);
             HashMap<String, String> hashMapcity= new HashMap<>();
             // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
-            hashMapcity.put("city_name", "mumbai");
+            if(TooditApplication.getInstance().getPrefs().getCity()!=null) {
+                hashMapcity.put("city_name", TooditApplication.getInstance().getPrefs().getCity());
+            }
+            else{
+                hashMapcity.put("city_name", "Mumbai");
 
+            }
             String mall_list_api= properties.getProperty(Constants.API_URL.mall_api_url.name());
             listMalls=mallsInCity(mall_list_api, hashMapcity);
         }
 
-            tvListOfMalls.setOnClickListener(new View.OnClickListener() {
+        tvListOfMalls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
                 //Log.e("city", city);
                 HashMap<String, String> hashMapcity= new HashMap<>();
                 // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
-                hashMapcity.put("city_name", "mumbai");
+                if(TooditApplication.getInstance().getPrefs().getCity()!=null){
+                    hashMapcity.put("city_name",TooditApplication.getInstance().getPrefs().getCity());
+                }
+                else{
+                    hashMapcity.put("city_name", "mumbai");
+                }
 
                 String mall_list_api= properties.getProperty(Constants.API_URL.mall_api_url.name());
                 listMalls=mallsInCity(mall_list_api, hashMapcity);
@@ -213,7 +223,7 @@ public class HomeFragment extends Fragment {
                                         String description= countryArray.getJSONObject(i).getString("description");
                                         String image=countryArray.getJSONObject(i).getString("image");
                                         ListFoodItemCategory listFoodItemCategory= new ListFoodItemCategory(category_id,name,description,image);
-                                          // Log.e("mallname", mall);
+                                        // Log.e("mallname", mall);
                                         // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
                                         listFoodItemCategories.add(listFoodItemCategory);
 
@@ -226,12 +236,6 @@ public class HomeFragment extends Fragment {
                                         HashMap<String, String> hashMap= new HashMap<String ,String>();
                                         hashMap.put("outlet_id", outlet_id);
                                         hashMap.put("category_id",category_id);
-                                        //testt
-                                      /*  hashMap.put("outlet_id", "1");
-                                        hashMap.put("category_id",category_id);*/
-                                        Log.e("outlet_id", outlet_id);
-//                                        Log.d(TAG,"Home category_id"+category_id);
-//                                        Log.d(TAG,"Home outlet_id"+outlet_id);
 
                                         String food_item_list_api= properties.getProperty(Constants.API_URL.food_item_list_api_url.name());
 
@@ -296,14 +300,7 @@ public class HomeFragment extends Fragment {
                                         String description= jsonArray.getJSONObject(i).getString("description");
                                         String price=jsonArray.getJSONObject(i).getString("price");
                                         String outlet_id=jsonArray.getJSONObject(i).getString("outlet_id");
-                                        SharedPreferences sharedpreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-                                        //SharedPreferences Editor
-                                        SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
-
-                                        sharedPrefEditor.putString("outlet_id", outlet_id);
-                                        sharedPrefEditor.commit();
-                                        Log.e("outlet_id", outlet_id);
                                         ListFoodItem listFoodItemCategory= new ListFoodItem( food_id,  name,  food_type,  category_name,  description,  price,  outlet_id,  image);
                                         listFoodItems.add(listFoodItemCategory);
 
@@ -321,13 +318,13 @@ public class HomeFragment extends Fragment {
 
                             } catch (JSONException je) {
                                 je.printStackTrace();
-                                Log.d(TAG,"Home countryArray JSONException "+je);
+//                                Log.d(TAG,"Home countryArray JSONException "+je);
 
                             }
 
                             //CountryName emp = objectMapper.readValue(response, CountryName.class);
                         } catch (Exception e) {
-                            Log.d(TAG,"Home countryArray Exception "+e);
+//                            Log.d(TAG,"Home countryArray Exception "+e);
                             e.printStackTrace();
                         }
 
@@ -336,7 +333,7 @@ public class HomeFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG,"Home countryArray VolleyError "+error);
+//                        Log.d(TAG,"Home countryArray VolleyError "+error);
 
                         //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
                     }
@@ -380,7 +377,7 @@ public class HomeFragment extends Fragment {
                                         String outlet_name = countryArray.getJSONObject(i).getString("outlet_name");
                                         outlet_id = countryArray.getJSONObject(i).getString("outlet_id");
                                         String image=countryArray.getJSONObject(i).getString("image");
-                                        Log.d("","Home test image"+image);
+
                                         ListMallOutlets listMall= new ListMallOutlets(mall_id,mall_name,outlet_name,outlet_id,image);
 
                                         listMall.setOutlet_image(image);
@@ -388,14 +385,12 @@ public class HomeFragment extends Fragment {
                                         listMall.setMall_name(mall_name);
                                         listMall.setOutlet_id(outlet_id);
                                         listMall.setOutlet_name(outlet_name);
-                                        Log.d("","Home test listMall"+image);
 
                                         listOfMallOutlets.add(listMall);
 
                                     }
-                                    Log.d(TAG,"HOME listOfMallOutlets ===="+listOfMallOutlets.size());
                                     if(listOfMallOutlets!=null && listOfMallOutlets.size()>0) {
-                                      populateAdapter(listOfMallOutlets);
+                                        populateAdapter(listOfMallOutlets);
                                         onStop();
                                     }
                                 }
@@ -428,7 +423,7 @@ public class HomeFragment extends Fragment {
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
         requestQueue.add(stringRequest);
         //  Log.e("Lisof malls", listOfMall1.get(0));
-          return outlet_id;
+        return outlet_id;
 
     }
 
@@ -453,55 +448,60 @@ public class HomeFragment extends Fragment {
             R.drawable.cafe_theoborma, R.drawable.mac_trans,
             R.drawable.domino
     };
-   private void dialogWayToOutles(ArrayList<ListMall> listOfMall)
-   {
+    private void dialogWayToOutles(ArrayList<ListMall> listOfMall)
+    {
 //      changed by monika 18/04/17 for dialog
-       if(listOfMall!=null && listOfMall.size()>0){
-//           Log.d(TAG, "HOME FRAGMENT CALLED dialogWayToOutles listOfMall size"+listOfMall.size());
-           MyBaseAdapter myBaseAdapter = new MyBaseAdapter(getActivity(),listOfMall);
-           LayoutInflater inflater = getActivity().getLayoutInflater();
-           View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
+        if(listOfMall!=null && listOfMall.size()>0){
+            MyBaseAdapter myBaseAdapter = new MyBaseAdapter(getActivity(),listOfMall);
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View convertView = (View) inflater.inflate(R.layout.dialog_mall_list, null);
 
-           ListView listView = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
-           listView.setAdapter(myBaseAdapter);
+            ListView listView = (ListView) convertView.findViewById(R.id.lvWayToOutlets);
+            listView.setAdapter(myBaseAdapter);
 
-           final AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
-           builder.setIcon(R.drawable.action_bar_map);
-           builder.setTitle("Mumbai");
-           builder.setCancelable(true);
-           builder.setView(convertView);
+            final AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
+            builder.setIcon(R.drawable.location);
+            if(TooditApplication.getInstance().getPrefs().getCity()!=null){
+                builder.setTitle(TooditApplication.getInstance().getPrefs().getCity());
+            }
+            else{
+                builder.setTitle("Mumbai");
+            }
+//           builder.setTitle("Mumbai");
+            builder.setCancelable(true);
+            builder.setView(convertView);
 
-          dialog=builder.create();
+            dialog=builder.create();
 //           dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-           dialog.getWindow().clearFlags(WindowManager.LayoutParams.DIM_AMOUNT_CHANGED);
-           dialog.setCanceledOnTouchOutside(false);
-           dialog.show();
+            dialog.getWindow().clearFlags(WindowManager.LayoutParams.DIM_AMOUNT_CHANGED);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
 
-           listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-               @Override
-               public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                   TextView tvMallName=(TextView)view.findViewById(R.id.tvMallName);
-                   String test=tvMallName.getText().toString();
-                   //String malli_id = ((ListMall)  tvMallName.getText()).getMallId();
-                   String mall_id=((ListMall)listMalls.get(position)).getMallId();
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    TextView tvMallName=(TextView)view.findViewById(R.id.tvMallName);
+                    String test=tvMallName.getText().toString();
+                    //String malli_id = ((ListMall)  tvMallName.getText()).getMallId();
+                    String mall_id=((ListMall)listMalls.get(position)).getMallId();
 //                   Fragment fragment = new FragmentsForMallOutlets();
-                   Fragment fragment = new HomeFragment();
-                   Bundle args = new Bundle();
-                   args.putString("mall_id", mall_id);
-                   fragment .setArguments(args);
-                   getActivity().getSupportFragmentManager().beginTransaction()
-                           .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+                    Fragment fragment = new HomeFragment();
+                    Bundle args = new Bundle();
+                    args.putString("mall_id", mall_id);
+                    fragment .setArguments(args);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
 
-                   dialog.dismiss();
-               }
-           });
-       }
+                    dialog.dismiss();
+                }
+            });
+        }
 
 
-  }
+    }
 
-//  monika added  here
-  private ArrayList<ListMall> mallsInCity(String URL, final Map<String, String> params) {
+    //  monika added  here
+    private ArrayList<ListMall> mallsInCity(String URL, final Map<String, String> params) {
         String response = "";
 
         callAPI.showProgressbar((AppCompatActivity) getActivity());
@@ -522,14 +522,13 @@ public class HomeFragment extends Fragment {
                                         String mall_address = countryArray.getJSONObject(i).getString("mall_address");
                                         String mall_id = countryArray.getJSONObject(i).getString("mall_id");
                                         ListMall listMall= new ListMall(mall_name,mall_address,mall_id);
-                                       // Log.e("mallname", mall);
-                                       // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
+                                        // Log.e("mallname", mall);
+                                        // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
                                         listOfMall1.add(listMall);
 
                                     }
                                     if(listOfMall1!=null && listOfMall1.size()>0){
                                         callAPI.hideProgressbar((AppCompatActivity) getActivity());
-                                        Log.e("mallname", "HOME mail listOfMall1 size "+listOfMall1.size());
                                         dialogWayToOutles(listOfMall1);
                                     }
                                 }
@@ -576,8 +575,8 @@ public class HomeFragment extends Fragment {
     private ArrayList<ListMall> getDataInList() {
 
 
-            return listMalls;
-        }
+        return listMalls;
+    }
 
 
 
@@ -623,9 +622,9 @@ public class HomeFragment extends Fragment {
 
             ListMall currentListMall = getItem(position);
 
-           mViewHolder.tvMallName.setText(currentListMall.getMallName());
+            mViewHolder.tvMallName.setText(currentListMall.getMallName());
             //Log.e("check",currentListMall.getProfileName());
-           mViewHolder.tvMallAdd.setText(currentListMall.getMallAddress());
+            mViewHolder.tvMallAdd.setText(currentListMall.getMallAddress());
 
             return convertView;
         }
@@ -642,13 +641,5 @@ public class HomeFragment extends Fragment {
         }
 
     }
-@Override
-public void onResume() {
-        super.onResume();
 
-        CallAPI callAPI = new CallAPI();
-        // Log.d("PaymentFragment","Rest getClass().getName().toString() "+getClass().getName().toString());
-        callAPI.updateToolbarText(FragmentTag.FRAGMENT_HOME.getFragmentTag(),(AppCompatActivity)getActivity());
-        }
-
-    }
+}

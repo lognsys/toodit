@@ -34,6 +34,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.TooditApplication;
 import com.lognsys.toodit.model.CountryName;
 import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.FragmentTag;
@@ -142,8 +143,10 @@ public class FragmentCentralGrill extends Fragment {
 
                 quantity=tvNoOfAddedItems.getText().toString();
                 // SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
-               // Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+//                Monika changed25/03/17  hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+
+                hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
+                // Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
                 customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
                 hashMap.put("outlet_id", (String)getArguments().get("outlet_id"));
 

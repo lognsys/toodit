@@ -34,6 +34,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.TooditApplication;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -239,7 +240,9 @@ public class FragmentStarter extends Fragment {
                     //Log.e("quantity", mViewHolder.tvNoOfAddedItems.getText().toString());
                     quantity=mViewHolder.tvNoOfAddedItems.getText().toString();
                     // SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                    hashMap.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+//                    Monika changed25/03/17  hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+
+                    hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
                     Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
                     customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
                     hashMap.put("outlet_id", valueFinal.get(position).getOutlet_id());

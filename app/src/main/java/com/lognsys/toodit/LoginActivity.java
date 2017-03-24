@@ -184,8 +184,9 @@ public class LoginActivity extends AppCompatActivity implements
         sharedPrefEditor.commit();
         //Use Case 1:If cust_id in shared pref then goto MainActivity
 //        String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
-        String cust_id = TooditApplication.getInstance().getPrefs().getCustomer_id();
 
+//        Monika added
+        String cust_id = TooditApplication.getInstance().getPrefs().getCustomer_id();
         if (cust_id != null && TooditApplication.getInstance().getPrefs().getIsLogin()==true) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(i);
@@ -208,6 +209,7 @@ public class LoginActivity extends AppCompatActivity implements
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 //call graph user
                 AsyncTask.Status status = saveFacebookData(loginResult.getAccessToken());
+                Log.d(TAG, "facebook:onSuccess: loginResult.getAccessToken() " + loginResult.getAccessToken());
                 handleFacebookAccessToken(loginResult.getAccessToken()); // method call after sucessfull authorisation
             }
 
@@ -268,6 +270,8 @@ public class LoginActivity extends AppCompatActivity implements
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+                Log.d(TAG, "onAuthStateChanged:signed_in:" +user);
+
                 if (user != null) {
 
                     // User is signed in
@@ -483,12 +487,25 @@ public class LoginActivity extends AppCompatActivity implements
                             Log.d(TAG, "Google Login Success...");
                             String firebaseUID = mAuth.getCurrentUser().getUid();
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_UID.name(), firebaseUID);
+                           TooditApplication.getInstance().getPrefs().setCustomer_id(firebaseUID);
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_DISPLAY_NAME.name(), acct.getDisplayName());
+                            TooditApplication.getInstance().getPrefs().setName(acct.getDisplayName());
+
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_EMAIL_ID.name(), acct.getEmail());
+                            TooditApplication.getInstance().getPrefs().setEmail(acct.getEmail());
+
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_GIVEN_NAME.name(), acct.getGivenName());
+                            TooditApplication.getInstance().getPrefs().setFirst_Name(acct.getGivenName());
+
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_PHOTO_URL.name(), acct.getPhotoUrl().toString());
+                            TooditApplication.getInstance().getPrefs().setImage(acct.getPhotoUrl().toString());
+
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_TOKEN_ID.name(), acct.getIdToken());
+
+
                             sharedPrefEditor.putString(Constants.GoogleFields.GOOG_SERVE_AUTHCODE.name(), acct.getServerAuthCode());
+
+
                             sharedPrefEditor.commit();
 
                             //start activity MainActivity.class
@@ -526,10 +543,10 @@ public class LoginActivity extends AppCompatActivity implements
                         //FB:UID
                         String firebaseUID = mAuth.getCurrentUser().getUid();
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_UID.name(), firebaseUID);
-
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
+                        Log.d(TAG, "handleFacebookAccessToken: task.isSuccessful( " + task.isSuccessful());
                         if (!task.isSuccessful()) {
                             try {
                                 Log.e(TAG, "signInWithCredential", task.getException());
@@ -541,7 +558,7 @@ public class LoginActivity extends AppCompatActivity implements
                                 Log.e(TAG, "#handleFacebookAccessToken#FacebookAuthUserCollision - " + fe.getMessage());
 
                                 sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
-
+                                TooditApplication.getInstance().getPrefs().setIsLogin(true);
                                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(i);
                                 finish();
@@ -551,6 +568,7 @@ public class LoginActivity extends AppCompatActivity implements
                             }
 
                         } else {
+                            TooditApplication.getInstance().getPrefs().setIsLogin(true);
 
                             Log.d(TAG, "Facebook Login Successful...");
                             Log.d(TAG, "Starting MainActivity...");
@@ -584,29 +602,36 @@ public class LoginActivity extends AppCompatActivity implements
 
                         fbuser.setId(json.getString("id"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_ID.name(), fbuser.getId());
+                        TooditApplication.getInstance().getPrefs().setCustomer_id( fbuser.getId());
 
                         fbuser.setEmail(json.getString("email"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_EMAIL_ID.name(), fbuser.getEmail());
+                        TooditApplication.getInstance().getPrefs().setEmail(fbuser.getEmail());
 
                         fbuser.setName(json.getString("name"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_NAME.name(), fbuser.getName());
                         TooditApplication.getInstance().getPrefs().setName(fbuser.getName());
-                        fbuser.setFirst_name(json.getString("first_name"));
 
+                        fbuser.setFirst_name(json.getString("first_name"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_FIRST_NAME.name(), fbuser.getFirst_name());
+                        TooditApplication.getInstance().getPrefs().setFirst_Name(fbuser.getFirst_name());
 
                         fbuser.setLast_name(json.getString("last_name"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_LAST_NAME.name(), fbuser.getLast_name());
+                        TooditApplication.getInstance().getPrefs().setLast_Name(fbuser.getLast_name());
 
                         fbuser.setLink(json.getString("link"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_LINK.name(), fbuser.getLink());
+                        TooditApplication.getInstance().getPrefs().setLink(fbuser.getLink());
 
                         fbuser.setPicture(json.getJSONObject("picture").getJSONObject("data").getString("url"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_PICTURE.name(), fbuser.getPicture());
                         TooditApplication.getInstance().getPrefs().setImage(fbuser.getPicture());
+                        TooditApplication.getInstance().getPrefs().setPicture(fbuser.getPicture());
 
                         fbuser.setTimezone(json.getString("timezone"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_TIME_ZONE.name(), fbuser.getTimezone());
+                        TooditApplication.getInstance().getPrefs().setTimezone(fbuser.getTimezone());
 
                         sharedPrefEditor.commit();
 
@@ -644,6 +669,8 @@ public class LoginActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+
+        Log.d(TAG, "mAuth.getCurrentUser():" + mAuth.getCurrentUser());
     }
 
     @Override

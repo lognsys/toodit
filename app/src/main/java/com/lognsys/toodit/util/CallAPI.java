@@ -9,7 +9,10 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.service.carrier.CarrierService;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -32,6 +36,7 @@ import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.RegistrationActivity;
+import com.lognsys.toodit.fragment.ListData;
 import com.lognsys.toodit.fragment.ListMallOutlets;
 
 import org.json.JSONArray;
@@ -40,6 +45,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -186,21 +192,8 @@ public class CallAPI {
         return response;
     }
 
-    public void updateToolbarText(String text, AppCompatActivity appCompatActivity) {
+    public void updateToolbarText(String text, final AppCompatActivity appCompatActivity) {
         {
-            /* ActionBar actionBar = appCompatActivity.getSupportActionBar();
-            if (actionBar != null) {
-                if(text!=null)
-                actionBar.setTitle(text);
-                else{
-                    actionBar.setLogo(R.drawable.toodit_logo);
-                }
-                actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
-                actionBar.setDisplayUseLogoEnabled(true);
-                actionBar.setDisplayShowHomeEnabled(true);
-            }
-            */
-            // Inflate your custom layout
             final ViewGroup actionBarLayout = (ViewGroup) appCompatActivity.getLayoutInflater().inflate(
                     R.layout.activity_actionbar,
                     null);
@@ -216,8 +209,9 @@ public class CallAPI {
             // You customization
             final int actionBarColor = appCompatActivity.getResources().getColor(R.color.black);
             actionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
-
             ImageView action_bar_logo = (ImageView) appCompatActivity.findViewById(R.id.action_bar_logo);
+
+            ImageView action_bar_back_button = (ImageView) appCompatActivity.findViewById(R.id.action_bar_back_button);
             map_indicator = (ImageView) appCompatActivity.findViewById(R.id.action_map);
             TextView action_bar_text = (TextView) appCompatActivity.findViewById(R.id.action_bar_text);
             if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_CART.getFragmentTag().toString())) {
@@ -240,18 +234,34 @@ public class CallAPI {
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
-            }
-            else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_CENTRAL_GRILL.getFragmentTag().toString())) {
-                action_bar_text.setText(PreferenceManager.getDefaultSharedPreferences((appCompatActivity)).getString("outlet_name", null).toString());
-                action_bar_logo.setVisibility(View.GONE);
-                map_indicator.setVisibility(View.GONE);
-            }
-            else {
+            } else {
                 action_bar_logo.setVisibility(View.VISIBLE);
                 action_bar_text.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
             }
+            action_bar_back_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
+                    FragmentManager fragmentManager=appCompatActivity.getSupportFragmentManager();
+                    fragmentManager.popBackStack();
+
+                    //Fragment fragment= fragmentManager.getFragment(null,FragmentTag.FRAGMENT_CART.getFragmentTag());
+/*
+                    List<Fragment> fragments = fragmentManager.getFragments();
+
+                    for(Fragment fr : fragments) {
+                        FragmentTag fr = FragmentTag.values()[fr.getFragmentTag().];
+                        switch () {
+                            case FragmentTag.FRAGMENT_CART:
+                                appCompatActivity.getSupportFragmentManager().beginTransaction().remove(fragment);
+                                break;
+
+                        }
+                    }*/
+
+                }
+            });
         }
     }
 }

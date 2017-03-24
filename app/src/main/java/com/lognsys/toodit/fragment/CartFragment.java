@@ -47,6 +47,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.TooditApplication;
 import com.lognsys.toodit.adapter.OutletRecylerViewHolders;
 import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.FragmentTag;
@@ -138,13 +139,17 @@ public class CartFragment extends Fragment {
         li = (ListView) v.findViewById(R.id.lvCart);
         //getDataInList();
         HashMap<String, String> hashMap= new HashMap<String, String>();
+
+        Log.d("","Rest getArguments()"+getArguments());
         if(getArguments()!=null) {
-            hashMap.put("customer_id", getArguments().getString("customer_id"));
+            Log.d("","Rest getArguments() out "+getArguments().getString("outlet_id"));
+
+            hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
             hashMap.put("outlet_id", getArguments().getString("outlet_id"));
         }
         else
         {
-            hashMap.put("customer_id",  PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id",null));
+            hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
             hashMap.put("outlet_id",  PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("outlet_id",null));
         }
         getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
@@ -367,7 +372,7 @@ public class CartFragment extends Fragment {
                         fragment .setArguments(args);
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container,
-                                        fragment, fragment.getClass().getSimpleName()).commit();
+                                        fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
 
 
                     }
@@ -616,8 +621,10 @@ public class CartFragment extends Fragment {
                                 JSONObject jsonObject = new JSONObject(response);
                                 myList=new ArrayList<>();
                                 HashMap<String, String> hashMap= new HashMap<String, String>();
-                                hashMap.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id",null));
+//                                hashMap.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id",null));
+                                hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
                                 hashMap.put("outlet_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("outlet_id",null));
+                                Log.d("","Rest outlet_id  "+PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("outlet_id",null));
                                 getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
                                 //Log.e("check", countryArray.toString());
 

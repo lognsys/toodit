@@ -34,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -44,8 +45,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.TooditApplication;
 import com.lognsys.toodit.adapter.ProfileListAdapter;
 import com.lognsys.toodit.util.Constants;
+import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -65,6 +68,7 @@ public class SettingFragment extends Fragment {
     private GoogleApiClient mGoogleApiClient;
     ListView profileListView;
     String[] titles;
+    TextView textName;
 
     //Profile listview images in order
     Integer[] imgid = {
@@ -101,9 +105,17 @@ public class SettingFragment extends Fragment {
         logout = (Button) view.findViewById(R.id.logout);
         update = (Button) view.findViewById(R.id.edit_profile);
         profile_image=(ImageView)view.findViewById(R.id.profile_image);
-
-        new SettingFragment.ImageLoadTask(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.FacebookFields.FB_PICTURE.name(), ""),profile_image ).execute();
-
+        textName=(TextView) view.findViewById(R.id.textName);
+        if(TooditApplication.getInstance().getPrefs().getName()!=null){
+            textName.setText(TooditApplication.getInstance().getPrefs().getName());
+        }
+        if(TooditApplication.getInstance().getPrefs().getImage()!=null){
+            Picasso.with(getContext()).load(TooditApplication.getInstance().getPrefs().getImage()).into(profile_image);
+            profile_image.setVisibility(View.VISIBLE);
+        }
+//        new SettingFragment.ImageLoadTask(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.FacebookFields.FB_PICTURE.name(), ""),profile_image ).execute();
+//
+//        new SettingFragment.ImageLoadTask(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.GoogleFields.GOOG_PHOTO_URL.name(), ""),profile_image ).execute();
 
         update.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,8 +139,16 @@ public class SettingFragment extends Fragment {
                                 mAuth = FirebaseAuth.getInstance();
                                 // Firebase sign out
                                 mAuth.signOut();
-                                SharedPreferences settings = getActivity().getSharedPreferences(Constants.Shared.TOODIT_SHARED_PREF.name(), Context.MODE_PRIVATE);
-                                settings.edit().clear().commit();
+                                TooditApplication.getInstance().getPrefs().setIsLogin(false);
+                                TooditApplication.getInstance().getPrefs().setCustomer_id(null);
+                                TooditApplication.getInstance().getPrefs().setName(null);
+                                TooditApplication.getInstance().getPrefs().setMobile(null);
+                                TooditApplication.getInstance().getPrefs().setEmail(null);
+                                TooditApplication.getInstance().getPrefs().setCity(null);
+                                TooditApplication.getInstance().getPrefs().setImage(null);
+
+//                                SharedPreferences settings = getActivity().getSharedPreferences(Constants.Shared.TOODIT_SHARED_PREF.name(), Context.MODE_PRIVATE);
+//                                settings.edit().clear().commit();
                                 Intent i = new Intent(getActivity(), LoginActivity.class);
                                 getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
