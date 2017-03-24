@@ -1,5 +1,6 @@
 package com.lognsys.toodit.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -239,7 +240,13 @@ public class CallAPI {
                 action_bar_text.setText(text);
                 action_bar_logo.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);
-            } else {
+            }
+            else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_CENTRAL_GRILL.getFragmentTag().toString())) {
+                action_bar_text.setText(PreferenceManager.getDefaultSharedPreferences((appCompatActivity)).getString("outlet_name", null).toString());
+                action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            }
+            else {
                 action_bar_logo.setVisibility(View.VISIBLE);
                 action_bar_text.setVisibility(View.GONE);
                 map_indicator.setVisibility(View.GONE);

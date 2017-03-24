@@ -164,7 +164,7 @@ public class SettingFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 String selectedTitle = titles[+position];
-               // Toast.makeText(getActivity(), selectedTitle, Toast.LENGTH_SHORT).show();
+               //Toast.makeText(getActivity(), selectedTitle, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -226,7 +226,9 @@ public class SettingFragment extends Fragment {
         @Override
         protected void onPostExecute(Bitmap result) {
             super.onPostExecute(result);
-            imageView.setImageBitmap(result);
+            if(result!=null) {
+                imageView.setImageBitmap(result);
+            }
             //mViewHolder.progressView15.setVisibility(View.INVISIBLE);
             imageView.setVisibility(View.VISIBLE);
 

@@ -20,7 +20,9 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:scaleType="fitXY"
-            android:src="@drawable/tomato_cheese" />
+            android:src="@drawable/tomato_cheese"
+            />
+       <!-- android:src="@drawable/tomato_cheese"-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -65,7 +67,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_marginTop="10dip"
             android:layout_marginLeft="20dip"
             android:layout_marginRight="20dip"
@@ -97,13 +98,33 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
+                android:textColor="@color/black"
 
-            <ImageView
-                android:id="@+id/ivLogbook"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_marginRight="4dp"
                 android:gravity="right"
-                android:src="@drawable/bag" />
+                android:text="Rs."
+                />
+
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="75dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:background="@drawable/round_btn_red"
+                android:textStyle="bold"
+                android:layout_marginRight="15dp"
+                android:textColor="#FFFFFF"/>
+            <ImageView
+                android:id="@+id/ivAddTo_cart"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:gravity="right|center"
+                android:src="@drawable/add_to_cart" />
         </LinearLayout>
         <View
             android:layout_width="fill_parent"

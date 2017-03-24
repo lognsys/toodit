@@ -1,5 +1,4 @@
 package com.lognsys.toodit.fragment;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -15,8 +14,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -47,6 +48,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.adapter.OutletRecylerViewHolders;
+import com.lognsys.toodit.util.CallAPI;
+import com.lognsys.toodit.util.FragmentTag;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -140,8 +144,8 @@ public class CartFragment extends Fragment {
         }
         else
         {
-            hashMap.put("customer_id", "28");
-            hashMap.put("outlet_id", "1");
+            hashMap.put("customer_id",  PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id",null));
+            hashMap.put("outlet_id",  PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("outlet_id",null));
         }
         getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
         //CartFragment.PasswordAdapter pwd=new CartFragment().PasswordAdapter(getActivity(),R.layout.list_raw_cart,item, qualit, quant, amoun);
@@ -251,6 +255,16 @@ public class CartFragment extends Fragment {
             // Apply the adapter to the spinner
          //   mViewHolder.tvItemQuantity.setAdapter(adapter);*/
 
+
+
+           final ListDataCartFragments currentListData = getItem(position);
+            mViewHolder.temName.setText(currentListData.getCartItemSelected());
+            mViewHolder.itemQuality.setText(currentListData.getCartItemComment());
+//          mViewHolder.itemQuantity.setText(currentListData.getCartItemquanatity());
+            mViewHolder.tvItemQuantity.setText("Qty :"+currentListData.getCartItemquanatity());
+            mViewHolder.itemAmount.setText(currentListData.getCartItemPrice());
+            mViewHolder.TransactionId.setText(currentListData.getTransactionId());
+
             mViewHolder.tvItemQuantity.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View view) {
@@ -260,11 +274,28 @@ public class CartFragment extends Fragment {
                     final EditText etEnterQuantity=(EditText) promptsView.findViewById(R.id.etEnterQuantity) ;
                     // set prompts.xml to alertdialog builder
                     alert.setView(promptsView);
-                   // alert.setMessage("Message");
+                    // alert.setMessage("Message");
 
                     alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                                   mViewHolder.tvItemQuantity.setText("Qty: "+etEnterQuantity.getText().toString());
+                            mViewHolder.tvItemQuantity.setText("Qty: "+etEnterQuantity.getText().toString());
+                          /*  HashMap<String, String> hashMap= new HashMap<String, String>();
+                            hashMap.put("cart_id", cart_id);
+                            String NewString = mViewHolder.tvItemQuantity.getText().toString().replaceAll("Qty:", "");
+                            hashMap.put("quantity", NewString.trim());
+                            for(int i=0;i<20;i++)
+                            {
+                                hashMap.put("food_id", String.valueOf(i));
+                               // Log.e("cart_id",hashMap.get("cart_id"));
+                                //Log.e("quantity",hashMap.get("quantity"));
+                                //Log.e("food_id",hashMap.get("food_id"));
+
+                              //  updateCartItemsQuantity("http://food.swatinfosystem.com/api/Update_cart",hashMap );
+
+
+
+                            }*/
+
                             // Do something with value!
                         }
                     });
@@ -279,16 +310,6 @@ public class CartFragment extends Fragment {
 
                 }
             });
-
-           final ListDataCartFragments currentListData = getItem(position);
-            mViewHolder.temName.setText(currentListData.getCartItemSelected());
-            mViewHolder.itemQuality.setText(currentListData.getCartItemComment());
-//          mViewHolder.itemQuantity.setText(currentListData.getCartItemquanatity());
-            mViewHolder.tvItemQuantity.setText("Qty :"+currentListData.getCartItemquanatity());
-            mViewHolder.itemAmount.setText(currentListData.getCartItemPrice());
-            mViewHolder.TransactionId.setText(currentListData.getTransactionId());
-
-
             //CircleImageView img = (de.hdodenhof.circleimageview.CircleImageView)v.findViewById(R.id.ivItemInCart);
 
             //img.setBackgroundResource(image[position]);
@@ -305,13 +326,13 @@ public class CartFragment extends Fragment {
                     Integer position= (Integer) v.getTag(); //get inde
                     int deletePosition=(int)position;
                     myList.remove(deletePosition); //remove the item from data source
-                    Log.e("myList Size", String.valueOf(myList.size()));
+                    //Log.e("myList Size", String.valueOf(myList.size()));
 
                     HashMap<String, String> hashMap= new HashMap<String, String>();
                     hashMap.put("transaction_id",currentListData.getTransactionId() );
-                    Log.e("currentListData", currentListData.getTransactionId().toString());
+                   // Log.e("currentListData", currentListData.getTransactionId().toString());
                     hashMap.put("remove_quanity", currentListData.getCartItemquanatity() );
-                    Log.e("remove_quantity", currentListData.getCartItemquanatity());
+                    //Log.e("remove_quantity", currentListData.getCartItemquanatity());
                     deleteCartItems("http://food.swatinfosystem.com/api/Delete_cart_item", hashMap);
                     notifyDataSetChanged(); //notify to refresh
                     // li.setAdapter( new MyBaseAdapter(getActivity(), myListMain));
@@ -351,7 +372,7 @@ public class CartFragment extends Fragment {
 
                     }
                     else{
-                        Toast.makeText(getContext(),"Please Add Products to Cart",Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getContext(),"Please Add Products to Cart",Toast.LENGTH_LONG).show();
                     }
 
                 }
@@ -416,33 +437,35 @@ public class CartFragment extends Fragment {
 
     private ArrayList<ListDataCartFragments> getFoodItemList(String URL, final Map<String, String> params) {
         String response = "";
-
+        myList.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                         Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
+                       // Log.e("Cart_details", response);
 
                         try {
                             try {
                                 JSONArray cartItemArray;
                                 JSONObject jsonObject = new JSONObject(response);
-                                JSONObject jsonObject1=jsonObject.getJSONObject("cart_data");
-                                cart_id=jsonObject1.getString("cart_id");
-                                sub_total=jsonObject1.getString("sub_total");
-                                service_tax=jsonObject1.getString("service_tax");
-                                vat=jsonObject1.getString("vat");
-                                add_vat=jsonObject1.getString("add_vat");
-                                total_amount=jsonObject1.getString("total_amount");
+                                JSONObject jsonObject1=jsonObject.getJSONObject("data");
+                                JSONObject jsonObject2=jsonObject1.getJSONObject("cart_data");
+                                cart_id=jsonObject2.getString("cart_id");
+                                sub_total=jsonObject2.getString("sub_total");
+                                service_tax=jsonObject2.getString("service_tax");
+                                vat=jsonObject2.getString("vat");
+                                add_vat=jsonObject2.getString("add_vat");
+                                total_amount=jsonObject2.getString("total_amount");
 
                                 flag=true;
 
 
 
 
-                                if(jsonObject.getJSONObject("cart_data").getJSONArray("item_details")!=null){
-                                    cartItemArray = jsonObject.getJSONObject("cart_data").getJSONArray("item_details");
+                                if(jsonObject1.getJSONObject("cart_data").getJSONArray("item_details")!=null){
+                                    cartItemArray = jsonObject1.getJSONObject("cart_data").getJSONArray("item_details");
                                     for (int i = 0; i < cartItemArray.length(); i++) {
                                         String food_name = cartItemArray.getJSONObject(i).getString("food_name");
                                         String food_type= cartItemArray.getJSONObject(i).getString("food_type");
@@ -468,7 +491,7 @@ public class CartFragment extends Fragment {
                                     pwd = new MyBaseAdapter(getActivity(), myList);
                                     li.setAdapter(pwd);
                                     pwd.notifyDataSetChanged();
-                                    Toast.makeText(getActivity(), "update", Toast.LENGTH_LONG).show();
+                                   // Toast.makeText(getActivity(), "update", Toast.LENGTH_LONG).show();
                                 }
 
                                 flag=false;
@@ -524,6 +547,59 @@ public class CartFragment extends Fragment {
 
          }
      }*/
+   /* private ArrayList<ListDataCartFragments> updateCartItemsQuantity(String URL, final Map<String, String> params) {
+        String response = "";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+
+                        try {
+                            try {
+
+                                JSONObject jsonObject = new JSONObject(response);
+                               HashMap<String, String> hashMap= new HashMap<String, String>();
+                                //Log.e("check", countryArray.toString());
+                                hashMap.put("customer_id","28");
+                                hashMap.put("outlet_id","1");
+                                getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
+
+
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+        return myList;
+
+    }*/
     private ArrayList<ListDataCartFragments> deleteCartItems(String URL, final Map<String, String> params) {
         String response = "";
 
@@ -531,7 +607,7 @@ public class CartFragment extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                      //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {
@@ -540,8 +616,8 @@ public class CartFragment extends Fragment {
                                 JSONObject jsonObject = new JSONObject(response);
                                 myList=new ArrayList<>();
                                 HashMap<String, String> hashMap= new HashMap<String, String>();
-                                hashMap.put("customer_id","28");
-                                hashMap.put("outlet_id","1");
+                                hashMap.put("customer_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id",null));
+                                hashMap.put("outlet_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("outlet_id",null));
                                 getFoodItemList("http://food.swatinfosystem.com/api/Cart_details", hashMap);
                                 //Log.e("check", countryArray.toString());
 
@@ -561,7 +637,7 @@ public class CartFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
@@ -580,11 +656,14 @@ public class CartFragment extends Fragment {
     }
 
 
-    @Override
-    public void onResume() {
+@Override
+public void onResume() {
         super.onResume();
 
-    }
+        CallAPI callAPI = new CallAPI();
+        // Log.d("PaymentFragment","Rest getClass().getName().toString() "+getClass().getName().toString());
+        callAPI.updateToolbarText(FragmentTag.FRAGMENT_CART.getFragmentTag(),(AppCompatActivity)getActivity());
+        }
 }
 
 

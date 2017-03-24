@@ -10,12 +10,21 @@ public class ListDataCartFragments {
     private String cartItemquanatity;
     private String cartItemPrice;
     private String transactionId;
+    private String cartId;
     private int cartItemImage;
     private String basic_total;
     private String total_amount;
     private String service_tax;
     private String vat;
     private  String add_vat;
+
+    public String getCartId() {
+        return cartId;
+    }
+
+    public void setCartId(String cartId) {
+        this.cartId = cartId;
+    }
 
     public String getBasic_total() {
         return basic_total;
