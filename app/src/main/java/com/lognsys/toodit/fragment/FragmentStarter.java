@@ -350,7 +350,7 @@ public class FragmentStarter extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {

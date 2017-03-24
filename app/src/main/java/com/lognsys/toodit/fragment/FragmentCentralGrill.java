@@ -147,7 +147,9 @@ public class FragmentCentralGrill extends Fragment {
 
                 hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
                 // Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
-                customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
+                customer_id= customer_id= TooditApplication.getInstance().getPrefs().getCustomer_id();
+
+                PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
                 hashMap.put("outlet_id", (String)getArguments().get("outlet_id"));
 
 

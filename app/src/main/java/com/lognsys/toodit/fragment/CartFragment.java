@@ -518,7 +518,7 @@ public class CartFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "No Network available", Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override

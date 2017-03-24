@@ -259,7 +259,7 @@ public class FragmentFastFood extends Fragment {
 
                     hashMap.put("customer_id", TooditApplication.getInstance().getPrefs().getCustomer_id());
                     Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
-                    customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
+                    customer_id= TooditApplication.getInstance().getPrefs().getCustomer_id();
                     hashMap.put("outlet_id", valueFinal.get(position).getOutlet_id());
                     outlet_id= valueFinal.get(position).getOutlet_id();
                     Log.e("otlet id",valueFinal.get(position).getOutlet_id());
@@ -366,7 +366,7 @@ public class FragmentFastFood extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
 
                         try {
