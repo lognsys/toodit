@@ -1,6 +1,7 @@
 package com.lognsys.toodit.fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -8,8 +9,10 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +35,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.model.CountryName;
+import com.lognsys.toodit.util.CallAPI;
+import com.lognsys.toodit.util.FragmentTag;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,9 +55,10 @@ import java.util.Map;
 
 public class FragmentCentralGrill extends Fragment {
     private ListView lvComment;
-    private ImageView ivItemImage, ivAdd, iivMinus, ivLogbook;
-    private TextView tvItemName, tvItemDescript, tvNoOfAddedItems, tvThecentralgrill, tvAddress;
+    private ImageView ivItemImage, ivAdd, iivMinus, ivAddToCart;
+    private TextView tvItemName, tvItemDescript, tvNoOfAddedItems, tvThecentralgrill, tvAddress, tvAmount;
     private RatingBar rbRating;
+    private  String food_id, customer_id, outlet_id,quantity;
     Context context = null;
     MyBaseAdapter myBaseAdapter;
     private static int noOfItems = 1;
@@ -71,6 +77,7 @@ public class FragmentCentralGrill extends Fragment {
         View v = inflater.inflate(R.layout.fragment_central_grill, container, false);
         context = this.getActivity();
         ivItemImage = (ImageView) v.findViewById(R.id.ivItemImage);
+        ivAddToCart=(ImageView)v.findViewById(R.id.ivAddTo_cart);
         tvItemName = (TextView) v.findViewById(R.id.tvItemName);
         tvItemDescript = (TextView) v.findViewById(R.id.tvItemQuality);
         tvThecentralgrill = (TextView) v.findViewById(R.id.tvTheCentralGrill);
@@ -81,10 +88,13 @@ public class FragmentCentralGrill extends Fragment {
         ivAdd = (ImageView) v.findViewById(R.id.ivAdd);
         iivMinus = (ImageView) v.findViewById(R.id.ivMinus);
         tvNoOfAddedItems = (TextView) v.findViewById(R.id.tvNoOfAddedItem);
+        tvAmount=(TextView)v.findViewById(R.id.tvAmount);
         HashMap<String, String> hashmapReview= new HashMap<>();
         hashmapReview.put("food_id", (String) getArguments().get("food_id"));
+        food_id=(String) getArguments().get("food_id");
         hashmapReview.put("outlet_id", (String) getArguments().get("outlet_id"));
-        getFoodItemReview("http://food.swatinfosystem.com/api/Get_all_reviews", hashmapReview);
+        outlet_id=(String) getArguments().get("outlet_id");
+       // getFoodItemReview("http://food.swatinfosystem.com/api/Get_all_reviews", hashmapReview);
        /* Drawable drawable = rbRating.getProgressDrawable();
         drawable.setColorFilter(Color.parseColor("#FFAF0A"), PorterDuff.Mode.SRC_ATOP);*/
         HashMap<String, String> hashMap = new HashMap<String, String>();
@@ -120,6 +130,25 @@ public class FragmentCentralGrill extends Fragment {
                 if (noOfItems > 1)
                     noOfItems--;
                 tvNoOfAddedItems.setText(String.valueOf(noOfItems));
+            }
+        });
+        ivAddToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HashMap<String, String> hashMap= new HashMap<String, String>();
+                hashMap.put("food_id", (String)getArguments().get("food_id"));
+
+                hashMap.put("quantity", tvNoOfAddedItems.getText().toString());
+
+                quantity=tvNoOfAddedItems.getText().toString();
+                // SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+               // Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
+                customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
+                hashMap.put("outlet_id", (String)getArguments().get("outlet_id"));
+
+
+                addToCart("http://food.swatinfosystem.com/api/Add_to_cart", hashMap);
             }
         });
 
@@ -233,12 +262,12 @@ public class FragmentCentralGrill extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                         response = response;
                         try {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
-                                JSONObject foodDetails = jsonObject.getJSONObject("data").getJSONArray("food_item_details").getJSONObject(0);
+                                JSONObject foodDetails = jsonObject.getJSONObject("data").getJSONObject("food_item_details");
 
                                 tvItemName.setText(foodDetails.get("name").toString());
                                 Log.e("name", foodDetails.get("outlet_name").toString());
@@ -246,7 +275,14 @@ public class FragmentCentralGrill extends Fragment {
 
                                 //tvNoOfAddedItems.setText(foodDetails.get("name").toString());
                                 tvThecentralgrill.setText(foodDetails.get("outlet_name").toString());
+                                SharedPreferences sharedpreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+                                //SharedPreferences Editor
+                                SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+
+                                sharedPrefEditor.putString("outlet_name", foodDetails.get("outlet_name").toString());
+                                sharedPrefEditor.commit();
+                                tvAmount.setText(foodDetails.get("price").toString());
                                 tvAddress.setText(foodDetails.get("outlet_address").toString());
                                 //rbRating.setRating(Float.valueOf(foodDetails.get("avg_rating").toString()));
                                 rbRating.setRating(Float.valueOf("3.3"));
@@ -286,7 +322,7 @@ public class FragmentCentralGrill extends Fragment {
         return response;
     }
 
-    private String getFoodItemReview(String URL, final Map<String, String> params) {
+   /* private String getFoodItemReview(String URL, final Map<String, String> params) {
         String response = "";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
@@ -297,7 +333,7 @@ public class FragmentCentralGrill extends Fragment {
                         try {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
-                               JSONObject jsonList= jsonObject.getJSONObject("data").getJSONObject("reviews_list");
+                                JSONObject jsonList= jsonObject.getJSONObject("data").getJSONObject("reviews_list");
                                 //
                                 // Log.e("check", countryList.get(4).getName());
                                 //getCountryFromJson(countryArray.toString());
@@ -330,7 +366,7 @@ public class FragmentCentralGrill extends Fragment {
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
         requestQueue.add(stringRequest);
         return response;
-    }
+    }*/
 
     public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
 
@@ -382,5 +418,70 @@ public class FragmentCentralGrill extends Fragment {
             //  imageView.setVisibility(View.VISIBLE);
 
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        CallAPI callAPI = new CallAPI();
+        // Log.d("PaymentFragment","Rest getClass().getName().toString() "+getClass().getName().toString());
+        callAPI.updateToolbarText(FragmentTag.FRAGMENT_CENTRAL_GRILL.getFragmentTag(),(AppCompatActivity)getActivity());
+    }
+    private void addToCart(String URL, final Map<String, String> params) {
+        String response = "";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                      //  Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                        response = response;
+
+                        try {
+                            try {
+
+                                JSONObject jsonObject = new JSONObject(response);
+
+                                Fragment fragment = new CartFragment();
+                                Bundle args = new Bundle();
+                                args.putString("food_id", food_id );
+                                args.putString("customer_id" ,customer_id);
+                                args.putString("outlet_id", outlet_id);
+                                args.putString("quantity", quantity);
+                                fragment.setArguments(args);
+                                getActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
+
+                                //getCountryFromJson(countryArray.toString());
+                            } catch (JSONException je) {
+                                je.printStackTrace();
+                            }
+
+                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                       // Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(stringRequest);
+        //  Log.e("Lisof malls", listOfMall1.get(0));
+
+
     }
 }

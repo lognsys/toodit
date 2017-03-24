@@ -11,7 +11,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 
 import com.lognsys.toodit.ActivityTab;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.util.CallAPI;
+import com.lognsys.toodit.util.FragmentTag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +40,7 @@ public class TestFragment extends Fragment {
     private ViewPager viewPager;
     ArrayList<ListFoodItem> value;
 
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View v = inflater.inflate(R.layout.activity_tab_list_of_item, container, false);
@@ -43,6 +48,7 @@ public class TestFragment extends Fragment {
         { value = getArguments().getParcelableArrayList("ListFoodItems");}
         tabLayout = (TabLayout) v.findViewById(R.id.tabs);
         toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+
 
         //updateToolbarText("");
         //  setSupportActionBar(toolbar);
@@ -134,5 +140,14 @@ public class TestFragment extends Fragment {
             actionBar.setDisplayShowHomeEnabled(true);
         }
     }*/
+   @Override
+   public void onResume() {
+       super.onResume();
+
+       CallAPI callAPI = new CallAPI();
+      // Log.d("PaymentFragment","Rest getClass().getName().toString() "+getClass().getName().toString());
+       callAPI.updateToolbarText(FragmentTag.FRAGMENT_TEST.getFragmentTag(),(AppCompatActivity)getActivity());
+   }
+
 
 }

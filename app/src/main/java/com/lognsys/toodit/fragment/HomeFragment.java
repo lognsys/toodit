@@ -3,6 +3,7 @@ package com.lognsys.toodit.fragment;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -43,6 +44,7 @@ import com.lognsys.toodit.adapter.ImageAdapter;
 import com.lognsys.toodit.adapter.ImageAdapterOutlates;
 import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.FragmentTag;
 import com.lognsys.toodit.util.PropertyReader;
 
 import org.json.JSONArray;
@@ -224,6 +226,10 @@ public class HomeFragment extends Fragment {
                                         HashMap<String, String> hashMap= new HashMap<String ,String>();
                                         hashMap.put("outlet_id", outlet_id);
                                         hashMap.put("category_id",category_id);
+                                        //testt
+                                      /*  hashMap.put("outlet_id", "1");
+                                        hashMap.put("category_id",category_id);*/
+                                        Log.e("outlet_id", outlet_id);
 //                                        Log.d(TAG,"Home category_id"+category_id);
 //                                        Log.d(TAG,"Home outlet_id"+outlet_id);
 
@@ -290,7 +296,14 @@ public class HomeFragment extends Fragment {
                                         String description= jsonArray.getJSONObject(i).getString("description");
                                         String price=jsonArray.getJSONObject(i).getString("price");
                                         String outlet_id=jsonArray.getJSONObject(i).getString("outlet_id");
+                                        SharedPreferences sharedpreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+                                        //SharedPreferences Editor
+                                        SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+
+                                        sharedPrefEditor.putString("outlet_id", outlet_id);
+                                        sharedPrefEditor.commit();
+                                        Log.e("outlet_id", outlet_id);
                                         ListFoodItem listFoodItemCategory= new ListFoodItem( food_id,  name,  food_type,  category_name,  description,  price,  outlet_id,  image);
                                         listFoodItems.add(listFoodItemCategory);
 
@@ -629,5 +642,13 @@ public class HomeFragment extends Fragment {
         }
 
     }
+@Override
+public void onResume() {
+        super.onResume();
+
+        CallAPI callAPI = new CallAPI();
+        // Log.d("PaymentFragment","Rest getClass().getName().toString() "+getClass().getName().toString());
+        callAPI.updateToolbarText(FragmentTag.FRAGMENT_HOME.getFragmentTag(),(AppCompatActivity)getActivity());
+        }
 
     }

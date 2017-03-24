@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import  com.lognsys.toodit.fragment.ListDataNotification;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.util.CallAPI;
+import com.lognsys.toodit.util.FragmentTag;
 
 import org.w3c.dom.Text;
 
@@ -245,6 +248,14 @@ public class NotificationFragment extends Fragment {
 
 
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        CallAPI callAPI = new CallAPI();
+        // Log.d("PaymentFragment","Rest getClass().getName().toString() "+getClass().getName().toString());
+        callAPI.updateToolbarText(FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag(),(AppCompatActivity)getActivity());
     }
 
 }

@@ -5,13 +5,17 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v4.view.ViewPager;
+
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,7 +41,11 @@ import com.android.volley.toolbox.Volley;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.FragmentTag;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,7 +71,9 @@ public class FragmentFastFood extends Fragment {
     private int mSelectedItem; //index of bottom nagivation bar
     private ArrayList<ListFoodItem> myList = new ArrayList<ListFoodItem>();
     private ArrayList<ListFoodItem> value;
+    private ArrayList<ListFoodItem> valueFinal;
     private String food_id, quantity, customer_id, outlet_id;
+    private TextView tvNoItems;
     /*String[] item = {"Tomato Garlic Special Pizza", "Cheesy onion Veg Burger"};
     String[] qualit = {"With added cheasy cream", "With extra butter chease"};
     String[] amount={"61.00", "61.00"};
@@ -71,12 +81,36 @@ public class FragmentFastFood extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
+        valueFinal= new ArrayList<>();
         View v = inflater.inflate(R.layout.fragment_new_list_of_item, container, false);
         value = getArguments().getParcelableArrayList("ListFoodItems");
+        //Initialize SharedPreferences
+       SharedPreferences sharedpreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        //SharedPreferences Editor
+        SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+
+        sharedPrefEditor.putString("outlet_id", value.get(0).getOutlet_id().toString());
+        sharedPrefEditor.commit();
+        tvNoItems=(TextView)v.findViewById(R.id.tvNoItems);
+        for(int i=0;i<value.size();i++)
+        {
+           if(value.get(i).getCategory_name().equals("Pizza")||value.get(i).getCategory_name().equals("test")||value.get(i).getCategory_name().equals("Dessert"))
+           {
+               valueFinal.add(value.get(i));
+           }
+        }
+        if(valueFinal.size()==0)
+        {
+            tvNoItems.setVisibility(View.VISIBLE);
+            tvNoItems.setText("No Fast Food");
+
+        }
+
         context = this.getActivity();
         lvComment= (ListView)v.findViewById(R.id.lvComment);
         //getDataInList();
-        myBaseAdapter= new FragmentFastFood.MyBaseAdapter(this.getActivity(), value);
+        myBaseAdapter= new FragmentFastFood.MyBaseAdapter(this.getActivity(), valueFinal);
 
         lvComment.setAdapter(myBaseAdapter);
         lvComment.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -86,12 +120,12 @@ public class FragmentFastFood extends Fragment {
             {  Fragment fragment = new FragmentCentralGrill();
                 Bundle args = new Bundle();
                 args.putString("position", String.valueOf(position));
-                args.putString("food_id" ,value.get(position).getFood_id());
-                args.putString("outlet_id", value.get(position).getOutlet_id());
+                args.putString("food_id" ,valueFinal.get(position).getFood_id());
+                args.putString("outlet_id", valueFinal.get(position).getOutlet_id());
                 fragment.setArguments(args);
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
-             //  Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
 
 
 
@@ -159,8 +193,31 @@ public class FragmentFastFood extends Fragment {
             } else {
                 mViewHolder = (FragmentFastFood.MyBaseAdapter.MyViewHolder) convertView.getTag();
             }
-
             ListFoodItem currentListFoodItem = getItem(position);
+           // Picasso.with(getActivity()).load(currentListFoodItem.getImage()).into(mViewHolder.llItemImage.setBackground());
+            Picasso.with(getActivity()).load(currentListFoodItem.getImage()).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    if (Build.VERSION.SDK_INT < 16) {
+
+                    } else {
+                        mViewHolder.llItemImage.setBackground(new BitmapDrawable(bitmap));
+                    }
+
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+
+            });
+
             new FragmentFastFood.ImageLoadTask(currentListFoodItem.getImage(),mViewHolder.llItemImage ).execute();
             //mViewHolder.llItemImage.setBackground(currentListFoodItem.getImage(),mViewHolder.llItemImage ).execute();
             mViewHolder.tvItemName.setText(currentListFoodItem.getName());
@@ -173,6 +230,7 @@ public class FragmentFastFood extends Fragment {
                 public void onClick(View v) {
                     // do something when the corky2 is clicked
                     noOfItems++;
+                    mViewHolder.tvNoOfAddedItems.setText(String.valueOf(noOfItems));
                 }
             });
             mViewHolder.iivMinus.setOnClickListener(new View.OnClickListener() {
@@ -189,9 +247,9 @@ public class FragmentFastFood extends Fragment {
                 public void onClick(View view) {
 
                     HashMap<String, String> hashMap= new HashMap<String, String>();
-                    hashMap.put("food_id", value.get(position).getFood_id());
-                   // Log.e("food_id", value.get(position).getFood_id());
-                    food_id=value.get(position).getFood_id();
+                    hashMap.put("food_id", valueFinal.get(position).getFood_id());
+                   // Log.e("food_id", valueFinal.get(position).getFood_id());
+                    food_id=valueFinal.get(position).getFood_id();
                     hashMap.put("quantity", mViewHolder.tvNoOfAddedItems.getText().toString());
                     //Log.e("quantity", mViewHolder.tvNoOfAddedItems.getText().toString());
                     quantity=mViewHolder.tvNoOfAddedItems.getText().toString();
@@ -199,9 +257,9 @@ public class FragmentFastFood extends Fragment {
                     hashMap.put("customer_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
                     Log.e("cust_id",PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", ""));
                     customer_id=PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("customer_id", "");
-                    hashMap.put("outlet_id", value.get(position).getOutlet_id());
-                    outlet_id= value.get(position).getOutlet_id();
-                    Log.e("otlet id",value.get(position).getOutlet_id());
+                    hashMap.put("outlet_id", valueFinal.get(position).getOutlet_id());
+                    outlet_id= valueFinal.get(position).getOutlet_id();
+                    Log.e("otlet id",valueFinal.get(position).getOutlet_id());
 
                     addToCart("http://food.swatinfosystem.com/api/Add_to_cart", hashMap);
 
@@ -212,7 +270,7 @@ public class FragmentFastFood extends Fragment {
 
         private class MyViewHolder {
             private ImageView ivAdd, iivMinus, ivAddToCart;
-           // mViewHolder.tvNoOfAddedItems.setText(String.valueOf(noOfItems));
+           // mViewHolder.tvNoOfAddedItems.setText(String.valueFinalOf(noOfItems));
             private TextView tvItemName, tvItemQuality, tvNoOfAddedItems, tvAmount;
             private RatingBar rbRating;
             private LinearLayout llItemImage;
@@ -228,6 +286,7 @@ public class FragmentFastFood extends Fragment {
                 llItemImage=(LinearLayout)item.findViewById(R.id.llItemImage);
                 tvAmount=(TextView)item.findViewById(R.id.tvAmount);
                 ivAddToCart=(ImageView)item.findViewById(R.id.ivAddTo_cart);
+
             }
         }
 
@@ -276,17 +335,24 @@ public class FragmentFastFood extends Fragment {
         }
 
         @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
+        protected void onProgressUpdate(Void... valueFinals) {
+            super.onProgressUpdate(valueFinals);
 
         }
 
         @Override
         protected void onPostExecute(Bitmap result) {
             super.onPostExecute(result);
-            imageView.setBackgroundDrawable(new BitmapDrawable(result));
-            //mViewHolder.progressView15.setVisibility(View.INVISIBLE);
-            imageView.setVisibility(View.VISIBLE);
+            if (result!=null) {
+                imageView.setBackgroundDrawable(new BitmapDrawable(result));
+                imageView.setVisibility(View.VISIBLE);
+            }
+            else {
+                //mViewHolder.progressView15.setVisibility(View.INVISIBLE);
+                imageView.setBackgroundResource(R.drawable.tomato_cheese);
+                imageView.setVisibility(View.VISIBLE);
+
+            }
 
         }
     }
@@ -347,6 +413,9 @@ public class FragmentFastFood extends Fragment {
         return myList;
 
     }
+
+
+
 
     }
 

@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 callAPI.updateToolbarText(fragmentTag,MainActivity.this);
 
                 break;
+
         }
 
         // update selected item
