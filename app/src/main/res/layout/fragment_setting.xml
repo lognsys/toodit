@@ -39,7 +39,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="@string/text_name_placeholder"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 
@@ -48,7 +47,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="@string/text_location_placeholder"
                 android:visibility="gone"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
