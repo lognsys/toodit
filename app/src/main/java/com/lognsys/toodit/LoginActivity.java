@@ -154,7 +154,6 @@ public class LoginActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //Initialize SharedPreferences
         sharedpreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -175,7 +174,8 @@ public class LoginActivity extends AppCompatActivity implements
         Log.e("devicetoken", device_token_id);
         sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), device_token_id);
         sharedPrefEditor.commit();
-//Add device type
+
+        //Add device type
         String manufacturer = Build.MANUFACTURER; //this one will work for you.
         String product = Build.PRODUCT;
         String model = Build.MODEL;
@@ -183,8 +183,10 @@ public class LoginActivity extends AppCompatActivity implements
         sharedPrefEditor.putString("device_type", "android tab");
         sharedPrefEditor.commit();
         //Use Case 1:If cust_id in shared pref then goto MainActivity
-        String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
-        if (cust_id != null) {
+//        String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
+        String cust_id = TooditApplication.getInstance().getPrefs().getCustomer_id();
+
+        if (cust_id != null && TooditApplication.getInstance().getPrefs().getIsLogin()==true) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(i);
             finish();
@@ -509,8 +511,10 @@ public class LoginActivity extends AppCompatActivity implements
 
         //Adding facebook userid in shared_preferences
         final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+        Log.d(TAG, "handleFacebookAccessToken: sharedPrefEditor " + sharedPrefEditor);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        Log.d(TAG, "handleFacebookAccessToken: credential " + credential);
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -586,8 +590,9 @@ public class LoginActivity extends AppCompatActivity implements
 
                         fbuser.setName(json.getString("name"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_NAME.name(), fbuser.getName());
-
+                        TooditApplication.getInstance().getPrefs().setName(fbuser.getName());
                         fbuser.setFirst_name(json.getString("first_name"));
+
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_FIRST_NAME.name(), fbuser.getFirst_name());
 
                         fbuser.setLast_name(json.getString("last_name"));
@@ -598,6 +603,7 @@ public class LoginActivity extends AppCompatActivity implements
 
                         fbuser.setPicture(json.getJSONObject("picture").getJSONObject("data").getString("url"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_PICTURE.name(), fbuser.getPicture());
+                        TooditApplication.getInstance().getPrefs().setImage(fbuser.getPicture());
 
                         fbuser.setTimezone(json.getString("timezone"));
                         sharedPrefEditor.putString(Constants.FacebookFields.FB_TIME_ZONE.name(), fbuser.getTimezone());
