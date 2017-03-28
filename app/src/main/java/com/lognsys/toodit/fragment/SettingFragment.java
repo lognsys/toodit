@@ -4,8 +4,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,11 +25,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -28,7 +45,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.TooditApplication;
 import com.lognsys.toodit.adapter.ProfileListAdapter;
+import com.lognsys.toodit.util.Constants;
+import com.squareup.picasso.Picasso;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 
 public class SettingFragment extends Fragment {
@@ -39,10 +63,12 @@ public class SettingFragment extends Fragment {
     private String loc;
     private Button logout;
     private Button update;
+    private ImageView profile_image;
     //Google API variable
     private GoogleApiClient mGoogleApiClient;
     ListView profileListView;
     String[] titles;
+    TextView textName;
 
     //Profile listview images in order
     Integer[] imgid = {
@@ -64,6 +90,7 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             name = getArguments().getString(ARG_NAME);
             loc = getArguments().getString(ARG_LOC);
@@ -77,6 +104,18 @@ public class SettingFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
         logout = (Button) view.findViewById(R.id.logout);
         update = (Button) view.findViewById(R.id.edit_profile);
+        profile_image=(ImageView)view.findViewById(R.id.profile_image);
+        textName=(TextView) view.findViewById(R.id.textName);
+        if(TooditApplication.getInstance().getPrefs().getName()!=null){
+            textName.setText(TooditApplication.getInstance().getPrefs().getName());
+        }
+        if(TooditApplication.getInstance().getPrefs().getImage()!=null){
+            Picasso.with(getContext()).load(TooditApplication.getInstance().getPrefs().getImage()).into(profile_image);
+            profile_image.setVisibility(View.VISIBLE);
+        }
+//        new SettingFragment.ImageLoadTask(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.FacebookFields.FB_PICTURE.name(), ""),profile_image ).execute();
+//
+//        new SettingFragment.ImageLoadTask(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.GoogleFields.GOOG_PHOTO_URL.name(), ""),profile_image ).execute();
 
         update.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +139,16 @@ public class SettingFragment extends Fragment {
                                 mAuth = FirebaseAuth.getInstance();
                                 // Firebase sign out
                                 mAuth.signOut();
+                                TooditApplication.getInstance().getPrefs().setIsLogin(false);
+                                TooditApplication.getInstance().getPrefs().setCustomer_id(null);
+                                TooditApplication.getInstance().getPrefs().setName(null);
+                                TooditApplication.getInstance().getPrefs().setMobile(null);
+                                TooditApplication.getInstance().getPrefs().setEmail(null);
+                                TooditApplication.getInstance().getPrefs().setCity(null);
+                                TooditApplication.getInstance().getPrefs().setImage(null);
 
+//                                SharedPreferences settings = getActivity().getSharedPreferences(Constants.Shared.TOODIT_SHARED_PREF.name(), Context.MODE_PRIVATE);
+//                                settings.edit().clear().commit();
                                 Intent i = new Intent(getActivity(), LoginActivity.class);
                                 getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -136,7 +184,7 @@ public class SettingFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 String selectedTitle = titles[+position];
-                Toast.makeText(getActivity(), selectedTitle, Toast.LENGTH_SHORT).show();
+               //Toast.makeText(getActivity(), selectedTitle, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -152,4 +200,82 @@ public class SettingFragment extends Fragment {
         titles[3] = getContext().getResources().getString(R.string.text_profile_title_tc);
 
     }
+
+    public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
+
+        private String url;
+        private ImageView imageView;
+
+        public ImageLoadTask(String url, ImageView imageView) {
+            this.url = url;
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            try {
+                URL urlConnection = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) urlConnection
+                        .openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                return myBitmap;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+          /*  mViewHolder.progressView15.setType(GeometricProgressView.TYPE.TRIANGLE);
+            mViewHolder.progressView15.setFigurePaddingInDp(1);
+            mViewHolder.progressView15.setNumberOfAngles(30);
+            mViewHolder.progressView15.setVisibility(View.VISIBLE);*/
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            super.onPostExecute(result);
+            if(result!=null) {
+                imageView.setImageBitmap(result);
+            }
+            //mViewHolder.progressView15.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+
+        }
+    }
+    public class ImageConverter {
+
+        public Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
+            Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+
+            final int color = 0xff424242;
+            final Paint paint = new Paint();
+            final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            final RectF rectF = new RectF(rect);
+            final float roundPx = pixels;
+
+            paint.setAntiAlias(true);
+            canvas.drawARGB(0, 0, 0, 0);
+            paint.setColor(color);
+            canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(bitmap, rect, rect, paint);
+
+            return output;
+        }
+    }
+
 }

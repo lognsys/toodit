@@ -7,11 +7,14 @@ package com.lognsys.toodit.util;
 public enum FragmentTag {
 
 
-    FRAGMENT_HOME("home"),  //calls constructor with value "home"
-    FRAGMENT_NOTIFICATION("notification"),  //calls constructor with value "notification"
-    FRAGMENT_SETTING("setting"),   //calls constructor with value "setting"
-    FRAGMENT_CART("cart") //calls constructor with value "cart"
-    ; // semicolon needed when fields / methods follow
+    FRAGMENT_HOME("Home"),  //calls constructor with value "home"
+    FRAGMENT_NOTIFICATION("Notification"),  //calls constructor with value "notification"
+    FRAGMENT_SETTING("Setting"),   //calls constructor with value "setting"
+    FRAGMENT_CART("Cart"),
+    FRAGMENT_CENTRAL_GRILL("FragmentCentralGrill"),
+    FRAGMENT_TEST("FragmentTest"),
+    //calls constructor with value "cart"
+    FRAGMENT_PAYMENT("Payment");// semicolon needed when fields / methods follow
 
 
     private final String fragmentTag;

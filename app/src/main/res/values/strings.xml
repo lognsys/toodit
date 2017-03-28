@@ -34,7 +34,7 @@
     <string name="menu_settings">Settings</string>
     <string name="text_notification">Text Notification</string>
     <string name="text_findmore">FIND MORE</string>
-    <string name="text_outlet_title">Most Popular Food Outlets Here</string>
+    <string name="text_outlet_title">MGF Mall, Gurgaon, NCR</string>
     <string name="text_edit_profile">EDIT PROFILE</string>
     <string name="text_logout">LOGOUT</string>
     <string name="text_name_placeholder">Priyank Doshi</string>
@@ -73,6 +73,45 @@
     <string name="text_country">Country *</string>
     <string name="text_state">State *</string>
     <string name="text_city">City *</string>
+
+    <!-- activity_payment layout Labels -->
+
+    <string name="to_toodoit_incorp_merchant">to toodoit incorp merchant</string>
+    <string name="total_amt_payable">Total Amount Payable</string>
+    <!--For print rupee symbol -->
+    <string name="Rs">\u20B9</string>
+    <!-- For print Rs text: -->
+    <string name="rs">\u20A8.</string>
+    <string name="choose_payment_method">Choose payment method</string>
+    <string name="debit_card">Debit Card</string>
+    <string name="credit_card">Credit Card</string>
+    <string name="net_banking">Net Banking</string>
+    <string name="cash">Cash</string>
+    <string name="my_fragment_title">Payment</string>
+    <string name="title_activity_base">BaseActivity</string>
+
+    <!--hint size-->
+    <string name="edittext_hint"><font size="10">Write your review here</font></string>
+
+   <string name="outlet_list_url">http://food.swatinfosystem.com/api/Outlet_list</string>
+
+    <!--cart fragments layout label-->
+    <string name="hint_customise_edittext"><font size="11">Remarks e.g. Less spicy, more onions</font></string>
+    <string name="done">Done</string>
+    <string-array name="quantity_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+
 
 
 </resources>

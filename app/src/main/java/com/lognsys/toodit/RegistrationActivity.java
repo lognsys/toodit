@@ -2,6 +2,7 @@ package com.lognsys.toodit;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -34,6 +35,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.R;
+import com.lognsys.toodit.fragment.ListMall;
 import com.lognsys.toodit.model.CityName;
 import com.lognsys.toodit.model.CountryName;
 import com.lognsys.toodit.model.StateName;
@@ -57,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 
+import static android.content.ContentValues.TAG;
 import static com.lognsys.toodit.util.Constants.API_RESPONSE_ATTRIBUTES.status;
 
 /**
@@ -64,17 +67,11 @@ import static com.lognsys.toodit.util.Constants.API_RESPONSE_ATTRIBUTES.status;
  */
 
 public class RegistrationActivity extends AppCompatActivity {
-    private EditText etName, etEmail, etMobile;
-    private String name, email, mobile, password;
-    private Button btnNext;
-    private MaterialSpinner spnCountry, spnState, spnCity;
-    ArrayList<CountryName> countryList;
-    ArrayList<StateName> stateList;
-    ArrayList<CityName> cityList;
+    private EditText etName, etEmail, etMobile, etPassword, etConfirmPasword;
+    private Button btnRegister;
     Map<String, String> hashmap = new HashMap<String, String>();
-    String state_id, country_id, city_id;
     SharedPreferences sharedpreferences;
-    ArrayAdapter<CountryName> dataAdapter;
+    String customer_id, mobile, email, otp;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -89,23 +86,16 @@ public class RegistrationActivity extends AppCompatActivity {
         etName = (EditText) findViewById(R.id.etName);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etMobile = (EditText) findViewById(R.id.etMobileNo);
-       // etUsername=(EditText)findViewById(R.id.etUsername);
-        //etPassword = (EditText) findViewById(R.id.etPassword);
-        //etConfirmPasword = (EditText) findViewById(R.id.etconfirmPassword);
-        btnNext = (Button) findViewById(R.id.btnNext);
-        spnCountry = (MaterialSpinner) findViewById(R.id.spnCountry);
-        spnState = (MaterialSpinner) findViewById(R.id.spnState);
-        spnCity = (MaterialSpinner) findViewById(R.id.spnCity);
+        etPassword = (EditText) findViewById(R.id.etPassword);
+        etConfirmPasword = (EditText) findViewById(R.id.etconfirmPassword);
+        btnRegister = (Button) findViewById(R.id.btnRegister);
 
-        countryList = new ArrayList<CountryName>();
-
-        //countryList.add(new CountryName("","Select country...","","",""));
-        CountryName countryName= new CountryName();
 
 
         /*hashmap.put("country_id", "IND");
         hashmap.put("name", "India");
 
+        hashmap.put("name", "John");
         hashmap.put("name", "John");
         hashmap.put("username", "john");
         hashmap.put("password", "john123");
@@ -119,137 +109,8 @@ public class RegistrationActivity extends AppCompatActivity {
 
         registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashmap);*/
 
-        //create ObjectMapper instance
-        //ObjectMapper objectMapper = new ObjectMapper();
-        String response = getCountry("http://food.swatinfosystem.com/api/Country", hashmap);
 
-        //convert json string to object
-        JSONArray countryArray = null;
-        dataAdapter = new ArrayAdapter<CountryName>(this,R.layout.spinner_item, countryList);
-        dataAdapter.notifyDataSetChanged();
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnCountry.setAdapter(dataAdapter);
-
-        /*try {
-            if (spnCountry.getAdapter().getCount() < 2) {
-                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-                scheduler.scheduleAtFixedRate(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-                        // Hit WebService
-
-
-                    }
-                }, 0, 3, TimeUnit.SECONDS);
-
-            }
-        }
-        catch (IllegalStateException ise)
-        {
-            ise.printStackTrace();
-        }*/
-        //dataAdapter.notifyDataSetChanged();
-        spnCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                try{
-                    country_id = (((CountryName) spnCountry.getItemAtPosition(position))).getCountry_id();
-                }
-                catch (ClassCastException cce)
-                {
-                    cce.printStackTrace();
-                }
-
-
-               // Log.e("country_id", country_id);
-               // Toast.makeText(RegistrationActivity.this,country_id,Toast.LENGTH_LONG).show();
-//food.swatinfosystem.com/api/State
-                Map<String, String> hashMap1= new HashMap<String, String>();
-                hashMap1.put("country_id", country_id);
-
-                registerState("http://food.swatinfosystem.com/api/State", hashMap1);
-                ArrayAdapter<StateName> dataAdapter = new ArrayAdapter<StateName>(RegistrationActivity.this, R.layout.spinner_item, stateList);
-                dataAdapter.notifyDataSetChanged();
-                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spnState.setAdapter(dataAdapter);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-                // sometimes you need nothing here
-            }
-        });
-
-
-      spnState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-
-                    try {
-                        state_id = (((StateName) spnState.getItemAtPosition(position)).getStateId());
-                    } catch (ClassCastException cce) {
-                        cce.printStackTrace();
-                    }
-
-
-                    // Log.e("state_id", state_id);
-                    //  Toast.makeText(RegistrationActivity.this,state_id,Toast.LENGTH_LONG).show();
-//food.swatinfosystem.com/api/State
-                    Map<String, String> hashMapCity = new HashMap<String, String>();
-                    hashMapCity.put("state_id", state_id);
-
-                    registerCity("http://food.swatinfosystem.com/api/City", hashMapCity);
-                    ArrayAdapter<CityName> dataAdapter = new ArrayAdapter<CityName>(RegistrationActivity.this, R.layout.spinner_item, cityList);
-                    dataAdapter.notifyDataSetChanged();
-                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spnCity.setAdapter(dataAdapter);
-                }
-
-
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-                // sometimes you need nothing here
-            }
-        });
-
-        spnCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-
-                    try {
-                        city_id = (((CityName) spnCity.getSelectedItem()).getCityId());
-                    } catch (ClassCastException cce) {
-                        cce.printStackTrace();
-                    }
-
-
-                    // Toast.makeText(RegistrationActivity.this,city_id,Toast.LENGTH_LONG).show();
-
-
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-                // sometimes you need nothing here
-            }
-
-        });
-
-
-
-
-        btnNext.setOnClickListener(new View.OnClickListener() {
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -293,127 +154,69 @@ public class RegistrationActivity extends AppCompatActivity {
                                 // other stuffs
                             }
                         });*/
-                    }
-                       else if (!Services.isEmailValid(etEmail.getText().toString())) {
+                    } else if (!Services.isEmailValid(etEmail.getText().toString())) {
 
-                            Log.v("TAG" + "#Email", Services.isEmailValid(etEmail.getText().toString()) + "");
+                        Log.v("TAG" + "#Email", Services.isEmailValid(etEmail.getText().toString()) + "");
 
-                            Log.v("TAG" + "#Mobile", Services.isValidMobileNo(etEmail.getText().toString()) + "");
-                            DialogFragment dialog = new NetworkStatusDialog();
-                            Bundle args = new Bundle();
-                            args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
-                            args.putString(NetworkStatusDialog.ARG_MSG, "Please enter valid email");
-                            dialog.setArguments(args);
-                            dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
-                            dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
-                            Log.e("TAG", "Username Invalid!");
-
-
-                        }
+                        Log.v("TAG" + "#Mobile", Services.isValidMobileNo(etEmail.getText().toString()) + "");
+                        DialogFragment dialog = new NetworkStatusDialog();
+                        Bundle args = new Bundle();
+                        args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                        args.putString(NetworkStatusDialog.ARG_MSG, "Please enter valid email");
+                        dialog.setArguments(args);
+                        dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                        dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                        Log.e("TAG", "Username Invalid!");
 
 
-                    else if (etMobile.getText().toString().length() == 0) {
+                    } else if (etMobile.getText().toString().length() == 0) {
                         etMobile.setError("Mobile number is Required");
                         etMobile.requestFocus();
-                    }
-                       else if(!Services.isValidMobileNo(etMobile.getText().toString())) {
+                    } else if (!Services.isValidMobileNo(etMobile.getText().toString())) {
 
-                            Log.v("TAG" + "#Email", Services.isValidMobileNo(etMobile.getText().toString()) + "");
+                        Log.v("TAG" + "#Email", Services.isValidMobileNo(etMobile.getText().toString()) + "");
 
-                            Log.v("TAG" + "#Mobile", Services.isValidMobileNo(etMobile.getText().toString()) + "");
-                            DialogFragment dialog = new NetworkStatusDialog();
-                            Bundle args = new Bundle();
-                            args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
-                            args.putString(NetworkStatusDialog.ARG_MSG, "Please enter valid mobile no");
-                            dialog.setArguments(args);
-                            dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
-                            dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
-                            Log.e("TAG", "Username Invalid!");
+                        Log.v("TAG" + "#Mobile", Services.isValidMobileNo(etMobile.getText().toString()) + "");
+                        DialogFragment dialog = new NetworkStatusDialog();
+                        Bundle args = new Bundle();
+                        args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                        args.putString(NetworkStatusDialog.ARG_MSG, "Please enter valid mobile no");
+                        dialog.setArguments(args);
+                        dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                        dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                        Log.e("TAG", "Username Invalid!");
 
 
-                        }
-
-                    else if (spnCountry.getSelectedItemPosition() == 0) {
-                        Toast.makeText(RegistrationActivity.this,"Selection of Country is mandatory", Toast.LENGTH_LONG).show();
-                    }
-                    else if (spnState.getSelectedItemPosition() == 0) {
-                        Toast.makeText(RegistrationActivity.this,"Selection of state is mandatory", Toast.LENGTH_LONG).show();
-                    }
-                    else if (spnCity.getSelectedItemPosition() == 0) {
-                        Toast.makeText(RegistrationActivity.this,"Selection of City is mandatory", Toast.LENGTH_LONG).show();
-                    }
-                  /*  else if (etUsername.getText().toString().length() == 0) {
-                        etUsername.setError("Please entere username");
-                        etUsername.requestFocus();
-                    }
-                    else if (etPassword.getText().toString().length() == 0) {
+                    } else if (etPassword.getText().toString().length() == 0) {
                         etPassword.setError("Password not entered");
                         etPassword.requestFocus();
                     } else if (etConfirmPasword.getText().toString().length() == 0) {
                         etConfirmPasword.setError("Please confirm password");
                         etConfirmPasword.requestFocus();
-                    }
-                    else if (!etPassword.getText().toString().equals(etConfirmPasword.getText().toString()) ){
+                    } else if (!etPassword.getText().toString().equals(etConfirmPasword.getText().toString())) {
                         etConfirmPasword.setError("Password entered did not match");
                         etConfirmPasword.requestFocus();
-                    }*/
-
-                    else {
+                    } else {
                         String manufacturer = Build.MANUFACTURER; //this one will work for you.
                         String product = Build.PRODUCT;
                         String model = Build.MODEL;
-                        String s="Manufacturer:"+manufacturer+",Product:"+product+" ,"+"model: "+model;
-                       // Toast.makeText(getApplicationContext(), "valid email address", Toast.LENGTH_SHORT).show();
-                        HashMap<String , String> hashMapRegister=new HashMap<String, String>();
+                        String s = "Manufacturer:" + manufacturer + ",Product:" + product + " ," + "model: " + model;
+                        // Toast.makeText(getApplicationContext(), "valid email address", Toast.LENGTH_SHORT).show();
+                        HashMap<String, String> hashMapRegister = new HashMap<String, String>();
                         hashMapRegister.put("name", etName.getText().toString().trim());
-                        hashMapRegister.put("username", etEmail.getText().toString().trim());
-                        //hashMapRegister.put("password", etPassword.getText().toString().trim());
-                        hashMapRegister.put("city_id", city_id);
-                        hashMapRegister.put("state_id", state_id);
-                        hashMapRegister.put("country_id",country_id);
-                        hashMapRegister.put("username", etEmail.getText().toString().trim());
-                       hashMapRegister.put("mobile", etMobile.getText().toString().trim());
+                        hashMapRegister.put("password", etPassword.getText().toString().trim());
+                        hashMapRegister.put("mobile", etMobile.getText().toString().trim());
                         hashMapRegister.put("email", etEmail.getText().toString());
-                        hashMapRegister.put("device_token",Constants.Shared.DEVICE_TOKEN_ID.name());
-                        hashMapRegister.put("device_type","android tab");
+                        hashMapRegister.put("device_token", PreferenceManager.getDefaultSharedPreferences(RegistrationActivity.this).getString(Constants.Shared.DEVICE_TOKEN_ID.name(), null));
+                        hashMapRegister.put("device_type", "android tab");
 
-                        Intent i= new Intent(RegistrationActivity.this, RegistrationActivityPartTwo.class);
-                        i.putExtra("hashMapRegister", hashMapRegister);
-                        SharedPreferences sharedpreferences;
-                        //Initialize SharedPreferences
-                        sharedpreferences = PreferenceManager.getDefaultSharedPreferences(RegistrationActivity.this);
-                        //SharedPreferences Editor
-                        SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+                        String response = registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashMapRegister);
+
+                        //sharedPrefEditor.putString("device_type", s);
+                        //sharedPrefEditor.commit();
+                        //  startActivity(i);
 
 
-                        sharedPrefEditor.putString("device_type", s);
-                        sharedPrefEditor.putString("city_id",city_id);
-                        sharedPrefEditor.commit();
-                        startActivity(i);
-
-
-
-                       //String response=registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashMapRegister);
-
-
-
-
-                        /*try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            jsonObject.get("status");
-                            jsonObject.get("message");
-                            if(jsonObject.get("status").equals("failed"))
-                            {
-                                Toast.makeText(RegistrationActivity.this, jsonObject.get("message").toString(), Toast.LENGTH_LONG).show();
-                            }
-                            else
-                            {
-                                Toast.makeText(RegistrationActivity.this, jsonObject.get("message").toString(), Toast.LENGTH_LONG).show();
-                            }
-                        }
-                        catch (JSONException je) {
-                            je.printStackTrace();
-                        }*/
                     }
                 }
             }
@@ -421,61 +224,68 @@ public class RegistrationActivity extends AppCompatActivity {
 
     }
 
-    /*private static class ContactJsonDataHolder {
-        @JsonProperty("contacts")
-        public List<CountryName> mContactList;
-    }
-
-    public List<CountryName> getCountryFromJson(String json) throws JSONException, IOException {
-
-        ContactJsonDataHolder dataHolder = new ObjectMapper().readValue(json, ContactJsonDataHolder.class);
-
-        // ContactPojo contact = dataHolder.mContactList.get(0);
-        // String name = contact.getName();
-        // String phoneNro = contact.getPhone().getMobileNro();
-        try {
-            String get=dataHolder.mContactList.get(0).getName();
-           // Log.e("Check country ", get);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return dataHolder.mContactList;
-
-    }
-*/
-    private String getCountry(String URL, final Map<String, String> params) {
+    private String registerUser(String URL, final Map<String, String> params) {
         String response = "";
+        final ProgressDialog progressDialog = new ProgressDialog(RegistrationActivity.this);
+        ;
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
+                       // Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
-                        CountryName countryName;
                         try {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                JSONArray countryArray = jsonObject.getJSONObject("data").getJSONArray("country_list");
-                                //Log.e("check", countryArray.toString);
+                            JSONObject jsonObject = new JSONObject(response);
 
-                                for (int i = 0; i < countryArray.length(); i++) {
-                                    JSONObject obj = countryArray.getJSONObject(i);
-                                    countryName = new CountryName(obj.getString("country_id"), obj.getString("name"), obj.getString("sortname"), obj.getString("phonecode"), obj.getString("is_delete"));
+                            if (!(jsonObject.getString("message").equals("Customer added successfully")||jsonObject.getString("message").equals( "Customer registration successfully otp send to your email id and mobile"))) {
+                                DialogFragment dialog = new NetworkStatusDialog();
+                                Bundle args = new Bundle();
+                                args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                                args.putString(NetworkStatusDialog.ARG_MSG, jsonObject.getString("message"));
+                                dialog.setArguments(args);
+                                dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                                dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                                Log.e(TAG, "Username Invalid!");
+                            } else {
+                                DialogFragment dialog = new NetworkStatusDialog();
+                                Bundle args = new Bundle();
+                                args.putString(NetworkStatusDialog.ARG_TITLE, "Registration successfull");
+                                args.putString(NetworkStatusDialog.ARG_MSG, jsonObject.getString("message"));
+                                dialog.setArguments(args);
+                                dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                                dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                                Log.e(TAG, "Username Invalid!");
+                                try {
 
-                                    countryList.add(countryName);
+                                    customer_id = jsonObject.getJSONObject("data").getString("customer_id");
+                                    mobile = jsonObject.getJSONObject("data").getString("mobile");
+                                    email = jsonObject.getJSONObject("data").getString("email");
+                                    otp = jsonObject.getJSONObject("data").getString("otp");
+                                    Log.e("otp", otp);
+                                    Intent i = new Intent(RegistrationActivity.this, ActivityOTPValidation.class);
+                                    i.putExtra("customer_id", customer_id);
+                                    i.putExtra("mobile", mobile);
+                                    i.putExtra("email", email);
+                                    i.putExtra("otp", otp);
 
+                                    startActivity(i);
+                                    finish();
+                                    // Log.e("mallname", mall);
+                                    // Toast.makeText(getActivity(), mall, Toast.LENGTH_LONG).show();
+
+
+                                } catch (JSONException je) {
+                                    je.printStackTrace();
+                                    Log.e("error", je.getMessage());
                                 }
-                               //
-                                // Log.e("check", countryList.get(4).getName());
-                                //getCountryFromJson(countryArray.toString());
-                            } catch (JSONException je) {
-                                je.printStackTrace();
-                            }
 
-                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+
+                            }
+                        } catch (JSONException je) {
+                            je.printStackTrace();
+                            Log.e("error", je.getMessage());
                         }
+                        progressDialog.dismiss();
 
                     }
                 },
@@ -483,7 +293,15 @@ public class RegistrationActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                        // Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
-                        Toast.makeText(RegistrationActivity.this, "Internet not available !", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        DialogFragment dialog = new NetworkStatusDialog();
+                        Bundle args = new Bundle();
+                        args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
+                        args.putString(NetworkStatusDialog.ARG_MSG, "Internet connectivity issue");
+                        dialog.setArguments(args);
+                        dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
+                        dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                        Log.e(TAG, "Username Invalid!");
                     }
                 }) {
             @Override
@@ -494,142 +312,12 @@ public class RegistrationActivity extends AppCompatActivity {
 
         };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        RequestQueue requestQueue = Volley.newRequestQueue(RegistrationActivity.this);
         requestQueue.add(stringRequest);
-        return response;
-    }
+        //initialize the progress dialog and show it
 
-    private String registerState(String URL, final Map<String, String> params) {
-        String response = "";
-        stateList = new ArrayList<StateName>();
-       // stateList.add(new StateName("","Select state...",""));
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
-                        response = response;
-                        StateName stateName;
-                        try {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                JSONArray countryArray = jsonObject.getJSONObject("data").getJSONArray("state_list");
-                                //Log.e("check", countryArray.toString());
-                                for (int i = 0; i < countryArray.length(); i++) {
-                                    JSONObject obj = countryArray.getJSONObject(i);
-                                    stateName = new StateName(obj.getString("state_id"), obj.getString("name"), obj.getString("country_id"));
-
-                                    stateList.add(stateName);
-
-                                }
-
-                                //getCountryFromJson(countryArray.toString());
-                            } catch (JSONException je) {
-                                je.printStackTrace();
-                            }
-
-                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        try {
-                            JSONObject jsonError= new JSONObject(error.toString());
-                           if(error.getMessage().equals("Please provide country id"))  {
-                               Toast.makeText(RegistrationActivity.this, "Please wait to populate spinner", Toast.LENGTH_LONG).show();
-                           }
-                            else
-                           {
-                              // Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
-                           }
-                        }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() {
-
-                return params;
-            }
-
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
-        return response;
-    }
-
-    private String registerCity(String URL, final Map<String, String> params) {
-        String response = "";
-        cityList = new ArrayList<CityName>();
-        //cityList.add(new CityName("","Select city...",""));
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                       //Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
-                        response = response;
-                        CityName cityName;
-                        try {
-                            try {
-                                JSONArray countryArray;
-                                JSONObject jsonObject = new JSONObject(response);
-                                if(jsonObject.getJSONObject("data").getJSONArray("city_list")!=null){
-                                    countryArray = jsonObject.getJSONObject("data").getJSONArray("city_list");
-                                    for (int i = 0; i < countryArray.length(); i++) {
-                                        JSONObject obj = countryArray.getJSONObject(i);
-                                        cityName = new CityName(obj.getString("city_id"), obj.getString("name"), obj.getString("state_id"));
-
-                                        cityList.add(cityName);
-
-                                    }
-                                }
-
-
-
-
-
-
-                                //Log.e("check", countryArray.toString());
-
-
-                                //getCountryFromJson(countryArray.toString());
-                            } catch (JSONException je) {
-                                je.printStackTrace();
-                            }
-
-                            //CountryName emp = objectMapper.readValue(response, CountryName.class);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //Toast.makeText(RegistrationActivity.this, error.toString(), Toast.LENGTH_LONG).show();
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() {
-
-                return params;
-            }
-
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
+        progressDialog.setMessage("Registering please wait....");
+        progressDialog.show();
         return response;
     }
 

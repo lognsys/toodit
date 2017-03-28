@@ -1,18 +1,29 @@
 package com.lognsys.toodit.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.service.carrier.CarrierService;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -25,11 +36,16 @@ import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
 import com.lognsys.toodit.RegistrationActivity;
+import com.lognsys.toodit.fragment.ListData;
+import com.lognsys.toodit.fragment.ListMallOutlets;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,18 +53,36 @@ import java.util.Map;
  */
 
 public class CallAPI {
+    ArrayList<ListMallOutlets> listOfMallOutlets = new ArrayList<>();
 
     private final String TAG = this.getClass().getName();
     private static final String ARG_TITLE = "title";
     private static final String ARG_MSG = "message";
     private static final String ARG_INTENT = "intent";
-
+    ImageView map_indicator;
+    ProgressDialog progressDialog;
     public static String response = "";
 
     public CallAPI() {
 
     }
 
+    public void showProgressbar(AppCompatActivity activity) {
+        progressDialog = new ProgressDialog(activity,R.style.Theme_MyDialog);
+        progressDialog.setMessage("Please Wait for a while....");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
+    }
+
+    public void hideProgressbar(AppCompatActivity activity) {
+
+        if (progressDialog !=null && progressDialog.isShowing()) {
+          Log.d(TAG,"progress dialog hide  is showing "+progressDialog.isShowing());
+            progressDialog.dismiss();
+        }
+
+    }
 
     /*
      * @param - input parameters
@@ -90,10 +124,11 @@ public class CallAPI {
                                 //Initialize SharedPreferences
                                 sharedpreferences = PreferenceManager.getDefaultSharedPreferences(activity);
                                 SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
-                                sharedPrefEditor.putString("city_id","2707");
-                                sharedPrefEditor.putString("name",jsonObj.getJSONObject("data").getString("name"));
-                                sharedPrefEditor.putString("mobile",jsonObj.getJSONObject("data").getString("mobile"));
-                                sharedPrefEditor.putString("email",jsonObj.getJSONObject("data").getString("email"));
+                                sharedPrefEditor.putString("city_id", "2707");
+                                sharedPrefEditor.putString("customer_id", jsonObj.getJSONObject("data").getString("customer_id"));
+                                sharedPrefEditor.putString("name", jsonObj.getJSONObject("data").getString("name"));
+                                sharedPrefEditor.putString("mobile", jsonObj.getJSONObject("data").getString("mobile"));
+                                sharedPrefEditor.putString("email", jsonObj.getJSONObject("data").getString("email"));
                                 sharedPrefEditor.commit();
                                 activity.startActivity(i);
                                 activity.finish();
@@ -136,7 +171,7 @@ public class CallAPI {
                         dialog.setArguments(args);
                         dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                         dialog.show(activity.getSupportFragmentManager(), "NetworkDialogFragment");
-                      //  Log.e(TAG + "#customerLoginURL", error.getMessage());
+                        //  Log.e(TAG + "#customerLoginURL", error.getMessage());
                     }
                 }
         ) {
@@ -144,7 +179,7 @@ public class CallAPI {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.username.name(), username);
+                params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.email_or_mobile.name(), username);
                 params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.password.name(), password);
                 params.put(Constants.API_CUSTOMER_LOGIN_ULR_PARAMS.device_token.name(), device_token);
 
@@ -157,4 +192,85 @@ public class CallAPI {
         return response;
     }
 
+    public void updateToolbarText(String text, final AppCompatActivity appCompatActivity) {
+        {
+            final ViewGroup actionBarLayout = (ViewGroup) appCompatActivity.getLayoutInflater().inflate(
+                    R.layout.activity_actionbar,
+                    null);
+//            Log.d("PaymentFragment","Rest updateToolbarText = "+text+" appCompatActivity ="+appCompatActivity);
+
+            // Set up your ActionBar
+            ActionBar actionBar = appCompatActivity.getSupportActionBar();
+            actionBar.setDisplayShowHomeEnabled(false);
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setCustomView(actionBarLayout);
+
+            // You customization
+            final int actionBarColor = appCompatActivity.getResources().getColor(R.color.black);
+            actionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
+            ImageView action_bar_logo = (ImageView) appCompatActivity.findViewById(R.id.action_bar_logo);
+
+            ImageView action_bar_back_button = (ImageView) appCompatActivity.findViewById(R.id.action_bar_back_button);
+            map_indicator = (ImageView) appCompatActivity.findViewById(R.id.action_map);
+            TextView action_bar_text = (TextView) appCompatActivity.findViewById(R.id.action_bar_text);
+            if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_CART.getFragmentTag().toString())) {
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_HOME.getFragmentTag().toString())) {
+                //action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.VISIBLE);
+                action_bar_text.setVisibility(View.GONE);
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_PAYMENT.getFragmentTag().toString())) {
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_NOTIFICATION.getFragmentTag().toString())) {
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            } else if (text.equalsIgnoreCase(FragmentTag.FRAGMENT_SETTING.getFragmentTag().toString())) {
+                action_bar_text.setText(text);
+                action_bar_logo.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            } else {
+                action_bar_logo.setVisibility(View.VISIBLE);
+                action_bar_text.setVisibility(View.GONE);
+                map_indicator.setVisibility(View.GONE);
+            }
+            action_bar_back_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    FragmentManager fragmentManager=appCompatActivity.getSupportFragmentManager();
+                    fragmentManager.popBackStack();
+
+                    //Fragment fragment= fragmentManager.getFragment(null,FragmentTag.FRAGMENT_CART.getFragmentTag());
+/*
+                    List<Fragment> fragments = fragmentManager.getFragments();
+
+                    for(Fragment fr : fragments) {
+                        FragmentTag fr = FragmentTag.values()[fr.getFragmentTag().];
+                        switch () {
+                            case FragmentTag.FRAGMENT_CART:
+                                appCompatActivity.getSupportFragmentManager().beginTransaction().remove(fragment);
+                                break;
+
+                        }
+                    }*/
+
+                }
+            });
+        }
+    }
 }
+
+
+
+
+
+
+
+
+

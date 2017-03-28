@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_payment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.lognsys.toodit.fragment.PaymentFragment">
+
+    <LinearLayout
+        android:id="@+id/linearTotalAmountContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/black"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:padding="1dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="1dp">
+            <ImageView
+                android:id="@+id/action_bar_back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:layout_alignParentLeft="true"
+                android:src="@drawable/home_arrow" />
+            <ImageView
+                android:id="@+id/action_bar_logo"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/toodit_logo" />
+            <TextView
+                android:id="@+id/action_bar_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_state"
+                android:textColor="@color/white"
+                android:gravity="center"
+
+                android:layout_centerInParent="true"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+<!--
+            <Space
+                android:layout_width="15dp"
+                android:layout_height="20dp" />-->
+
+            <ImageView
+                android:id="@+id/action_map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="5dip"
+                android:layout_toEndOf="@+id/action_bar_logo"
+                android:layout_toRightOf="@+id/action_bar_logo"
+                android:background="@drawable/location"
+                android:visibility="visible" />
+
+
+
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>
