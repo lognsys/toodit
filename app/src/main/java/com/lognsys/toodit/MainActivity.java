@@ -76,6 +76,7 @@ import com.lognsys.toodit.fragment.SettingFragment;
 import com.lognsys.toodit.model.CityName;
 import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.FragmentTag;
+import com.lognsys.toodit.util.LognSystemLocationService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,11 +117,12 @@ public class MainActivity extends AppCompatActivity implements
     MenuItem selectedItem = null;
     GoogleApiClient mGoogleApiClient;
     Bundle bundle;
-
+    LognSystemLocationService lognSystemLocationService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        lognSystemLocationService=new LognSystemLocationService(MainActivity.this);
 
         // First we need to check availability of play services
 
@@ -137,16 +139,32 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
             }
         });
+        if(TooditApplication.getInstance().getPrefs().getIsLogin()==true){
 
+            if (savedInstanceState != null) {
+                mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM);
+                selectedItem = mBottomNav.getMenu().findItem(mSelectedItem);
+            } else {
+                selectedItem = mBottomNav.getMenu().getItem(0);
+            }
+            selectFragment(selectedItem);
 
+        }
+        else{
+            finish();
+        }
+
+/*
         if (savedInstanceState != null) {
             initLocationService(selectedItem,savedInstanceState);
         } else {
             initLocationService(selectedItem,savedInstanceState);
-        }
+        }*/
 
 
     }
+
+
 
     private void initLocationService( MenuItem selectedItem, Bundle savedInstanceState) {
 
@@ -161,13 +179,13 @@ public class MainActivity extends AppCompatActivity implements
 
                 setNetworkStatus();
 
-                if (savedInstanceState != null) {
+             /*   if (savedInstanceState != null) {
                     mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM);
                     selectedItem = mBottomNav.getMenu().findItem(mSelectedItem);
                 } else {
                     selectedItem = mBottomNav.getMenu().getItem(0);
                 }
-                selectFragment(selectedItem);
+                selectFragment(selectedItem);*/
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -255,14 +273,15 @@ public class MainActivity extends AppCompatActivity implements
             }
             String city =returnedAddress.getLocality().toString();
             TooditApplication.getInstance().getPrefs().setCity(city);
+           Log.d("","status city"+city);
             if(TooditApplication.getInstance().getPrefs().getCity()!=null){
-                if (savedInstanceState != null) {
+              /*  if (savedInstanceState != null) {
                     mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM);
                     selectedItem = mBottomNav.getMenu().findItem(mSelectedItem);
                 } else {
                     selectedItem = mBottomNav.getMenu().getItem(0);
                 }
-                selectFragment(selectedItem);
+                selectFragment(selectedItem);*/
             }
          /*   //Get address from Google api
             try {
@@ -387,8 +406,7 @@ public class MainActivity extends AppCompatActivity implements
                 showSettingsAlert(true);
                 return "IN_CORRECT_SETTINGS";
             }
-
-        }
+       }
         else {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -405,6 +423,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void showSettingsAlert(boolean isKitkat) {
+        Log.d("","status Check isKitkat "+isKitkat);
 
         android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(MainActivity.this);
         // Setting Dialog Title
@@ -414,9 +433,15 @@ public class MainActivity extends AppCompatActivity implements
             alertDialog.setMessage("High Accuracy mode is not enabled. Do you want to go to Location settings menu?");
 
         } else {
-            alertDialog.setTitle("GPS settings");
-            // Sendtting Dialog Message
-            alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+            final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+                Log.d("","status Check gps "+manager.isProviderEnabled( LocationManager.GPS_PROVIDER ));
+            if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+                // Call your Alert message
+                alertDialog.setTitle("GPS settings");
+                // Sendtting Dialog Message
+                alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+            }
+
         }
 
         // On pressing Settings button

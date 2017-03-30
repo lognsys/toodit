@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,11 +38,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.lognsys.toodit.LoginActivity;
 import com.lognsys.toodit.MainActivity;
 import com.lognsys.toodit.R;
@@ -135,10 +141,18 @@ public class SettingFragment extends Fragment {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //firebase variable declaration
-                                FirebaseAuth mAuth;
-                                mAuth = FirebaseAuth.getInstance();
-                                // Firebase sign out
-                                mAuth.signOut();
+                             if(TooditApplication.getInstance().getPrefs().getIsFacebookLogin()){
+                                 FirebaseAuth.getInstance().signOut();
+                                 LoginManager.getInstance().logOut();
+                             }
+                             if(TooditApplication.getInstance().getPrefs().getIsGoogleLogin()){
+                                 Log.d("","Rest logging out getIsGoogleLogin "+ Auth.GoogleSignInApi.signOut(mGoogleApiClient));
+                              Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                                 mGoogleApiClient.disconnect();
+                                 mGoogleApiClient=null;
+                             }
+                                TooditApplication.getInstance().getPrefs().setIsGoogleLogin(false);
+                                TooditApplication.getInstance().getPrefs().setIsFacebookLogin(false);
                                 TooditApplication.getInstance().getPrefs().setIsLogin(false);
                                 TooditApplication.getInstance().getPrefs().setCustomer_id(null);
                                 TooditApplication.getInstance().getPrefs().setName(null);
@@ -146,13 +160,26 @@ public class SettingFragment extends Fragment {
                                 TooditApplication.getInstance().getPrefs().setEmail(null);
                                 TooditApplication.getInstance().getPrefs().setCity(null);
                                 TooditApplication.getInstance().getPrefs().setImage(null);
+                                TooditApplication.getInstance().getPrefs().setTimezone(null);
+                                TooditApplication.getInstance().getPrefs().setPicture(null);
+                                TooditApplication.getInstance().getPrefs().setLink(null);
+                                TooditApplication.getInstance().getPrefs().setLast_Name(null);
+                                TooditApplication.getInstance().getPrefs().setGoogServerAuthcode(null);
+                                TooditApplication.getInstance().getPrefs().setGoogTokenId(null);
+                                TooditApplication.getInstance().getPrefs().setIsSimilarEmailID(false);
+
+                                Log.d("","Rest logging out getcontext"+getContext());
+                                Intent intent = new Intent(getContext(), LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                getContext().startActivity(intent);
+
 
 //                                SharedPreferences settings = getActivity().getSharedPreferences(Constants.Shared.TOODIT_SHARED_PREF.name(), Context.MODE_PRIVATE);
 //                                settings.edit().clear().commit();
-                                Intent i = new Intent(getActivity(), LoginActivity.class);
-                                getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(i);
+                              /*  Intent i = new Intent(getActivity(), LoginActivity.class);
+//                                getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(i);*/
 
 
                             }
@@ -169,6 +196,27 @@ public class SettingFragment extends Fragment {
         return view;
     }
 
+    private void logoutFaceBook() {
+        FirebaseAuth.getInstance().signOut();
+//      Firebase sign out
+        LoginManager.getInstance().logOut();
+    }
+
+    private void logoutGoogle() {
+
+    }
+
+    @Override
+    public void onStart() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

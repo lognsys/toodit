@@ -26,7 +26,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:textColorHint="@color/white"
+        android:textColorHint="#ffffff"
         app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout"
         app:errorEnabled="true">
 

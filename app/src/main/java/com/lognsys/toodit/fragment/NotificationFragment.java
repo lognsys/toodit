@@ -201,6 +201,7 @@ public class NotificationFragment extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             MyViewHolder mViewHolder;
+            final ListDataNotification currentListData = getItem(position);
 
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_raw_notification, parent, false);
@@ -209,27 +210,64 @@ public class NotificationFragment extends Fragment {
             } else {
                 mViewHolder = (MyViewHolder) convertView.getTag();
             }
+            Log.d("check","Notification getview currentListData.isReaded() "+(currentListData.isReaded()));
 
-            ListDataNotification currentListData = getItem(position);
-
-           mViewHolder.tvNotification.setText(Html.fromHtml(currentListData.getNotification()));
+            if(currentListData.isReaded()==false){
+                adjustBarViewVisibility(mViewHolder.viewNotificationbar, myList.contains(position));
+            }
+            else{
+                adjustBarViewVisibility(mViewHolder.viewNotificationbar, currentListData.isReaded());
+            }
+            mViewHolder.position=position;
+            mViewHolder.tvNotification.setText(Html.fromHtml(currentListData.getNotification()));
             Log.e("check",currentListData.getNotification());
             mViewHolder.tvNotificationDate.setText(Html.fromHtml(currentListData.getNotificationdate()));
             mViewHolder.ivNotifyImage.setImageResource(currentListData.getImage());
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MyViewHolder holder= (MyViewHolder) v.getTag();
+                    Log.d("check","Notification onclick  myList.contains(holder.position) "+(myList.contains(holder.position)));
+                    if(myList.contains(holder.position)){
+                        currentListData.setIsReaded(true);
+                        Log.d("check","Notification onclick  currentListData.isReaded()) "+(currentListData.isReaded()));
 
+                        adjustBarViewVisibility(holder.viewNotificationbar, currentListData.isReaded());
+                        myList.add(currentListData);
+                        myBaseAdapter.notifyDataSetChanged();
+                    }else {
+//                        adjustBarViewVisibility(holder.viewNotificationbar, true);
+                        currentListData.setIsReaded(true);
+                        Log.d("check","Notification onclick  currentListData.isReaded()) "+(currentListData.isReaded()));
+
+                        adjustBarViewVisibility(holder.viewNotificationbar, currentListData.isReaded());
+                        myList.add(currentListData);
+                        myBaseAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
             return convertView;
+        }
+
+        private void adjustBarViewVisibility(View viewNotificationbar, boolean visible) {
+            Log.d("check","Notification  visible"+visible);
+            if (visible)
+                viewNotificationbar.setVisibility(View.GONE);
+            else
+                viewNotificationbar.setVisibility(View.VISIBLE);
         }
 
         private class MyViewHolder {
             TextView tvNotification, tvNotificationDate;
             ImageView ivNotifyImage;
-
+            View viewNotificationbar;
+            int position;
 
             public MyViewHolder(View item) {
                 tvNotification = (TextView) item.findViewById(R.id.tvNotification);
                 tvNotificationDate = (TextView) item.findViewById(R.id.tvNotificationDate);
                 ivNotifyImage=(ImageView)item.findViewById(R.id.ivNotifyImage);
-
+                viewNotificationbar=(View)item.findViewById(R.id.viewNotificationbar);
             }
         }
 

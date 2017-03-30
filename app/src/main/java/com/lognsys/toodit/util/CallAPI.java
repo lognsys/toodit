@@ -92,6 +92,7 @@ public class CallAPI {
                                        final AppCompatActivity activity) {
 
         //RequestQueue queue = Volley.newRequestQueue(activity);
+        Log.d(TAG,"Rest loging url" +url+"  username "+username+" password "+password+" device_token "+device_token);
 
         final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.tooditDialog);
         progressDialog.setCancelable(false);
@@ -110,7 +111,7 @@ public class CallAPI {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.v(TAG, response);
+                        Log.d(TAG,"Rest loging response" +response);
                         response = response;
                         progressDialog.hide();
                         try {
@@ -152,7 +153,7 @@ public class CallAPI {
 
 
                         } catch (JSONException je) {
-                            Log.e(TAG, "Error: Parsing#CustomerLoginResult Failed - " + je.getMessage());
+                            Log.e(TAG, "Rest Error: Parsing#CustomerLoginResult Failed - " + je.getMessage());
                         }
                     }
                 },

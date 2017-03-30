@@ -84,6 +84,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.plus.Plus;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -97,6 +100,7 @@ import com.lognsys.toodit.Dialog.NetworkStatusDialog;
 import com.lognsys.toodit.model.FBUser;
 import com.lognsys.toodit.util.CallAPI;
 import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.LognSystemLocationService;
 import com.lognsys.toodit.util.PropertyReader;
 import com.lognsys.toodit.util.Services;
 
@@ -150,7 +154,7 @@ public class LoginActivity extends AppCompatActivity implements
     private Properties properties;
     public static final String PROPERTIES_FILENAME = "toodit.properties";
 
-
+    LognSystemLocationService gps;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,28 +175,36 @@ public class LoginActivity extends AppCompatActivity implements
 
         //Add device token
         device_token_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.e("devicetoken", device_token_id);
-        sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), device_token_id);
+        Log.d("devicetoken","Rest device token "+ device_token_id);
+      /*  sharedPrefEditor.putString(Constants.Shared.DEVICE_TOKEN_ID.name(), device_token_id);
         sharedPrefEditor.commit();
+*/
+      TooditApplication.getInstance().getPrefs().setDevice_token(device_token_id);
 
         //Add device type
         String manufacturer = Build.MANUFACTURER; //this one will work for you.
         String product = Build.PRODUCT;
         String model = Build.MODEL;
         String s="Manufacturer:"+manufacturer+",Product:"+product+" ,"+"model: "+model;
-        sharedPrefEditor.putString("device_type", "android tab");
-        sharedPrefEditor.commit();
+//        sharedPrefEditor.putString("device_type", "android tab");
+//        sharedPrefEditor.commit();
+        TooditApplication.getInstance().getPrefs().setDevice_type("android tab");
+
+
         //Use Case 1:If cust_id in shared pref then goto MainActivity
 //        String cust_id = sharedpreferences.getString(Constants.Shared.CUSTOMER_ID.name(), null);
 
 //        Monika added
         String cust_id = TooditApplication.getInstance().getPrefs().getCustomer_id();
+        Log.d("devicetoken","Rest device cust_id "+ cust_id);
+        Log.d("devicetoken","Rest device islogin "+ TooditApplication.getInstance().getPrefs().getIsLogin());
         if (cust_id != null && TooditApplication.getInstance().getPrefs().getIsLogin()==true) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(i);
-            finish();
+//            finish();
         }
-
+//      Monika added here to get location
+        initLocation();
         /****************************** FACEBOOK AUTH *****************************************/
         //FB:1 Initialize callbackmanager factory object
         mCallbackManager = CallbackManager.Factory.create();
@@ -254,6 +266,8 @@ public class LoginActivity extends AppCompatActivity implements
                 .enableAutoManage(LoginActivity.this /* FragmentActivity */, this/* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
                 .build();
+        Log.d("devicetoken","Rest device mGoogleApiClient.isConnected() "+ mGoogleApiClient.isConnected());
+
 
         /******************************************************************************/
 
@@ -271,16 +285,25 @@ public class LoginActivity extends AppCompatActivity implements
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 Log.d(TAG, "onAuthStateChanged:signed_in:" +user);
-
+//              user=com.google.android.gms.internal.zzbnf@1f578fe
                 if (user != null) {
 
                     // User is signed in
+//                   user.getUid() : XQl3QB8ZPqUB8YPMIiMeMvXYjQo1
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+
+                    //                  Provider:firebase
                     Log.d(TAG, "onAuthStateChanged:Provider:" + user.getProviderId());
+
+                  /* Monika commented 0n 27/03/17
+                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(i);
+                    finish();*/
 
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(i);
-                    finish();
+//                    finish();
+
 
                 } else {
                     // User is signed out
@@ -336,8 +359,6 @@ public class LoginActivity extends AppCompatActivity implements
 
                     isValid = false;
                 }
-
-
               else  if ( !Services.isValidMobileNo(username) && !Services.isEmailValid(username)) {
                         Log.v(TAG + "#Email", Services.isEmailValid(username) + "");
 
@@ -361,6 +382,8 @@ public class LoginActivity extends AppCompatActivity implements
                         String response = callAPI.callCustomerLoginURL(properties.getProperty
                                         (Constants.API_URL.customer_login_url.name()), username, password,
                                 device_token_id, LoginActivity.this);
+
+
 
                     } else return;
                     return;
@@ -387,6 +410,26 @@ public class LoginActivity extends AppCompatActivity implements
         /*******************************************************************/
 
 
+    }
+
+    private void initLocation() {
+        gps = new LognSystemLocationService(LoginActivity.this);
+
+        Log.d("","Rest btnSignIn gps.canGetLocation() "+gps.canGetLocation());
+        if(gps.canGetLocation()){
+
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+            gps.getLocationAddressFromLatLong(latitude,longitude);
+            // \n is for new line
+//            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Your City is -  " + TooditApplication.getInstance().getPrefs().getCity(), Toast.LENGTH_LONG).show();
+        }else{
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings
+            gps.showSettingsAlert();
+        }
     }
 
 
@@ -426,15 +469,22 @@ public class LoginActivity extends AppCompatActivity implements
 
         // Pass the activity result back to the Facebook SDK
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
-
+            Log.d("","Rest onActivityResult requestCode "+requestCode+" RC_SIGN_IN"+RC_SIGN_IN);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            Log.d("","Rest onActivityResult result "+result+" data"+data);
+            Log.d("","Rest onActivityResult  result.isSuccess()"+result.isSuccess());
 
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
+                Log.d("","Rest onActivityResult  result.getSignInAccount()"+ result.getSignInAccount());
                 GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+                if(account!=null){
+                    Log.d("","Rest onActivityResult  account"+ account);
+                    firebaseAuthWithGoogle(account);
+
+                }
 
             } else {
 
@@ -460,57 +510,65 @@ public class LoginActivity extends AppCompatActivity implements
      * @param acct
      */
     private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        Log.d(TAG, "Rest firebaseAuthWithGoogle:" + acct.getId());
 
-        final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
+     //   final SharedPreferences.Editor sharedPrefEditor = sharedpreferences.edit();
 
         //Check if Goog with same email-id already present
-        String checkFacebookEmail = sharedpreferences.getString(Constants.FacebookFields.FB_EMAIL_ID.name(), "");
-        if ((!checkFacebookEmail.equals("")) && checkFacebookEmail.equals(acct.getEmail()))
-            sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
+//        String checkFacebookEmail = sharedpreferences.getString(Constants.FacebookFields.FB_EMAIL_ID.name(), "");
+        String checkFacebookEmail =TooditApplication.getInstance().getPrefs().getEmail();
+//        Log.d(TAG, "Rest firebaseAuthWithGoogle: checkFacebookEmail" + checkFacebookEmail);
+        Log.d(TAG, "Rest firebaseAuthWithGoogle: acct.getEmail()" + acct.getEmail());
 
+        if ((checkFacebookEmail!=null)&&(!checkFacebookEmail.equals("")) && checkFacebookEmail.equals(acct.getEmail())) {
+//            sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
+            TooditApplication.getInstance().getPrefs().setIsSimilarEmailID(true);
+            TooditApplication.getInstance().getPrefs().setIsGoogleLogin(true);
+
+        }
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithCredential:onComplete:Google:" + task.isSuccessful());
+                        Log.d(TAG, "Rest signInWithCredential:onComplete:Google:" + task.isSuccessful());
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
+                            Log.w(TAG, "Rest signInWithCredential", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
 
                         } else {
-                            Log.d(TAG, "Google Login Success...");
+                            Log.d(TAG, "Rest Google Login Success...");
                             String firebaseUID = mAuth.getCurrentUser().getUid();
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_UID.name(), firebaseUID);
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_UID.name(), firebaseUID);
                            TooditApplication.getInstance().getPrefs().setCustomer_id(firebaseUID);
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_DISPLAY_NAME.name(), acct.getDisplayName());
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_DISPLAY_NAME.name(), acct.getDisplayName());
                             TooditApplication.getInstance().getPrefs().setName(acct.getDisplayName());
 
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_EMAIL_ID.name(), acct.getEmail());
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_EMAIL_ID.name(), acct.getEmail());
                             TooditApplication.getInstance().getPrefs().setEmail(acct.getEmail());
 
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_GIVEN_NAME.name(), acct.getGivenName());
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_GIVEN_NAME.name(), acct.getGivenName());
                             TooditApplication.getInstance().getPrefs().setFirst_Name(acct.getGivenName());
 
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_PHOTO_URL.name(), acct.getPhotoUrl().toString());
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_PHOTO_URL.name(), acct.getPhotoUrl().toString());
                             TooditApplication.getInstance().getPrefs().setImage(acct.getPhotoUrl().toString());
 
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_TOKEN_ID.name(), acct.getIdToken());
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_TOKEN_ID.name(), acct.getIdToken());
+                            TooditApplication.getInstance().getPrefs().setGoogTokenId(acct.getIdToken());
 
-
-                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_SERVE_AUTHCODE.name(), acct.getServerAuthCode());
-
-
-                            sharedPrefEditor.commit();
+//                            sharedPrefEditor.putString(Constants.GoogleFields.GOOG_SERVE_AUTHCODE.name(), acct.getServerAuthCode());
+                            TooditApplication.getInstance().getPrefs().setGoogServerAuthcode(acct.getServerAuthCode());
+                            TooditApplication.getInstance().getPrefs().setIsGoogleLogin(true);
+                            TooditApplication.getInstance().getPrefs().setIsLogin(true);
+//                            sharedPrefEditor.commit();
 
                             //start activity MainActivity.class
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
+//                            finish();
                         }
 
                     }
@@ -532,6 +590,7 @@ public class LoginActivity extends AppCompatActivity implements
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         Log.d(TAG, "handleFacebookAccessToken: credential " + credential);
+        Log.d(TAG, "handleFacebookAccessToken:  mAuth.signInWithCredential(credential) " +  mAuth.signInWithCredential(credential));
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -557,11 +616,14 @@ public class LoginActivity extends AppCompatActivity implements
                                 //Google account already created in Firebase with same EmailId as Facebook EmailId
                                 Log.e(TAG, "#handleFacebookAccessToken#FacebookAuthUserCollision - " + fe.getMessage());
 
-                                sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
+//                                sharedPrefEditor.putBoolean(Constants.Shared.IS_SIMILAR_EMAILID.name(), true);
+                                TooditApplication.getInstance().getPrefs().setIsSimilarEmailID(true);
+                                TooditApplication.getInstance().getPrefs().setIsFacebookLogin(true);
+
                                 TooditApplication.getInstance().getPrefs().setIsLogin(true);
                                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(i);
-                                finish();
+//                                finish();
 
                             } catch (Exception e) {
                                 Log.e(TAG, "handleFacebookAccessToken#Facebook Login Exception - " + e.getMessage());
@@ -569,12 +631,13 @@ public class LoginActivity extends AppCompatActivity implements
 
                         } else {
                             TooditApplication.getInstance().getPrefs().setIsLogin(true);
+                            TooditApplication.getInstance().getPrefs().setIsFacebookLogin(true);
 
                             Log.d(TAG, "Facebook Login Successful...");
                             Log.d(TAG, "Starting MainActivity...");
                             Intent i = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(i);
-                            finish();
+//                            finish();
                         }
                     }
                 });
@@ -665,12 +728,16 @@ public class LoginActivity extends AppCompatActivity implements
         Toast.makeText(this, "Google Unresolved Error occurred....", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+//        initLocation();
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        Log.d(TAG, "mAuth.getCurrentUser():" + mAuth.getCurrentUser());
     }
 
     @Override

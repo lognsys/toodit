@@ -38,6 +38,28 @@ public class Preference {
     {
         return sharedPreferences.getBoolean("isLogin", false);
     }
+    public void setIsFacebookLogin(Boolean isFbLogin)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isFbLogin", isFbLogin);
+        editor.commit();
+    }
+
+    public Boolean getIsFacebookLogin()
+    {
+        return sharedPreferences.getBoolean("isFbLogin", false);
+    }
+    public void setIsGoogleLogin(Boolean isGoogleLogin)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isGoogleLogin", isGoogleLogin);
+        editor.commit();
+    }
+
+    public Boolean getIsGoogleLogin()
+    {
+        return sharedPreferences.getBoolean("isGoogleLogin", false);
+    }
 
     public void setCustomer_id(String customer_id)
     {
@@ -155,4 +177,63 @@ public class Preference {
     {
         return sharedPreferences.getString("timezone", null);
     }
+    public void setDevice_token(String device_token)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("device_token", device_token);
+        editor.commit();
+    }
+
+    public String getDevice_token()
+    {
+        return sharedPreferences.getString("device_token", null);
+    }
+    public void setDevice_type(String device_type)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("device_type", device_type);
+        editor.commit();
+    }
+
+    public String getDevice_type()
+    {
+        return sharedPreferences.getString("device_type", null);
+    }
+
+
+    public void setIsSimilarEmailID(Boolean Is_similarEmailid)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("IS_SIMILAR_EMAILID", Is_similarEmailid);
+        editor.commit();
+    }
+
+    public Boolean getIsSimilarEmailID()
+    {
+        return sharedPreferences.getBoolean("IS_SIMILAR_EMAILID", false);
+    }
+    public void setGoogTokenId(String googTokenId)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("GOOG_TOKEN_ID", googTokenId);
+        editor.commit();
+    }
+
+    public String getGoogTokenId()
+    {
+        return sharedPreferences.getString("GOOG_TOKEN_ID", null);
+    }
+
+    public void setGoogServerAuthcode(String googServerAuthcode)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("GOOG_SERVE_AUTHCODE", googServerAuthcode);
+        editor.commit();
+    }
+
+    public String getGoogServerAuthcode()
+    {
+       return sharedPreferences.getString("GOOG_SERVE_AUTHCODE", null);
+    }
+
 }

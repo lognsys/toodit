@@ -50,7 +50,7 @@ public class TooditApplication extends Application {
         return this.firebaseAuth;
     }
 
- /*   @TargetApi(Build.VERSION_CODES.N)
+   /*@TargetApi(Build.VERSION_CODES.N)
     public void invokeService(Context context) {
         Log.d("TAG", "status invokeService");
        Intent serviceIntent = new Intent(context, LognsystemLocationService.class);

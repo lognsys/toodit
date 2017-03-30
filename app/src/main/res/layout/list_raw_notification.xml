@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:layout_height="match_parent">
+    <LinearLayout
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:background="#f2f2f2"
@@ -42,3 +46,11 @@
         android:layout_gravity="center|right"
         android:src="@drawable/image_arrow"/>
 </LinearLayout>
+    <View
+        android:id="@+id/viewNotificationbar"
+        android:layout_width="5dip"
+        android:layout_gravity="left|top"
+        android:layout_margin="5dip"
+        android:layout_height="match_parent"
+        android:background="@color/red"></View>
+</FrameLayout>

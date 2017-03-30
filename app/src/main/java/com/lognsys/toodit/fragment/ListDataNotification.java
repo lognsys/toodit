@@ -8,6 +8,15 @@ public class ListDataNotification {
     String Notification;
     String setNotificationdate;
     int image;
+    boolean isReaded;
+    public boolean isReaded() {
+        return isReaded;
+    }
+
+    public void setIsReaded(boolean isReaded) {
+        this.isReaded = isReaded;
+    }
+
 
     public int getImage() {
         return image;

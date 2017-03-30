@@ -40,6 +40,7 @@ import com.lognsys.toodit.model.CityName;
 import com.lognsys.toodit.model.CountryName;
 import com.lognsys.toodit.model.StateName;
 import com.lognsys.toodit.util.Constants;
+import com.lognsys.toodit.util.PropertyReader;
 import com.lognsys.toodit.util.Services;
 
 import org.json.JSONArray;
@@ -53,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -73,6 +75,10 @@ public class RegistrationActivity extends AppCompatActivity {
     SharedPreferences sharedpreferences;
     String customer_id, mobile, email, otp;
 
+    //Properties
+    private PropertyReader propertyReader;
+    private Properties properties;
+    public static final String PROPERTIES_FILENAME = "toodit.properties";
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -83,6 +89,9 @@ public class RegistrationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
+
+        propertyReader = new PropertyReader(this);
+        properties = propertyReader.getMyProperties(PROPERTIES_FILENAME);
         etName = (EditText) findViewById(R.id.etName);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etMobile = (EditText) findViewById(R.id.etMobileNo);
@@ -90,7 +99,7 @@ public class RegistrationActivity extends AppCompatActivity {
         etConfirmPasword = (EditText) findViewById(R.id.etconfirmPassword);
         btnRegister = (Button) findViewById(R.id.btnRegister);
 
-
+       populateDetails();
 
         /*hashmap.put("country_id", "IND");
         hashmap.put("name", "India");
@@ -209,18 +218,30 @@ public class RegistrationActivity extends AppCompatActivity {
                         hashMapRegister.put("email", etEmail.getText().toString());
                         hashMapRegister.put("device_token", PreferenceManager.getDefaultSharedPreferences(RegistrationActivity.this).getString(Constants.Shared.DEVICE_TOKEN_ID.name(), null));
                         hashMapRegister.put("device_type", "android tab");
+                        if(etMobile.getText().toString()!=null){
+                            String mobile_num=etMobile.getText().toString();
+                            TooditApplication.getInstance().getPrefs().setMobile(mobile_num);
+                        }
+                        String customer_registration_api= properties.getProperty(Constants.API_URL.customer_registration_url.name());
+                        String response = registerUser(customer_registration_api, hashMapRegister);
 
-                        String response = registerUser("http://food.swatinfosystem.com/api/Customer_registration", hashMapRegister);
-
-                        //sharedPrefEditor.putString("device_type", s);
-                        //sharedPrefEditor.commit();
-                        //  startActivity(i);
 
 
                     }
                 }
             }
         });
+
+    }
+
+    private void populateDetails() {
+        if(TooditApplication.getInstance().getPrefs().getName()!=null){
+            etName.setText(TooditApplication.getInstance().getPrefs().getName());
+        }
+        if(TooditApplication.getInstance().getPrefs().getEmail()!=null){
+            etEmail.setText(TooditApplication.getInstance().getPrefs().getEmail());
+        }
+
 
     }
 
@@ -235,9 +256,13 @@ public class RegistrationActivity extends AppCompatActivity {
                        // Toast.makeText(RegistrationActivity.this, response, Toast.LENGTH_LONG).show();
                         response = response;
                         try {
+                            Log.d(TAG, "Rest registerUser response "+response);
+//                            Rest registerUser response {"status":"success","message":"Customer registration successfully","data":{"customer_id":7,"email":"monika_sharma39@ymail.com","mobile":"8097526387","name":"Monika Sharma"}}
+
                             JSONObject jsonObject = new JSONObject(response);
 
-                            if (!(jsonObject.getString("message").equals("Customer added successfully")||jsonObject.getString("message").equals( "Customer registration successfully otp send to your email id and mobile"))) {
+                            if (!(jsonObject.getString("message").equals("Customer added successfully")
+                                    ||jsonObject.getString("message").equals( "Customer registration successfully otp send to your email id and mobile"))) {
                                 DialogFragment dialog = new NetworkStatusDialog();
                                 Bundle args = new Bundle();
                                 args.putString(NetworkStatusDialog.ARG_TITLE, getString(R.string.text_registration_failed));
@@ -245,6 +270,8 @@ public class RegistrationActivity extends AppCompatActivity {
                                 dialog.setArguments(args);
                                 dialog.setTargetFragment(dialog, Constants.REQUEST_CODE.RC_NETWORK_DIALOG.requestCode);
                                 dialog.show(getSupportFragmentManager(), "NetworkDialogFragment");
+                                Intent i = new Intent(RegistrationActivity.this, LoginActivity.class);
+                                startActivity(i);
                                 Log.e(TAG, "Username Invalid!");
                             } else {
                                 DialogFragment dialog = new NetworkStatusDialog();
@@ -261,6 +288,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                     mobile = jsonObject.getJSONObject("data").getString("mobile");
                                     email = jsonObject.getJSONObject("data").getString("email");
                                     otp = jsonObject.getJSONObject("data").getString("otp");
+                                    Log.d("otp","Rest otp "+ otp);
                                     Log.e("otp", otp);
                                     Intent i = new Intent(RegistrationActivity.this, ActivityOTPValidation.class);
                                     i.putExtra("customer_id", customer_id);

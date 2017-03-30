@@ -159,19 +159,22 @@ public class HomeFragment extends Fragment {
 
         }
         else{
-            String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
-            //Log.e("city", city);
-            HashMap<String, String> hashMapcity= new HashMap<>();
-            // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
-            if(TooditApplication.getInstance().getPrefs().getCity()!=null) {
-                hashMapcity.put("city_name", TooditApplication.getInstance().getPrefs().getCity());
-            }
-            else{
-                hashMapcity.put("city_name", "Mumbai");
+            if(TooditApplication.getInstance().getPrefs().getIsLogin()){
 
+                String city= PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", "");
+                //Log.e("city", city);
+                HashMap<String, String> hashMapcity= new HashMap<>();
+                // hashMap.put("city_id", PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("city_id", ""));
+                if(TooditApplication.getInstance().getPrefs().getCity()!=null) {
+                    hashMapcity.put("city_name", TooditApplication.getInstance().getPrefs().getCity());
+                }
+                else{
+                    hashMapcity.put("city_name", "Mumbai");
+
+                }
+                String mall_list_api= properties.getProperty(Constants.API_URL.mall_api_url.name());
+                listMalls=mallsInCity(mall_list_api, hashMapcity);
             }
-            String mall_list_api= properties.getProperty(Constants.API_URL.mall_api_url.name());
-            listMalls=mallsInCity(mall_list_api, hashMapcity);
         }
 
         tvListOfMalls.setOnClickListener(new View.OnClickListener() {
